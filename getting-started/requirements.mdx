@@ -1,0 +1,84 @@
+---
+title: 'Requirements'
+description: 'The PHP version, extensions, database, folder permissions and cron job your server needs before you install MagicPost.'
+---
+
+The installer checks most of these for you at the **Requirements** and **Permissions** steps. Use this page to confirm your hosting plan before you upload anything.
+
+<Warning>
+The installer shows every failing item but still lets you click **Next**. Fix each failed item before you continue, or a later step can fail.
+</Warning>
+
+## Server
+
+| Requirement | Value |
+|---|---|
+| PHP | 8.3 or newer |
+| Database | MySQL, with a user that can create tables |
+| Web server | Apache with `mod_rewrite` (the bundled `.htaccess` files use it). Other servers need an equivalent rewrite to `public/index.php`. |
+| Cron | One job, run every minute |
+| Outbound HTTPS | Your server must be able to call the license server, the social networks, and any AI or payment providers you enable |
+| Public address | A domain that the internet can reach, preferably over HTTPS |
+
+<Note>
+The `mod_rewrite` check only runs when PHP exposes `apache_get_modules()`, which is the case when PHP is loaded as an Apache module. On other setups, such as PHP-FPM, the installer skips it, so confirm with your host that rewrites work.
+</Note>
+
+## PHP extensions
+
+The installer checks that all of these are loaded:
+
+`bcmath`, `ctype`, `curl`, `dom`, `fileinfo`, `gd`, `iconv`, `intl`, `json`, `mbstring`, `mysqli`, `openssl`, `PDO`, `pdo_mysql`, `tokenizer`, `xml`, `zip`
+
+## Functions and video processing
+
+The installer lists `proc_open` under **Functions** and marks it **Optional**. It does not block the install, but PHP needs it to start FFmpeg. Without it, videos still publish, but their length is not checked first and they get no preview.
+
+MagicPost looks for FFmpeg and FFprobe in this order:
+
+1. The path in `FFMPEG_BINARIES` and `FFPROBE_BINARIES` in `.env`, when the value is a full path to an existing file.
+2. The `vendor/ffmpeg` folder in the application.
+3. The server's `PATH`.
+
+On Linux the files in `vendor/ffmpeg` must be executable. MagicPost tries to fix this itself with `chmod 755`. If it cannot, run `chmod +x vendor/ffmpeg/ffmpeg vendor/ffmpeg/ffprobe`.
+
+You can check the result later under Admin → Publishing → Settings, in the **Video processing** line of **System health**.
+
+## Folders that must be writable
+
+The **Permissions** step tests these paths. PHP must be able to write to all of them.
+
+| Type | Path |
+|---|---|
+| File | `.env` |
+| Folder | `bootstrap/cache` |
+| Folder | `public/uploads` |
+| Folder | `lang` |
+| Folder | `storage` |
+| Folder | `storage/framework` |
+| Folder | `storage/framework/cache` |
+| Folder | `storage/framework/cache/data` |
+| Folder | `storage/framework/sessions` |
+| Folder | `storage/framework/views` |
+| Folder | `storage/logs` |
+
+The media library saves user uploads in `public/media`, so that folder must be writable as well. **System health** reports **Media storage** as failed when PHP cannot write there.
+
+## Upload limits
+
+Many hosts cap PHP at a few megabytes per request through `upload_max_filesize` and `post_max_size`. MagicPost sends library uploads in pieces that fit inside the smaller of the two limits, up to 8 MB per piece, so large videos still upload. The ceilings that apply are the ones an admin sets under Admin → Publishing → Settings → **Uploads**, which default to 25 MB for images and 2048 MB for videos.
+
+## php.ini advisory
+
+If `session.upload_progress.enabled` is on, the installer shows a **Security** note and **System health** shows an **Upload progress** warning. Turn the setting off in `php.ini` or ask your host. It cannot be changed from the application.
+
+## Before you continue
+
+<CardGroup cols={2}>
+  <Card title="Run the web installer" icon="download" href="/installation/web-installer">
+    Walk through each installer step.
+  </Card>
+  <Card title="Set up by hand" icon="file-code" href="/installation/manual-setup">
+    Upload, document root and `.env` details.
+  </Card>
+</CardGroup>

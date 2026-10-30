@@ -1,0 +1,118 @@
+---
+title: 'Web installer'
+description: 'Install MagicPost from your browser: what each step checks, what it writes, and how to sign in for the first time.'
+---
+
+The installer lives at `/install`. It checks your server, saves the database connection, creates the tables, activates your license and creates the first admin account.
+
+## Before you start
+
+<Steps>
+  <Step title="Upload the files">
+    Upload the application to your server, including hidden files such as `.env` and `.htaccess`. If you copy files from your computer, turn on hidden files in your file manager or FTP client first, otherwise these files are skipped. See [Manual and .env setup](/installation/manual-setup) for the document root options.
+  </Step>
+  <Step title="Create a database">
+    Create an empty MySQL database and a user that has full rights on it. Note the database name, user and password.
+  </Step>
+  <Step title="Have your license details ready">
+    You need the license key (the Envato purchase code) and the Envato username of the buyer. If you cannot find the code, see [Where is my purchase code](https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-).
+  </Step>
+  <Step title="Check requirements">
+    Confirm the server meets the [requirements](/getting-started/requirements).
+  </Step>
+</Steps>
+
+## Run the installer
+
+<Steps>
+  <Step title="Welcome">
+    Open `https://YOUR_DOMAIN/install` in your browser and click **Start Installation**. A progress bar across the top shows the six steps: Welcome, Requirements, Permissions, Database, Activation and Complete.
+  </Step>
+  <Step title="Requirements">
+    The **Server Requirements** page lists the PHP version against `8.3+`, each required PHP extension, the Apache modules (when PHP can report them) and the **Functions** group, which is marked **Optional**. A **Security** note appears if `session.upload_progress.enabled` is on. Fix anything marked as failed, then click **Next**.
+
+    <Warning>
+    **Next** is always available. The installer does not stop you when a check fails, so fix failed items first.
+    </Warning>
+  </Step>
+  <Step title="Permissions">
+    The **Permissions** page tests that PHP can write to the `.env` file (listed under **Files**) and to the folders listed under **Folders**: `bootstrap/cache`, `public/uploads`, `lang`, `storage` and the `storage/framework` and `storage/logs` subfolders. Fix the permissions of any item marked as not writable, then click **Next**.
+  </Step>
+  <Step title="Database">
+    On **Database Configuration**, fill in the connection details and click **Next**:
+
+    | Field | Value |
+    |---|---|
+    | **Hostname** | `localhost`, unless your host gave you another database server |
+    | **Port** | `3306`, unless your host gave you another port |
+    | **Database Name** | The database you created |
+    | **Database User** | The user with rights on that database |
+    | **Database Password** | The user's password |
+
+    MagicPost connects to the database to test the details. If the test passes, it writes `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` into `.env`. If it fails, you stay on the page with the error.
+  </Step>
+  <Step title="Activation">
+    Opening this page first builds the database: it runs the migrations and the seeders, and then sets `SESSION_DRIVER=database` in `.env`. This can take a little while, so wait for the page to load and do not reload it.
+
+    When the **License Activation** form appears, enter the **License Key** and the **Envato Username**, then click **Activate**. Both fields are required.
+  </Step>
+  <Step title="Complete">
+    After the license server accepts the key, MagicPost creates the admin account, writes the `.lic` file and the `storage/installed` marker, and saves the license details. The **Installation Complete** page confirms **Application Successfully Activated**, shows the default admin login, and shows the cron command with a **Copy** button. Click **Finish Installation** to open your site.
+  </Step>
+</Steps>
+
+## First sign-in
+
+Open `https://YOUR_DOMAIN/login` and sign in with the default admin account:
+
+| Field | Value |
+|---|---|
+| Email | `admin@example.com` |
+| Password | `admin12345` |
+
+You land on the admin dashboard.
+
+<Warning>
+These credentials are the same on every install. Change the email and password straight away: open your account menu at the bottom of the sidebar, then **Profile** for the email and **Security → Password** for the password.
+</Warning>
+
+## What the installer changes
+
+- Creates all database tables and seeds the roles `user`, `subscriber` and `admin`, the payment gateway list, the AI model lists, the provider key rows and the finance settings.
+- Writes the database connection and `SESSION_DRIVER` in `.env`.
+- Stores the license key, username and license type in General Settings, and writes the license response to the `.lic` file in the application root.
+- Creates the admin user named **Admin** with a verified email and the `admin` role.
+- Creates `storage/installed`. While that file exists, `/install` redirects to the login page, so the installer cannot be run a second time by accident.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Invalid database credentials, or the user has no access to the database">
+    The message includes the database error. Check the hostname and port, that the user and database names are exactly as created (some hosts add an account prefix), and that the user has rights on that database.
+  </Accordion>
+  <Accordion title="Failed to migrate the database, or Failed to seed the database">
+    The message ends with the cause. A common one is a database user that cannot create tables. Fix it, then open the Activation step again, because it runs the migration and the seeders each time it loads.
+  </Accordion>
+  <Accordion title="There was an error while activating your application">
+    The license server rejected the details or could not be reached. Check the key for stray spaces and the Envato username, and confirm that your server allows outbound HTTPS requests through `curl`. Then click **Activate** again.
+  </Accordion>
+  <Accordion title="Failed to create the default admin, or Failed to finalize the installation">
+    The message ends with the underlying error. For the second message, PHP could not write `storage/installed`, so check the permissions of the `storage` folder.
+  </Accordion>
+  <Accordion title="/install sends me to the login page">
+    The `storage/installed` file exists, so the installation is already finished. Sign in instead.
+  </Accordion>
+</AccordionGroup>
+
+For more fixes, see [Installation problems](/troubleshooting/installation).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Add the cron job" icon="clock" href="/installation/cron-and-queue">
+    Required before any scheduled post goes out.
+  </Card>
+  <Card title="Post-install checklist" icon="list-check" href="/installation/post-install-checklist">
+    The ordered first-day tasks.
+  </Card>
+</CardGroup>

@@ -1,0 +1,140 @@
+---
+title: 'Paddle'
+description: 'Connect Paddle Billing to MagicPost to take one-time and recurring payments through the Paddle checkout overlay.'
+---
+
+Paddle supports every MagicPost plan type. MagicPost works with **Paddle Billing**, not Paddle Classic. Customers pay in a Paddle checkout window that opens over a short intermediate page.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Paddle** |
+| Name at checkout | Paddle |
+| Test mode | **Mode → Sandbox**, with a Paddle sandbox account |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/paddle` |
+| Webhook events | `transaction.completed`, `subscription.activated`, `subscription.resumed`, `subscription.canceled`, `subscription.paused` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/paddle`, opened by the checkout window after payment |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, opened when the customer closes the window without paying |
+| Currency | The currency of the plan |
+
+## Get your credentials from Paddle
+
+You need two things from Paddle: an API key and a client-side token.
+
+<Steps>
+  <Step title="Choose the environment">
+    Paddle runs a separate sandbox. Sign in to the sandbox for testing, or to your live account for production. Credentials from one do not work in the other.
+  </Step>
+  <Step title="Create an API key">
+    Go to **Developer Tools**, then **Authentication**, then **API keys**, and create a new key. Allow it to read and write Products, Prices and Transactions, which is what MagicPost uses. Copy the key when Paddle shows it. You cannot view it again.
+  </Step>
+  <Step title="Create a client-side token">
+    On the same **Authentication** page, open **Client-side tokens** and create a token. Copy it. This token is safe to use in the checkout page. Never put the API key there.
+  </Step>
+</Steps>
+
+## Create the notification destination in Paddle
+
+<Steps>
+  <Step title="Add a destination">
+    Go to **Developer Tools**, then **Notifications**, and add a new destination.
+  </Step>
+  <Step title="Enter the URL">
+    Use the **Webhook URL** from the MagicPost Paddle page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/paddle
+    ```
+  </Step>
+  <Step title="Select the events">
+    Select:
+
+    - `transaction.completed`
+    - `subscription.activated`
+    - `subscription.resumed`
+    - `subscription.canceled`
+    - `subscription.paused`
+  </Step>
+  <Step title="Copy the secret key">
+    Save the destination, then open it again and copy its **Secret key**.
+  </Step>
+</Steps>
+
+## Add the credentials in MagicPost
+
+<Steps>
+  <Step title="Open the Paddle card">
+    Go to **Admin → Finance → Payment Gateways** and click **Paddle**. The page is titled **Paddle Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the credentials">
+    Under **Keys**, fill in:
+
+    - **Live Paddle Client-side Token**
+    - **Live Paddle API Key**
+    - **Sandbox Paddle Client-side Token**
+    - **Sandbox Paddle API Key**
+  </Step>
+  <Step title="Paste the secret key">
+    Under **Webhooks**, paste the destination's secret into **Webhook Secret Key**. The field is described as "The signing secret shown for your Paddle notification destination".
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Paddle settings saved successfully."
+  </Step>
+</Steps>
+
+<Warning>
+When **Webhook Secret Key** is empty, MagicPost accepts webhook requests without checking the `Paddle-Signature` header. Fill it in on a live site. There is one field for both modes, so replace it when you switch **Mode**.
+</Warning>
+
+## How payments work
+
+**All plans.** Before opening checkout, MagicPost makes sure the plan exists in Paddle. It creates a Paddle Product and a Price once, and reuses them. Prepaid and Lifetime plans get a one-time price. Monthly and Yearly plans get a price that bills every month or every year. Prices use the tax setting of your Paddle account, and the product uses the standard tax category.
+
+MagicPost then creates a Paddle transaction for the customer's email and opens the Paddle window. If the window does not appear, the page shows an **Open Paddle** button. After a successful payment, the page returns to MagicPost. MagicPost looks the transaction up in Paddle and records the order when Paddle reports it as completed, paid or billed. For Monthly and Yearly plans it creates the subscription from the transaction's subscription ID, and for Lifetime plans it creates one from the transaction ID.
+
+**Webhook.**
+
+- `transaction.completed` records the order if it has not been recorded yet. MagicPost needs the user and plan details it attached to the transaction.
+- `subscription.activated` and `subscription.resumed` extend the subscriber's period and renew the credit allowance.
+- `subscription.canceled` and `subscription.paused` mark the subscription as cancelled.
+
+<Note>
+MagicPost does not act on other Paddle subscription events, such as `subscription.updated`. Cancelling a subscriber in MagicPost does not cancel the subscription in Paddle, so also cancel it in your Paddle dashboard.
+</Note>
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost archives the old Paddle Price and creates a new one at the next purchase.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase. Amounts go to Paddle in the smallest unit (price multiplied by 100), except for BIF, CLP, DJF, GNF, ISK, JPY, KMF, KRW, PYG, RWF, UGX, VND, VUV, XAF, XOF and XPF, which are sent as whole amounts. Your Paddle account must support the plan's currency.
+
+## Test mode
+
+Create a Paddle sandbox account, put its API key and client-side token in the two **Sandbox** fields, select **Sandbox** under **Mode** and save. MagicPost then calls Paddle's sandbox API and loads the sandbox checkout. Create the notification destination in the sandbox too. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Paddle. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Paddle billing. Please contact support.">
+    MagicPost could not create the Product or Price. The log line begins with "Paddle product create failed" or "Paddle price create failed" and includes Paddle's reason. A missing API key for the active Mode also ends here.
+  </Accordion>
+  <Accordion title="Paddle could not start the payment. Please try again. / Paddle returned an unexpected response.">
+    Paddle did not create the transaction. Check the API key and its permissions in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="The Paddle window does not open">
+    The client-side token for the active Mode is missing or belongs to the other environment. A sandbox token does not work in Live mode.
+  </Accordion>
+  <Accordion title="Missing Paddle session reference. / Paddle transaction lookup failed. / Payment was not completed.">
+    The customer came back in a different browser session, Paddle could not be reached, or the transaction is not completed.
+  </Accordion>
+  <Accordion title="Paddle shows the webhook failing with status 400">
+    The body is `invalid signature`: **Webhook Secret Key** is not the secret of the destination that sent the event.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

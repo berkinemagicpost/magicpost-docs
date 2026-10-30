@@ -1,0 +1,64 @@
+---
+title: "Global settings"
+description: "Change the site name, URL and time zone, and switch on Google Analytics, Google Maps and the reCAPTCHA fields from one admin page."
+---
+
+Open **Platform**, **Backend Settings**, **Global Settings**. The page is titled **Global Settings**: global website details and tools. Click **Save** once at the bottom to store all sections.
+
+## Website details
+
+| Field | Notes |
+|---|---|
+| **Website Name** | Required, up to 255 characters. Written to `APP_NAME` in your `.env` file. |
+| **Website URL** | Required, up to 100 characters. Written to `APP_URL`. Include the scheme, for example `https://example.com`. |
+| **Default Main Theme** | **Light Theme** or **Dark Theme**. Saved with the other settings. In this build nothing reads it, because each person chooses light or dark for themselves. |
+| **Time Zone** | The application time zone. Written to `APP_TIMEZONE`. |
+
+<Warning>
+  **Website URL** is the base of every address MagicPost gives to other services: the OAuth callback URLs you register with each network, the social login callbacks, payment webhooks, and links in emails. After you change it, register the new callback URLs in every developer console. The **Site address** health check in [Publishing settings](/admin/publishing-settings) warns when the URL is not https or does not match the address you are using.
+</Warning>
+
+These three values are saved by rewriting the `APP_NAME`, `APP_URL` and `APP_TIMEZONE` lines in the `.env` file at the root of the install. The file must be writable by the web server. If your host caches configuration, clear the cache after saving, see [Cache and optimisation](/advanced/cache).
+
+## Google reCaptcha v3
+
+The section has a switch, **Enable Google reCaptcha v3**, and two fields, **Google reCaptcha Site Key** and **Google reCaptcha Secret Key**. When the switch is on, both keys are required.
+
+<Note>
+  The switch and keys are stored, but no screen in this build reads them. Registration and login forms are not protected by reCAPTCHA yet. See [Google reCAPTCHA](/advanced/google-recaptcha).
+</Note>
+
+## Google Analytics for Homepage
+
+Adds the Google Analytics tracking code to your public pages.
+
+1. Turn on **Enable Google Analytics for Homepage**.
+2. Enter the **Google Analytics Tracking ID**. It is required when the switch is on.
+3. Click **Save**.
+
+The tracking code loads on the pages that use the public site layout, such as the landing page, the contact page and the Privacy Policy. It is not held back by the choices in the cookie banner from [Privacy and cookies](/admin/privacy-gdpr), so take that into account for your own consent rules. Setup steps are in [Google Analytics](/advanced/google-analytics).
+
+## Google Analytics for Admin Dashboard
+
+Shows visitor figures on the [Admin dashboard](/admin/dashboard) under **Website traffic**.
+
+| Field | Notes |
+|---|---|
+| **Enable Google Analytics for Admin Dashboard** | Switch. When on, the two fields below are required. |
+| **Google Analytics Property ID** | The GA4 property ID. |
+| **Google Service Account Credentials** | The file name of the service account JSON key, for example `credentials.json`. Upload the file into `storage/app/analytics/` on your server. MagicPost reads it from there. |
+
+If the property ID or the file is missing, the dashboard card says Google Analytics is switched on but incomplete.
+
+## Google Maps
+
+| Field | Notes |
+|---|---|
+| **Enable Google Maps** | Switch. When on, the API key is required. |
+| **Google Maps API Key** | A Maps JavaScript API key. |
+
+Today the key powers one thing: the **Registered User Countries** map on **Accounts**, **Dashboard**, see [Users](/admin/users). With the switch off, that card says **Google Maps is Disabled**. See [Google Maps](/advanced/google-maps).
+
+## Validation
+
+Saving fails with a message under the field when a switch is on and its required fields are empty: reCAPTCHA keys, the Analytics tracking ID, the Analytics property ID and credentials file name, or the Maps API key.

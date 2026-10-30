@@ -1,0 +1,164 @@
+---
+title: 'Billing and subscription'
+description: 'Choose a plan, pay at checkout, upload proof for bank transfers, download invoices and cancel your subscription.'
+---
+
+<Note>
+Billing is part of the SaaS Business plugin. The **Billing** page and its menu entry only appear when the administrator has turned on **SaaS Business**. See [SaaS overview](/saas/overview).
+</Note>
+
+Open **Plans → Billing** in the sidebar. The page shows your current plan, the plans you can pick and your billing history.
+
+## Choose a plan
+
+<Steps>
+  <Step title="Open Billing">
+    Click **Billing** in the sidebar.
+  </Step>
+  <Step title="Pick a billing type">
+    If the site offers more than one type, use the switch above the plans to move between **Prepaid**, **Monthly**, **Yearly** and **Lifetime**. A tag next to **Yearly** shows the saving against the cheapest monthly plan when there is one.
+  </Step>
+  <Step title="Choose a plan">
+    Each plan card lists the price and **What's included**: limits, networks and features. Click the button on the card.
+  </Step>
+</Steps>
+
+| Plan type | How it is charged |
+|---|---|
+| **Monthly** | A recurring charge every month. Credits renew monthly. |
+| **Yearly** | A recurring charge every year. Credits renew monthly. |
+| **Lifetime** | One payment. Credits renew monthly. |
+| **Prepaid** | One payment for a pack of credits that never expire. See [Prepaid plans](/saas/prepaid-plans). |
+
+The card button reads:
+
+| Button | When |
+|---|---|
+| **Get started** | The plan is free. It activates at once, with no checkout. |
+| **Choose plan** | You have no paid subscription yet. |
+| **Switch plan** | You already have a paid subscription. |
+| **Current plan** (disabled) | This is the plan you have now. The card is tagged **Your plan**. |
+
+Cards tagged **Most popular** are the plans the administrator featured. The administrator controls prices, limits and features. See [Subscription plans](/saas/plans).
+
+## Check out
+
+Choosing a paid plan opens the **Checkout** page.
+
+<Steps>
+  <Step title="Fill in your billing details">
+    The **Billing details** section appears when the administrator requires them. Enter your **Full name**, **Email**, **Address**, **City**, **Postal code** and **Country**. **Phone** and **Company** are optional. Your profile data prefills the form.
+  </Step>
+  <Step title="Choose a payment method">
+    Pick one of the providers under **Payment method**. Only methods the administrator enabled for this type of plan are listed.
+  </Step>
+  <Step title="Accept the terms">
+    Tick **I agree to the Terms of Service and Privacy Policy**.
+  </Step>
+  <Step title="Pay">
+    Click **Pay securely**. For most providers MagicPost redirects you to the provider's page to finish the payment.
+  </Step>
+</Steps>
+
+The **Order summary** on the right shows the plan, what it includes, the billing cycle and **Total due today**.
+
+If the page says **No payment methods are available right now.**, no gateway is enabled for that plan type. Contact support so the administrator can fix it. Gateways are explained in [Payment gateways](/gateways/overview).
+
+<Note>
+If a subscription plan has **Free trial days**, MagicPost passes them to Stripe when you pay with Stripe, so the first charge waits until the trial ends. The other payment methods do not send a trial period.
+</Note>
+
+### After you pay
+
+You land on **Payment successful** with the plan, the amount, the gateway and the order reference. If the plan includes credits, the page tells you how many were added. From there you can **Download invoice**, **View billing** or **Go to dashboard**.
+
+MagicPost applies the plan once the payment provider confirms the payment, which can take a short while after you return. If your plan has not changed after a few minutes, see [Billing problems](/troubleshooting/billing-and-payments).
+
+### Pay by bank transfer
+
+Bank transfer is manual. An administrator releases your plan after the money arrives.
+
+<Steps>
+  <Step title="Choose Bank Transfer at checkout">
+    Click **Pay securely**. MagicPost creates a pending order and opens **Complete your bank transfer**.
+  </Step>
+  <Step title="Send the transfer">
+    The page shows the plan, the **Amount to transfer**, the **Payment reference** (it starts with `BT-`), the **Bank account details** and any **Payment instructions** the administrator wrote. Put the payment reference in the transfer description.
+  </Step>
+  <Step title="Upload your receipt">
+    Go to your profile, find the order under **Recent billing**, and click the paper-clip button (**Upload proof of payment**). In **Proof of payment**, choose a PDF, JPG, PNG or WEBP file up to 8 MB and click **Upload proof**.
+  </Step>
+  <Step title="Wait for approval">
+    The order stays **Pending**. When the administrator approves it, the plan is activated and the order becomes **Completed**.
+  </Step>
+</Steps>
+
+While the order is pending, the same button reads **View / replace proof of payment**. Click **View current** to see the file you sent and **Replace proof** to send another. Renewals are not charged automatically with bank transfer, so repeat the process when the period ends.
+
+See [Bank transfer](/gateways/bank-transfer) for the administrator's side.
+
+### Pay from your wallet
+
+When the administrator enables **Account Wallet**, it shows as a payment method. Choosing it shows **Your wallet balance** and whether it covers the amount due. See [Wallet](/gateways/wallet).
+
+## Invoices and billing history
+
+The **Billing history** table on the Billing page lists your latest 50 orders with the **Date**, **Plan**, **Amount**, **Status** and **Invoice** columns. Your profile shows the last five under **Recent billing**.
+
+| Order status | Meaning |
+|---|---|
+| **Completed** | Paid. The invoice is available. |
+| **Pending** | Waiting for payment or approval, for example a bank transfer. |
+| **Failed**, **Declined** | The payment did not go through. |
+| **Cancelled** | The order was cancelled. |
+
+Click **Download** on a completed order to get its invoice as a PDF. Pending and failed orders have no invoice. See [Invoices](/saas/invoices) for what the administrator configures.
+
+## Cancel your subscription
+
+<Steps>
+  <Step title="Open Billing">
+    Click **Billing** in the sidebar.
+  </Step>
+  <Step title="Click Cancel subscription">
+    In the **Current plan** card, click **Cancel subscription**. The button only appears when you have a paid plan.
+  </Step>
+  <Step title="Confirm">
+    Confirm the question that follows.
+  </Step>
+</Steps>
+
+<Warning>
+Cancelling takes effect immediately. Your access to the plan's features ends at once and your account goes back to the free tier. MagicPost does not wait for the end of the paid period.
+</Warning>
+
+For monthly and yearly plans, MagicPost also asks the payment provider to stop the recurring charge, where the provider supports it. Even if that request fails, your subscription is cancelled in MagicPost. Prepaid and lifetime plans have no recurring charge to stop.
+
+## Common messages
+
+<AccordionGroup>
+  <Accordion title="You are already subscribed to the (plan) plan.">
+    You picked the plan you already have. Choose another plan or leave the page.
+  </Accordion>
+  <Accordion title="This plan is not available.">
+    The administrator closed or removed the plan while you were looking at it. Reload the Billing page.
+  </Accordion>
+  <Accordion title="This payment method is not available right now.">
+    The provider was switched off after you opened checkout. Go back and pick another.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    The provider refused the request. Try again, try another method, or open a [support ticket](/account/support).
+  </Accordion>
+  <Accordion title="I paid but my plan has not changed.">
+    Open **Billing history** and check the order status. **Completed** means the plan applied. **Pending** means MagicPost is still waiting for the provider (or an administrator, for bank transfers). If it stays pending, open a [support ticket](/account/support) with the order reference.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="Credits and usage" icon="bolt" href="/account/credits">
+    See what your plan's credits are spent on.
+  </Card>
+  <Card title="Referrals" icon="share-nodes" href="/account/referrals">
+    Earn commission when people you refer buy a plan.
+  </Card>
+</CardGroup>

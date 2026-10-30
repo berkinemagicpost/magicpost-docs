@@ -1,0 +1,85 @@
+---
+title: 'Video processing'
+description: 'How MagicPost finds ffmpeg, what it uses it for, what stops working without it and how to fix the common causes.'
+---
+
+MagicPost uses `ffmpeg` and `ffprobe` to look inside videos that people upload. Publishing does not depend on them: a video without ffmpeg still goes out, but MagicPost cannot check it first.
+
+## What ffmpeg is used for
+
+| Task | What happens without ffmpeg |
+|---|---|
+| Reading a new video's length, width and height | The length is not checked against each network's limit before publishing. A network may refuse the video later. |
+| Making a preview image from the frame at one second | The video has no preview in the media library or the composer. |
+| Setting YouTube's **Thumbnail frame** | YouTube chooses the thumbnail itself. The video still publishes. |
+
+After an upload, the media library shows one of these notes on a video it could not read:
+
+- "This server cannot read video files yet, so the length was not checked and no preview was made. It can still be published."
+- "This video could not be read, so its length was not checked. It may be damaged, or in a format ffmpeg cannot open."
+
+## How MagicPost finds the programs
+
+For each of `ffmpeg` and `ffprobe`, MagicPost tries these in order and uses the first that exists:
+
+1. The path in `FFMPEG_BINARIES` or `FFPROBE_BINARIES` in `.env`. The value only counts as a path when it contains a `/` or `\`.
+2. The copy in `vendor/ffmpeg` (`ffmpeg` and `ffprobe`, or `ffmpeg.exe` and `ffprobe.exe` on Windows). If the file is there but not executable, MagicPost tries to make it executable.
+3. A program with that name anywhere on the server's `PATH`.
+
+The copy in `vendor/ffmpeg` is a Linux x86-64 static build, so it runs on most shared and VPS Linux hosts without installing anything. On another system, install ffmpeg yourself and set the two keys:
+
+```bash .env
+FFMPEG_BINARIES=/usr/bin/ffmpeg
+FFPROBE_BINARIES=/usr/bin/ffprobe
+```
+
+Other keys that affect ffmpeg are `FFMPEG_THREADS` (default 2) and `FFMPEG_TEMPORARY_FILES_ROOT`. See [Environment variables](/advanced/environment-variables).
+
+## What the server must allow
+
+- PHP must be allowed to start programs. `proc_open` must exist and must not appear in `disable_functions` in `php.ini`. The installer lists it on the **Server Requirements** step as optional, with a warning if it is off.
+- The two files must be executable. After uploading with a file manager or unzipping, the executable bit is often lost.
+- The files must match the server's CPU. A build for a different system fails to start.
+- The folder must not sit on a volume mounted without permission to run programs.
+
+## Check that it works
+
+<Steps>
+  <Step title="Open System health">
+    Go to **Admin → Publishing → Settings** and read the **System health** card. Select **Check again** after any change.
+  </Step>
+  <Step title="Read the Video processing line">
+    A working setup reads "ffmpeg", then the version number, then "from" and the path of the program. A problem shows a warning that ends with "Until then videos still publish, but their length is not checked first and they get no preview."
+  </Step>
+  <Step title="Match the reason to a fix">
+    The text before that sentence tells you what to do. The table below lists each one.
+  </Step>
+</Steps>
+
+| Reason shown | What to do |
+|---|---|
+| PHP is not allowed to start other programs here (proc_open is disabled), so ffmpeg cannot run. Ask your host to enable proc_open. | Remove `proc_open` from `disable_functions` in `php.ini`, or ask the host to. |
+| `ffmpeg` (or `ffprobe`) was not found. Put it in vendor/ffmpeg, or set its path in .env as `FFMPEG_BINARIES` (or `FFPROBE_BINARIES`). | Restore the files in `vendor/ffmpeg`, or set the two `.env` keys to a working install. |
+| The path is not allowed to run. Make it executable with chmod +x. | Run `chmod +x vendor/ffmpeg/ffmpeg vendor/ffmpeg/ffprobe` from the application folder. |
+| A message from the program itself, such as "cannot execute binary file" | The build does not match the server, or the volume blocks execution. Install ffmpeg for your system and set `FFMPEG_BINARIES` and `FFPROBE_BINARIES`. |
+
+<Note>
+  MagicPost runs `ffmpeg -version` once to prove the program starts, and keeps that answer for an hour. If you fix a problem that makes the program fail to start and the line does not change, wait up to an hour or clear the cache. See [Cache and optimisation](/advanced/cache).
+</Note>
+
+## Videos are processed in the background
+
+Image previews are made during the upload. Video analysis runs as a background job on the `media` queue, so a new video stays in processing until the scheduler or a queue worker picks it up. If videos never leave that state, the scheduler is not running. See [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).
+
+A single video job may run for up to 14 minutes and is tried twice.
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="File storage" icon="hard-drive" href="/advanced/storage">
+    Where uploaded videos are saved and which limits apply.
+  </Card>
+  <Card title="Requirements" icon="server" href="/getting-started/requirements">
+    PHP version, extensions and functions the server needs.
+  </Card>
+</CardGroup>

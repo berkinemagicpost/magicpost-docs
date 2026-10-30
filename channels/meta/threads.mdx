@@ -1,0 +1,168 @@
+---
+title: "Threads"
+sidebarTitle: "Threads"
+description: "Register a Threads app, connect Threads profiles and publish text, image, carousel and video posts with reply control and topics."
+---
+
+MagicPost publishes to Threads **profiles**. Each profile you connect is one channel and counts against your plan's channel limit.
+
+Threads has its own sign-in host and its own app credentials, separate from Facebook Login, so it needs its own setup even if you already have a Meta app. For the parts every network shares, see [Publishing channels](/channels/overview).
+
+## What you need
+
+- A Meta for Developers account and an app with the use case for accessing the Threads API.
+- Your MagicPost site served over HTTPS. For posts with images or video, the site must also be reachable from the internet, because Threads downloads the files from an address MagicPost gives it. Text-only posts have no such requirement.
+- Until App Review approves your permissions, each person who connects must be invited as a Threads tester on the app.
+
+## Set up the Threads app
+
+<Steps>
+  <Step title="Open the Threads setup panel in MagicPost">
+    Go to **Admin → Publishing → Platforms** and click **Add credentials** on the **Threads** card. The panel shows the **Redirect URI** and the **Permissions asked for**.
+
+    ```text
+    https://your-domain.com/publishing/threads/callback
+    ```
+
+    Copy the exact value from the panel.
+  </Step>
+  <Step title="Create the app">
+    In [Meta for Developers](https://developers.facebook.com/apps), create an app with the use case for accessing the Threads API.
+  </Step>
+  <Step title="Add permissions and the redirect URI">
+    In the use case settings, add the permissions listed below and paste the redirect URI as a redirect callback URL.
+  </Step>
+  <Step title="Copy the Threads keys">
+    Copy the **Threads app ID** and **Threads app secret** from **App settings → Basic**. These are not the same as the Meta app ID and secret shown elsewhere on that page.
+  </Step>
+  <Step title="Save them in MagicPost">
+    In the Threads setup panel, paste the Threads app ID into **Client ID** and the Threads app secret into **Client secret**. Tick **Available to users** and click **Save**. Then click **Run checks** on the card and confirm every row passes.
+  </Step>
+</Steps>
+
+### Permissions MagicPost requests
+
+`threads_basic`, `threads_content_publish`, `threads_manage_replies`, `threads_manage_insights`
+
+`threads_manage_replies` allows first comments, which Threads publishes as replies. `threads_manage_insights` feeds [Analytics](/user-guide/analytics).
+
+## Connect a Threads profile
+
+<Steps>
+  <Step title="Open Channels">
+    In the sidebar, under **Publishing**, click **Channels**.
+  </Step>
+  <Step title="Start the connection">
+    In the **Add a channel** card, click **Threads**.
+  </Step>
+  <Step title="Authorise on Threads">
+    Sign in to Threads and accept the permissions. MagicPost connects the profile and returns you to Channels.
+  </Step>
+</Steps>
+
+After the sign-in, MagicPost immediately exchanges the one-hour token Threads hands out for a long-lived token that lasts 60 days. If that exchange fails, the connection fails instead of leaving a channel that would die before its first scheduled post.
+
+## Post types and limits
+
+Threads has a single post type, **Post**. The limits below are set in `config/publishing.php`.
+
+| | Post |
+|---|---|
+| Text | Up to 500 characters, at most 5 different links |
+| Media required | No |
+| Images | 1 to 20 (jpg, jpeg, png), up to 8 MB each, width to height ratio between 0.1 and 10 |
+| Video | 1 (mp4, mov), up to 1,024 MB, 1 to 300 seconds |
+| Images and video together | No |
+| Options | **Who can reply**, **Topic**, **Link preview** |
+| First comment | Yes, posted as a reply |
+
+More than one image is published as a carousel.
+
+### How text is counted
+
+Threads counts each character as one, except an emoji, which costs its UTF-8 byte length, so a single heart can use four of the 500. The composer counts the same way. Threads also counts the link preview URL as a link unless it repeats one already in the text.
+
+### Options
+
+| Option | Choices and rules |
+|---|---|
+| **Who can reply** | **Everyone**, **Accounts you follow**, **Your followers**, **Accounts you mention**. Left empty, MagicPost sends no reply setting and Threads uses its default. |
+| **Topic** | Up to 50 characters, without `.` or `&`. A leading `#` is removed. |
+| **Link preview** | A URL of up to 2,048 characters, attached to the post as its link card. Only for posts without images or video. |
+
+If you attach media and also set **Link preview**, the composer reports that Threads only shows a link preview on posts without images or video.
+
+### Images are adjusted for you
+
+For each Threads target MagicPost makes a copy of the image and leaves the original in the Media library untouched. A picture in another format is re-encoded to a format Threads takes. A picture outside the allowed shape is padded with white instead of being cropped. A picture over 8 MB is re-encoded at lower quality and scaled down if needed. See [Media library](/user-guide/media-library).
+
+### Videos
+
+Threads processes video before it can be published. MagicPost checks the upload three times about two seconds apart. If Threads is still working, MagicPost hands the post back to the queue and looks again after about 30 seconds, using the same upload. While it waits the post shows "Threads is still processing the media."
+
+## First comments
+
+A first comment on Threads is a reply to your own post, published right after the post is live. Write it in the **First comment** field of the **First comment and link** card, or per channel in the **First comment for** field. If the connecting person did not grant `threads_manage_replies`, the field is not offered for that channel.
+
+A failed reply does not fail the post. The network's answer is written to the application log under "First comment failed".
+
+## Daily posting limit
+
+Threads caps each profile at 250 published posts a day. Before building a post, MagicPost reads the profile's usage from Threads. When the allowance is used up, the post waits one hour and tries again, with the message "This account has reached Threads' limit of N posts in 24 hours. It goes out once there is room again."
+
+## Check the connection
+
+Open the channel's actions menu on the Channels page and click **Check connection**. The **Connection check** window lists:
+
+- **Authorisation**: whether the connection expires and whether it renews itself.
+- **Account**: "Connected to @handle."
+- **Daily limit**: how much of the allowance the last 24 hours used. It warns once 80 percent is used.
+- **Media links**: whether Threads can fetch images and videos from your site. For Threads this is a warning rather than a failure, because text posts still work.
+
+The window also offers **Send a private test**. For Threads this prepares a text post without publishing it, which proves that posting is allowed. Nobody sees it, and the unpublished draft expires on its own.
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes, replies (shown as comments), reposts and quotes (shown as shares), views |
+| Profile | Followers, views |
+
+## Tokens and reconnecting
+
+Threads has no refresh token. MagicPost renews the 60-day token itself before it lapses. The scheduled task `publishing:refresh-tokens` runs hourly and renews tokens that expire within 24 hours, and a token is also renewed when a publish finds it about to expire. Threads only renews a token that is at least a day old and has not yet expired.
+
+This depends on the scheduler running; see [Cron and queue](/installation/cron-and-queue). If the scheduler is off long enough for the token to expire, the channel shows **Needs reconnect**. Open the actions menu on the Channels page, click **Reconnect**, and sign in with the same profile.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Threads fetches media over the internet, and the address cannot be reached from outside this server">
+    Your media address is private or local. Serve the site from a public HTTPS domain. Text-only posts are not affected.
+  </Accordion>
+  <Accordion title="Threads could not process the media">
+    MagicPost translates Threads' processing errors into these messages:
+
+    | Message | What to do |
+    |---|---|
+    | Threads could not download the video. Check that it can be reached from the internet. | Make the media address public. |
+    | Threads could not process the video's audio. Export it with AAC audio and try again. | Re-export with AAC audio. |
+    | Threads could not process the video. Export it as an H.264 MP4 and try again. | Re-export as H.264 MP4. |
+    | Threads takes videos between 1:100 and 10:1 in shape. This one is outside that. | Change the video's aspect ratio. |
+    | The video's bitrate is above the 100 Mbps Threads takes. | Lower the bitrate. |
+    | Threads takes videos up to 5 minutes long. | Shorten the video. |
+    | Threads takes videos between 23 and 60 frames per second. | Change the frame rate. |
+    | Threads takes mono or stereo audio only. | Re-export with mono or stereo audio. |
+  </Accordion>
+  <Accordion title="Only some accounts can connect">
+    Until App Review approves the permissions, only accounts invited as Threads testers on the app can connect.
+  </Accordion>
+  <Accordion title="The channel shows Needs reconnect">
+    Threads rejected the token, or it expired because the scheduler was not running. Reconnect the channel from the actions menu.
+  </Accordion>
+  <Accordion title="The upload expired before it could be published">
+    Threads discarded a processed upload that waited too long. MagicPost retries the post with a new upload.
+  </Accordion>
+</AccordionGroup>
+
+More: [Failed posts](/troubleshooting/publishing-errors) and [Channel connection problems](/troubleshooting/channel-connections).

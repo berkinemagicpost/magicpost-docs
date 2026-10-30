@@ -1,0 +1,132 @@
+---
+title: "Referral program admin"
+description: "Configure the referral program under Affiliates, track referrers and earnings, and process payout requests from your users."
+---
+
+The referral program lets your users share a personal link, earn a commission on the purchases of the people they bring in, and request a payout. You run it from the **Affiliates** section of the admin sidebar, which has three pages: **Accounts**, **Earnings** and **Payouts**. Users see their side on the [Referrals](/account/referrals) page.
+
+<Note>
+  The program is part of [SaaS Business](/saas/overview). The **Affiliates** section appears only while billing is on.
+</Note>
+
+## How the program works
+
+1. Every user has a **Referral ID**. Their link is the registration page with their ID added as a `ref` parameter. If registration is switched off, the link points to the home page with the same parameter.
+2. A visitor who registers through that link, by email or with a social login, is recorded as referred by that user. The program must be enabled at that moment, otherwise nothing is recorded.
+3. When a referred user's order completes, the referrer earns a commission. Only completed orders with a price above 0 qualify, so free plans earn nothing. Bank transfers earn the commission when you mark the order **Completed**, not while it is pending.
+4. Commission is the order price multiplied by the **Commission (%)** rate, rounded to two decimals.
+5. The referrer can request a payout once their available balance reaches your **Payout Threshold**. You pay them outside MagicPost and then update the request.
+
+A referrer cannot refer themselves, and each order is credited only once, so repeated webhook deliveries do not pay twice.
+
+## Configure the program
+
+<Steps>
+  <Step title="Open the settings">
+    Go to **Affiliates** → **Accounts** and click **Configure Affiliate System**.
+  </Step>
+  <Step title="Choose your terms">
+    Fill in the fields below.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The message **Settings were saved successfully** confirms it.
+  </Step>
+</Steps>
+
+| Field | What it does |
+|---|---|
+| Enable Referral System | When enabled, users can refer others and earn commissions. When off, new sign-ups are not attributed, no new commissions are earned and payout requests are refused. The user page shows that the program is paused. |
+| Payment Policy | **First Order Only** pays a commission on a referred user's first qualifying order. **All Orders** pays on every qualifying order the referred user places. |
+| Commission (%) | The percentage of the order price paid to the referrer. Between 0 and 999.99. |
+| Payout Threshold | The balance a referrer must have before they can request a payout. Between 0 and 99,999.99. |
+| Bonus Credits | Optional. A whole number of AI credits given to the referrer each time a commission is earned. Leave at 0 for none. |
+
+<Note>
+  Bonus credits are added to the referrer's plan allowance. A plan start or renewal that sets the allowance replaces them, so they are best understood as a short-term reward. See [Credits and allowances](/saas/credits).
+</Note>
+
+The commission rate is read when each order completes. Changing it affects orders from then on and does not change commissions already earned.
+
+## Accounts
+
+**Affiliates** → **Accounts** is titled **Affiliate Accounts**. It opens with three totals.
+
+| Tile | Meaning |
+|---|---|
+| Total Referred Users | Users who signed up through a referral link. |
+| Total Referral Income | The sum of the payments that earned commissions. |
+| Total Referral Commission | The sum of the commissions. |
+
+The table lists every user who has referred at least one person, with these columns.
+
+| Column | Meaning |
+|---|---|
+| Referrer Name | The referrer. |
+| Referrer Email | Their email. |
+| Referral ID | Their code. |
+| # of Users Referred | How many people they brought in. |
+| Total Commissions | The commission they earned. |
+
+Search by name, email or ID, or click a row to open the account. The account page shows **Referrer Details** (Referral ID, Total Referred, Total Commission), their **Payout Details** (**PayPal Email** and **Bank Requisites**, or **Not provided yet**) and a **Referred Users** table with each person's name, email, commission and date.
+
+## Earnings
+
+**Affiliates** → **Earnings**, titled **Affiliate Earnings**, lists each commission-earning order. The subtitle gives the total payments.
+
+| Column | Meaning |
+|---|---|
+| Purchase Date | When the order was placed. |
+| Order ID | The order that earned the commission. |
+| Referrer | The referrer's email. |
+| Payment | What the referred user paid. |
+| Commission | What the referrer earned. |
+| Paid By | The gateway used. |
+
+## Payouts
+
+**Affiliates** → **Payouts**, titled **Affiliate Payouts**, lists payout requests, newest first.
+
+| Column | Meaning |
+|---|---|
+| Request ID | The request's reference. |
+| Requested Date | When it was made. |
+| User | Name and email. |
+| Total Amount | The balance the user asked for. |
+| User Payment Gateway | PayPal or Bank Transfer. |
+| Status | Pending, Approved, Paid or Declined. |
+
+Filter by **Status**, open a request with **View**, or **Decline** it directly after confirming.
+
+### Process a payout
+
+<Steps>
+  <Step title="Open the request">
+    Click **View** on a Pending request. The **Payout Request** page shows the amount, the requested gateway, the customer and **Payment Details**.
+  </Step>
+  <Step title="Find the destination">
+    For a PayPal payout, **Customer PayPal Email** holds the address. For a bank transfer, **Customer Bank Requisites** holds the account details the user typed in.
+  </Step>
+  <Step title="Pay the user">
+    Send the money yourself through PayPal or your bank. MagicPost does not move money.
+  </Step>
+  <Step title="Update the status">
+    Choose a status in the **Status** menu and click **Update Status**. The message **Status updated successfully.** confirms it.
+  </Step>
+</Steps>
+
+| Status | Effect on the user |
+|---|---|
+| Pending | Request waiting for you. The amount is set aside and the user cannot file another. |
+| Approved | You accepted it and are about to pay. The amount stays set aside. |
+| Paid | The money was sent. The amount counts as paid out. |
+| Declined | Rejected. The amount returns to the user's available balance. |
+
+A user's available balance is their total earned commission minus every request that is Pending, Approved or Paid. A user can have only one Pending or Approved request at a time, and each request is for the full available balance.
+
+<Warning>
+  Changing a status only changes the record. Nothing is paid or refunded automatically, so mark a request **Paid** only after you have sent the money.
+</Warning>
+
+<Note>
+  Amounts on the Affiliates pages are plain numbers without a currency symbol. They are in the currency of the orders that earned them. If your plans use several currencies, add them up with care.
+</Note>

@@ -1,0 +1,148 @@
+---
+title: 'Billing problems'
+description: 'Fix checkouts that will not start, payments that arrive but do not activate a plan, missing webhooks and bank transfer orders stuck as pending.'
+---
+
+Billing needs the SaaS feature switched on and at least one payment gateway enabled. When a customer pays, the gateway tells MagicPost through a webhook, and MagicPost records the order and applies the plan. Most billing problems are that message not arriving or not being accepted. Setup is covered in [SaaS overview](/saas/overview) and [Payment gateways](/gateways/overview).
+
+## Check the basics
+
+<AccordionGroup>
+  <Accordion title="There is no Finance menu or no Billing page">
+    The billing, plans, subscription and referral screens appear only when the SaaS feature is on. Go to **Admin → General Settings → Plugins → SaaS Business** and switch on **Enable SaaS Business**, then select **Save**. See [SaaS overview](/saas/overview).
+  </Accordion>
+
+  <Accordion title="A payment method is missing at checkout">
+    A gateway is offered only when it is enabled. Go to **Admin → Finance → Payment Gateways**, open the gateway and switch **Status** on. A grey dot on its card means disabled, a green dot means enabled. Fill in the keys for the **Mode** you chose, **Sandbox** or **Live**, before you switch it on.
+  </Accordion>
+
+  <Accordion title='The customer sees "This plan is not available."'>
+    Only plans with the status Active can be bought. Open **Admin → Finance → Pricing Plans**, edit the plan and set its status to active. A plan with a price of 0 does not go through checkout at all.
+  </Accordion>
+</AccordionGroup>
+
+## The payment does not start
+
+| Message | Cause | Fix |
+|---|---|---|
+| This payment method is not available right now. | The gateway is disabled, or is not one MagicPost knows. | Enable it under **Admin → Finance → Payment Gateways**. |
+| We could not start the payment. Please try again or contact support. | The gateway refused the request, usually because a key is wrong or belongs to the other mode. | Open `storage/logs/laravel.log` and search for "Payment start failed". The gateway's own reason follows. |
+| Please choose an available payment method. | The checkout form was sent without an enabled gateway selected. | Enable a gateway, then reload the checkout. |
+| You must accept the terms before paying. | The terms box on checkout is not ticked. | The customer ticks it. |
+| You cancelled the payment process. | The customer used the gateway's cancel link. | Nothing to fix. |
+
+A key from sandbox mode will not work in live mode, and the other way round. Check that the **Mode** on the gateway matches the keys you pasted.
+
+## The customer paid but the plan did not activate
+
+<Steps>
+  <Step title="Look for the order">
+    Go to **Admin → Finance → Orders** and look for the customer's order. An order with the status **Completed** means MagicPost recorded the payment. An order with another status, or none, means it did not.
+  </Step>
+  <Step title="If the order is Completed">
+    Open **Admin → Finance → Subscriptions** and find the customer. A recurring or lifetime plan creates a subscription record. A prepaid plan only adds credits, which show on the customer's **Credits** page.
+  </Step>
+  <Step title="If there is no order">
+    The gateway's message did not arrive, or was refused. Check the gateway's dashboard for the delivery log of that payment, then follow [Webhooks do not arrive](#webhooks-do-not-arrive).
+  </Step>
+  <Step title="Grant the plan by hand if you must">
+    Once you have confirmed the payment on the gateway's side, go to **Admin → Finance → Subscriptions**, select **Assign Subscription**, choose the user and the plan, and confirm. The customer ends up in the same state as after a paid checkout. Admin accounts cannot be assigned a plan.
+  </Step>
+</Steps>
+
+<Warning>
+  A plan assigned by hand is recorded with the gateway "manual". No payment is taken, and nothing is set up to renew at a payment gateway.
+</Warning>
+
+## Webhooks do not arrive
+
+Each gateway posts its events to an address on your site:
+
+| Gateway | Address |
+|---|---|
+| Stripe | `{APP_URL}/webhooks/stripe` |
+| PayPal | `{APP_URL}/webhooks/paypal` |
+| Paystack | `{APP_URL}/webhooks/paystack` |
+| Razorpay | `{APP_URL}/webhooks/razorpay` |
+| Mollie | `{APP_URL}/webhooks/mollie` |
+| Flutterwave | `{APP_URL}/webhooks/flutterwave` |
+| Paddle | `{APP_URL}/webhooks/paddle` |
+| YooKassa | `{APP_URL}/webhooks/yookassa` |
+| Iyzico | `{APP_URL}/webhooks/iyzico` |
+| Midtrans | `{APP_URL}/webhooks/midtrans` |
+| Braintree | `{APP_URL}/webhooks/braintree` |
+| Coinbase Commerce | `{APP_URL}/webhooks/coinbase` |
+
+Bank transfer and Wallet have no webhook. The gateway's settings page, under **Webhooks**, shows the exact **Webhook URL** to copy, and each gateway page lists the events to subscribe to. See [Payment gateways](/gateways/overview).
+
+These addresses are open to the public and skip the usual form protection, because a gateway cannot send a token. Each gateway handler checks the signature of every message instead, so a wrong secret is rejected.
+
+<AccordionGroup>
+  <Accordion title="The gateway reports 400 or logs a signature failure">
+    The signing secret saved in MagicPost does not match the endpoint. In the gateway's settings page, open the **Webhooks** block and paste the signing secret again. For Stripe the field is **Webhook Signing Secret**, and it must belong to the same mode, sandbox or live, as the keys. MagicPost answers `webhook secret missing` when it is empty and `invalid signature` when it does not match, and writes a line to `storage/logs/laravel.log`:
+
+    - Stripe: "Stripe webhook ignored: no webhook secret configured." or "Stripe webhook signature failed: ..."
+    - Coinbase, Flutterwave, Midtrans, Paddle, PayPal, Paystack and Razorpay: "... webhook signature failed."
+    - Braintree: "Braintree webhook parse failed: ..."
+    - Mollie and YooKassa: "... webhook fetch failed: ...". MagicPost could not read the payment back from the gateway, so check the API key and that your server can reach the gateway.
+  </Accordion>
+
+  <Accordion title="The gateway reports 404, 301, 302 or a timeout">
+    - Use the exact `https` address from the settings page. A redirect from `http` to `https` turns the gateway's POST into a GET, and the event is lost.
+    - Make sure `APP_URL` is your public `https` address, so the displayed address is correct.
+    - Open the address in a browser. A "Method Not Allowed" (405) page means the address is reachable. A 404 means the address is wrong or the web server is not sending it to MagicPost.
+    - A firewall or security plugin that blocks unknown POST requests can reject the gateway. Allow the gateway's servers.
+    - A site in maintenance mode answers 503, so events fail until it is back.
+  </Accordion>
+
+  <Accordion title="The webhook is accepted but nothing is recorded">
+    For Stripe, MagicPost ignores a checkout event that has no MagicPost user and plan in its details. That happens when a payment was made outside MagicPost's own checkout, for example through a payment link. It also ignores the event if the user or plan has since been deleted.
+
+    MagicPost records each order once. If a payment event is delivered again for an order that is already recorded, it does nothing. It is safe to resend a payment event from the gateway's dashboard after you fix the cause.
+  </Accordion>
+</AccordionGroup>
+
+## Bank transfer orders stay pending
+
+A bank transfer creates an order with the status **Pending** and grants nothing until an admin approves it. The customer sees "Awaiting payment — pending confirmation".
+
+<Steps>
+  <Step title="The customer uploads proof">
+    The customer sends the transfer, then uploads the receipt from the **Recent billing** section of their profile. The order page tells them to include the payment reference in the transfer description.
+  </Step>
+  <Step title="The admin reviews it">
+    Go to **Admin → Finance → Orders**, open the order and select **View attachment** next to **Proof of Payment**.
+  </Step>
+  <Step title="Approve or decline">
+    In the **Bank Transfer** block, set **Order Status** to **Completed** and select **Update status**. This releases the credits and the subscription. Choose **Declined** or **Cancelled** to refuse it.
+  </Step>
+</Steps>
+
+If you see "The customer has not uploaded a proof of payment yet.", the receipt is still missing. Setting an order to **Completed** twice grants nothing the second time.
+
+## Prices or plan changes do not reach the gateway
+
+When you change a plan's name, price, currency or type, MagicPost does not call the gateway straight away. It marks the plan for re-sync, and the next checkout pushes the new price. To push it now over SSH, run:
+
+```bash
+php artisan payments:sync-plans
+```
+
+Limit it with `--gateway=stripe` or `--plan=PLAN-ID`. It prints "No active paid plans matched the given filter." when there is nothing to do.
+
+## Renewals and cancellations
+
+Renewals and cancellations arrive by webhook too. For Stripe, `invoice.payment_succeeded` extends the subscription and resets the plan's allowance, and `customer.subscription.deleted` marks it cancelled. If the webhook is not accepted, the period does not extend. Fix the webhook, then resend the event from the gateway.
+
+A customer can cancel from **Billing**. If it fails, they see "We could not cancel your subscription. Please contact support." Open **Admin → Finance → Subscriptions**, find the subscription and cancel it there. See [Subscriptions](/saas/subscriptions).
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Orders and transactions" icon="receipt" href="/saas/orders">
+    Order statuses and bank transfer approval.
+  </Card>
+  <Card title="Billing and subscription" icon="credit-card" href="/account/billing">
+    What customers see at checkout and in their billing history.
+  </Card>
+</CardGroup>

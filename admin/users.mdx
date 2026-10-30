@@ -1,0 +1,110 @@
+---
+title: "Users"
+description: "Create, view, edit and delete customer accounts, adjust credits, and watch sign-ups and live activity from the Accounts section."
+---
+
+The **Accounts** section of the admin sidebar has three pages: **Dashboard**, **Users** and **Activity Monitoring**.
+
+## Users list
+
+Open **Accounts**, **Users**. The page header shows the total number of users and the table lists them with these columns:
+
+| Column | Shows |
+|---|---|
+| **User** | Avatar, name and email. |
+| **Group** | User, Subscriber or Admin. |
+| **Status** | Pending, Suspended, Inactive or Active. |
+| **Credits** | The account's credit balance. |
+| **Created** | Sign-up date. |
+
+Use the search box to find a user by name, group or status. Email addresses are not searched. Click the heading of a sortable column (Group, Status, Credits, Created) to sort. The default order is newest first, with 25 rows per page (10, 25, 50 or 100). The **Status** filter narrows the list to Active or Pending accounts. Use the column toggle to hide columns you do not need.
+
+Each row has a menu with **View** and **Delete**. **Create New User** sits above the table.
+
+## Create a user
+
+<Steps>
+  <Step title="Open the form">
+    Go to **Accounts**, **Users** and click **Create New User**.
+  </Step>
+  <Step title="Fill in Login Credentials">
+    Enter **Email Address**, **Password** and **Confirm Password**. The email must be unique and the password needs at least 8 characters.
+  </Step>
+  <Step title="Fill in Personal Information">
+    **Full Name** is required. **Company**, **Phone Number**, **Website** (a full URL such as `https://example.com`), **Street Address**, **City**, **Postal Code** and **Country** are optional.
+  </Step>
+  <Step title="Choose Account Settings">
+    Pick the **Group** (User, Admin or Subscriber), the **Status** (Active, Inactive, Suspended or Pending) and the starting **Credits** (a whole number, 0 or more).
+  </Step>
+  <Step title="Save">
+    Click **Create User**. You return to the list.
+  </Step>
+</Steps>
+
+The account is created with a referral ID and the default avatar, and it receives the role that matches the **Group** you chose. No welcome email is sent, so give the person their password yourself. The account is created with an unverified email address. If **Email Verification** is on in [Registration and login](/admin/registration-and-login), the person has to verify it before they can use the product.
+
+<Warning>
+  To make someone an admin, create the account with **Group** set to Admin. Changing **Group** later on **Edit Profile** updates the label in the list but does not change the role that grants access to the admin panel.
+</Warning>
+
+## View an account
+
+Click **View** in the row menu to open the account page.
+
+- The header shows the name, email, location, a **Subscribed** or **Free Trial** chip when SaaS Business is on, and the status and group chips. **Edit Profile** opens the edit form, **Email** starts a mail to the user, and **Back** returns to the list.
+- **Credits**, **Balance** (SaaS Business only) and **Member since** sit under the header.
+- **Profile Details** lists company, email, phone, website and address.
+- **Account Info** shows the **User ID**, **Referral ID**, **Joined** date and **Last Seen**.
+- **Subscription** and **Recent Orders** (the last 5) appear when SaaS Business is on. See [Subscriptions](/saas/subscriptions) and [Orders and transactions](/saas/orders).
+- **Support Tickets** lists the last 5 tickets. **View all** opens [Support tickets](/admin/support-tickets).
+
+### Credit history
+
+The **Credit history** card lists the 15 latest credit movements with **Date**, **What**, **Change** and **Balance**. The "What" column names the reason and who made the change.
+
+- **Release** appears next to a hold, which is credit reserved for work that is still running. Releasing it makes the credits available again and the work is no longer charged.
+- **Refund** appears under the balance of a charge. It gives the charged credits back to the user. Each charge can be refunded once, afterwards the row shows **Refunded**.
+
+For how credits are priced and spent, see [Credits and allowances](/saas/credits).
+
+## Edit an account
+
+<Steps>
+  <Step title="Open the editor">
+    From the account page click **Edit Profile**.
+  </Step>
+  <Step title="Change the details">
+    You can change everything in **Personal Information** (except the email address) and **Account Settings**. Validation limits: **Full Name** and **Street Address** up to 255 characters, **Phone Number** 50, **City** and **Country** 100, **Postal Code** 20.
+  </Step>
+  <Step title="Update">
+    Click **Update**. You return to the account page.
+  </Step>
+</Steps>
+
+**Credits** on this form is the plan allowance. Changing it sets the allowance to the number you enter and records the difference in the credit history as "Set on the account page", with your name as the actor. Prepaid credits that the user bought in packs are a separate balance, and this form does not change them.
+
+<Note>
+  **Status** is a label that you and the Users list can filter by. In this build the only place that enforces it is social sign-in, which refuses Suspended accounts. To stop someone using the product, delete the account or change their password.
+</Note>
+
+## Delete an account
+
+On the account page, scroll to **Danger Zone** and click **Delete User**, then confirm. You can also use **Delete** in the row menu of the Users list. Deleting is permanent.
+
+## Activity Monitoring
+
+**Accounts**, **Activity Monitoring** lists every user who has a session on record, with **IP Address**, **Connection** (the browser string), and **Last Activity**. Use it to see where and when people last used the product.
+
+This page reads the sessions table, so it needs `SESSION_DRIVER=database`, which is the value in `.env.example`.
+
+## Accounts dashboard
+
+**Accounts**, **Dashboard** summarises your customer base:
+
+- **Total Registered Users**.
+- **Current Online Users**: accounts with session activity in the last 5 minutes.
+- **Visitors Today (Registered)**: registered users seen today.
+- **Registered User Countries**: a map, plus a **Top 20 Countries** list.
+- **New Registered Users**: a chart of sign-ups per month for the current year, with **Total Current Month Users** and **Total Users**.
+
+The map needs Google Maps. Until you switch it on, the card reads **Google Maps is Disabled**. Enable it in [Global settings](/admin/global-settings) and see [Google Maps](/advanced/google-maps).

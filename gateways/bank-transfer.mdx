@@ -1,0 +1,116 @@
+---
+title: 'Bank transfer'
+description: 'Let customers pay for a plan by bank transfer, collect proof of payment, and approve the order to release the plan.'
+---
+
+Bank transfer is a manual gateway. There is no payment provider, no API key and no webhook. The customer pays from their own bank, uploads a receipt, and you approve the order once the money has arrived. Until you approve it, the order stays pending and the customer gets nothing.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Bank Transfer** |
+| Name at checkout | Bank Transfer |
+| Plan types | Prepaid, Lifetime, Monthly, Yearly |
+| Monthly and Yearly plans | Granted for one period per approved order. No automatic renewal |
+| Webhook | None |
+| Test mode | None |
+
+## Set it up
+
+<Steps>
+  <Step title="Open the Bank Transfer card">
+    Go to **Admin → Finance → Payment Gateways** and click **Bank Transfer**. The page is titled **Bank Transfer Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**. The description reads "When enabled, users can use Bank Transfer for payments".
+  </Step>
+  <Step title="Enter your bank details">
+    Under **Requisites**, fill in **Bank Transfer Requisites** with the account details customers must send money to, such as account holder, bank name, account number or IBAN, and the SWIFT or BIC code.
+  </Step>
+  <Step title="Enter the instructions">
+    Fill in **Bank Transfer Instructions** with anything else the customer needs to do, such as how long you take to confirm a transfer.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Bank Transfer settings saved successfully."
+  </Step>
+</Steps>
+
+Each of the two text boxes holds up to 2,000 characters. HTML tags are removed when you save. Line breaks are kept, so you can lay the details out in lines. The customer only sees a box if you filled it in.
+
+## What the customer does
+
+<Steps>
+  <Step title="Choose Bank Transfer at checkout">
+    The customer picks the **Bank Transfer** card on the checkout page and confirms. MagicPost creates the order straight away with the status **Pending** and a payment reference that starts with `BT-` followed by ten letters and digits.
+  </Step>
+  <Step title="Read the instructions">
+    The customer lands on **Complete your bank transfer**. It shows the **Plan**, the **Amount to transfer** and the **Payment reference**, a reminder to put the reference in the transfer description, then your **Bank account details** and **Payment instructions**.
+  </Step>
+  <Step title="Send the money">
+    The customer makes the transfer at their own bank.
+  </Step>
+  <Step title="Upload the receipt">
+    The customer opens their profile from the user menu, finds the order in the **Recent billing** section and clicks the paperclip icon, whose tooltip reads "Upload proof of payment". In the **Proof of payment** window they choose a PDF, JPG, PNG or WEBP file of up to 8 MB and click **Upload proof**.
+  </Step>
+</Steps>
+
+The customer can replace the file while the order is pending, using the same icon and the **Replace proof** button. The icon appears only for pending orders. Proofs are stored privately on the server and are not reachable by a public link. Only the customer who owns the order and admins can open them.
+
+## What you do
+
+<Steps>
+  <Step title="Open the order">
+    Go to **Admin → Finance → Orders** and open the pending order. For a bank transfer order the page shows a **Bank Transfer** panel.
+  </Step>
+  <Step title="Check the proof">
+    Under **Proof of Payment**, click **View attachment**. If the customer has not uploaded one, the panel says "The customer has not uploaded a proof of payment yet."
+  </Step>
+  <Step title="Confirm the money arrived">
+    Check your bank account for a transfer that carries the payment reference and the right amount.
+  </Step>
+  <Step title="Set the status">
+    In **Order Status**, choose **Completed** and click **Update status**. Confirm the prompt "Update this order status? Setting it to Completed will grant the plan benefits to the customer."
+  </Step>
+</Steps>
+
+You see "Order approved. The customer now has access." and the order becomes **Completed**.
+
+The **Order Status** list has four values: **Pending**, **Completed**, **Declined** and **Cancelled**.
+
+- **Completed** releases the plan's benefits, once. The credits of the plan are added. For Monthly, Yearly and Lifetime plans an active subscription is also created, and its access period starts at the moment you approve. Setting an order to Completed twice does not grant anything twice.
+- **Declined**, **Cancelled** and **Pending** only change the order status. Nothing is granted, and nothing already granted is taken back.
+
+While an order is pending, the panel says "Currently awaiting confirmation. No benefits have been granted yet."
+
+<Note>
+The **Bank Transfer** panel and its status control appear only on bank transfer orders. Orders paid through other gateways are recorded as completed automatically.
+</Note>
+
+## Renewals
+
+Bank transfer cannot charge a customer again. For a Monthly or Yearly plan, the approved order gives one period of access. When it ends, the customer places a new order and pays again.
+
+## Currency and amounts
+
+The order records the plan's price and currency. The customer sees the amount with the currency symbol and must send exactly that amount. MagicPost does no currency conversion.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Bank transfer is not available right now.">
+    **Status** is off, so no order can be created. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start your order. Please try again.">
+    The order reference could not be saved. Ask the customer to try again.
+  </Accordion>
+  <Accordion title="Order not found">
+    The instructions page opens only for the customer who owns a bank transfer order. The customer sees "We could not find this bank transfer order. Please start again from the billing page." with a **Back to billing** button.
+  </Accordion>
+  <Accordion title="The proof must be a PDF or an image (JPG, PNG, WEBP). / The proof may not be larger than 8 MB.">
+    The uploaded file is the wrong type or too large. Ask the customer to upload another file.
+  </Accordion>
+  <Accordion title="This order could not be marked as completed.">
+    The order is already completed, or its plan or customer no longer exists.
+  </Accordion>
+</AccordionGroup>
+
+See also [Orders and transactions](/saas/orders), [Payment gateways](/gateways/overview) and [Billing and subscription](/account/billing).

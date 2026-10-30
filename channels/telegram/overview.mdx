@@ -1,0 +1,61 @@
+---
+title: "Telegram channels"
+sidebarTitle: "Overview"
+description: "How MagicPost posts to Telegram channels and groups through a bot, with post limits, first comments and analytics."
+---
+
+Telegram has no developer app for users to sign in to. Posts go out through a **bot**. You create one bot for the whole site with @BotFather, and users can bring a bot of their own if you allow it. Users link their Telegram account, add the bot to the channels and groups they run, and each chat becomes a channel in MagicPost.
+
+<Card title="Set up Telegram" icon="paper-plane" href="/channels/telegram/setup">
+  Create the bot, save its token and connect your first chat.
+</Card>
+
+## How it fits together
+
+| | Telegram |
+|---|---|
+| What posts | The site's bot, or a bot a user brings when you allow it |
+| What a user links | Their Telegram account, then each channel or group |
+| Can post to | Channels, groups and supergroups, including groups with topics |
+| Counts against the plan | Each connected chat is one channel |
+| Webhook path | `/webhooks/telegram` |
+
+The label under a channel's name, **Channel** or **Group**, says which kind of chat it is.
+
+## Post types and limits
+
+Telegram has one post type, **Message**.
+
+| | Message |
+|---|---|
+| Text | Up to 4,096 characters |
+| Caption under media | Up to 1,024 characters |
+| Images | Up to 10 (jpg, jpeg, png, webp), 10 MB each |
+| Video | Up to 10 (mp4), 50 MB each, or 2,000 MB with your own Bot API server |
+| Pictures and videos together | Yes, up to 10 files in all |
+| First comment | Yes, where the bot can reach the comments |
+| Options | **Send silently**, **Protect content**, **Turn off the link preview**, **Forum topic** |
+
+Text goes out exactly as typed, with no formatting, so write plain text. One file goes out as one message. Two to ten files go out as an album, with the text as the caption of the first. In the composer, the options sit in the **Settings for** card of each Telegram channel. **Forum topic** appears only for a group with topics: enter the number at the end of the topic's link, or leave it blank to post in General.
+
+<Note>
+Posts to Telegram are sent by the queue, so the scheduler has to be running. See [Cron and queue](/installation/cron-and-queue).
+</Note>
+
+## First comment
+
+A first comment is posted as a reply right after the post.
+
+- **Groups.** The comment replies to the post.
+- **Channels.** Telegram copies each channel post into the channel's linked discussion group, and the comment replies to that copy. This needs a discussion group linked to the channel with the bot as an admin in it. Without one, the **First comment** box is not offered for that channel.
+
+If a comment fails, the post stays published, and its page says "The first comment was not posted:" followed by the reason.
+
+## Analytics
+
+Telegram does not tell a bot how often a post was viewed, forwarded or clicked, so MagicPost does not show those figures. It shows what the bot is told:
+
+- **Reactions** on the post, and **Replies** in a group or **Comments** in a channel.
+- **Subscribers**, the chat's member count, read every hour.
+
+Reactions are counted only while the bot is an admin of the chat, and comments on a channel's posts only while it is an admin of the discussion group. See [Analytics](/user-guide/analytics).

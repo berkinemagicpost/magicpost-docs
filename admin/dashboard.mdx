@@ -1,0 +1,73 @@
+---
+title: "Admin dashboard"
+description: "What the admin dashboard shows: the Needs attention list, the key tiles, publishing activity, AI usage, support queue and website traffic."
+---
+
+**Dashboard** is the first item in the admin sidebar and the page admins land on after signing in. It answers two questions: does anything need me right now, and how is the platform doing this month.
+
+The header shows today's date, the installed version when one is set, and a **Check for updates** link to [Update instructions](/updates/update-instructions). The buttons on the right jump to **Users**, **Orders** (SaaS Business only), **Tickets** and **Publishing** settings.
+
+<Note>
+  Dates and times on this page use the time zone set on your own account. If you have not chosen one, they use the **Default timezone** from [Publishing settings](/admin/publishing-settings).
+</Note>
+
+## Needs attention
+
+The first card lists everything that currently needs an admin. Rows are sorted with the most serious first, and each row links to the screen where you fix it.
+
+| Row | Shown when | Opens |
+|---|---|---|
+| A system health problem | A check in **System health** fails or warns, except **Cron job** and **Last 24 hours**, which are listed only on the Publishing settings page. See [System status](/admin/system-status) for every check. | Platforms, SMTP Settings or Publishing Settings, depending on the check |
+| Sends that failed in the last 24 hours | At least one send failed. The detail line names the most common reason, for example Rate limited, Needs reconnecting or Media problem. | The **Did not go out** card further down |
+| Bank transfers waiting for approval | SaaS Business is on and a bank transfer order is pending. | The **Bank transfers** card |
+| Payout requests to review | SaaS Business is on and an affiliate payout is pending. | Affiliates, **Payouts** |
+| Tickets waiting for a reply | An open ticket's last message came from the customer. | Support, **Tickets** |
+
+When nothing is listed the card reads **All clear**. Select **Check again** to refresh the health checks, which are otherwise cached for 60 seconds.
+
+## Key tiles
+
+| Tile | What it counts |
+|---|---|
+| **New users** | Sign-ups this month, with the change from last month, the total number of users, and the share of users who published something in the last 30 days. |
+| **Subscribers** | Active subscribers and how many started this month, as a share of all users. Shown only when SaaS Business is on. |
+| **Posts published** | Sends that went out this month compared with the same day last month, and a split of published against failed. |
+| **Scheduled · 7 days** | Sends due in the next 7 days, how many are due in the next 24 hours, and how many are retrying. Shown only when SaaS Business is off. |
+| **Live channels** | Active channels and how many networks they span, split into Active, Needs reconnect and Paused. |
+
+## Business
+
+This section appears only when SaaS Business is on. See [Finance dashboard](/saas/finance-dashboard) for the full revenue view.
+
+- **Bank transfers** lists the five oldest transfers waiting for approval. It appears only when there are some. Open an order to review the proof and approve it. See [Orders and transactions](/saas/orders).
+- **Revenue** shows completed orders over the last 12 months, this month so far, and the comparison with the same day last month.
+- **Latest orders** shows the five most recent orders with their status.
+
+## Publishing
+
+- **Publishing activity** charts sends per day over the last 30 days and the share that went out.
+- **Channels by network** shows connected channels per network (live, to reconnect, paused) and what was sent this month.
+- **Did not go out** lists up to six sends that failed in the last 7 days, with the owner, the network and the reason. Select the owner to open their account. See [Failed posts](/troubleshooting/publishing-errors) for what the reasons mean.
+- **Writing and media** shows credits spent so far this month, split by feature, the number of captions, pictures and videos made, and the most used models. Set model prices on [AI models](/admin/ai-models).
+
+## People and support
+
+- **Sign-ups** charts new accounts per month over the last 12 months. **Accounts dashboard** opens the fuller view in [Users](/admin/users).
+- **Newest users** lists the five latest accounts, with how many people are online now and active today.
+- **Support tickets** shows how many tickets wait for a reply and how many are open, with up to six rows. See [Support tickets](/admin/support-tickets).
+- **Notifications** shows your five latest notifications and how many are unread. **View all** opens [System notifications](/admin/system-notifications).
+- **Users by country** ranks the top eight countries among users who have a country set.
+
+<Note>
+  **online now** counts accounts with session activity in the last 5 minutes. That needs `SESSION_DRIVER=database`. With another session driver the dashboard shows only how many users were seen today.
+</Note>
+
+## Website traffic
+
+This section shows visitors to your public site, read from Google Analytics. It appears in one of three states:
+
+- Off: it tells you to connect Google Analytics and links to **Open global settings**.
+- Incomplete: Google Analytics is switched on, but the property ID or the credentials file is missing.
+- Active: it shows Sessions, Average session, Bounce rate and Pages per session, users per day for the last 30 days, **Where visitors come from** (last 180 days) and **Top countries**. The figures are cached for 15 minutes.
+
+To turn it on, fill in the Google Analytics for Admin Dashboard fields in [Global settings](/admin/global-settings) and follow [Google Analytics](/advanced/google-analytics).

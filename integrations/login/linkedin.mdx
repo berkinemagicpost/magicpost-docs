@@ -1,0 +1,92 @@
+---
+title: 'LinkedIn login'
+description: 'Let people sign in and register with their LinkedIn account. Create a LinkedIn app with the OpenID Connect product and paste its Client ID and Client Secret into Auth Settings.'
+---
+
+With LinkedIn login on, the login and registration pages show a **LinkedIn** button. You create an app in the LinkedIn Developer portal, add the **Sign In with LinkedIn using OpenID Connect** product, then paste the Client ID and Client Secret into **Auth Settings**. No `.env` changes are needed.
+
+MagicPost uses LinkedIn's OpenID Connect sign-in and asks for the `openid`, `profile` and `email` scopes. LinkedIn must return an email address, otherwise the sign-in is refused.
+
+<Note>
+This is sign-in for your own users. To publish to a LinkedIn profile or Page you use the credentials under **Admin → Publishing → Platforms**, which need different LinkedIn products. See [LinkedIn](/channels/linkedin). Setting up this login does not connect a channel.
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have a LinkedIn account that can use the [LinkedIn Developer portal](https://www.linkedin.com/developers/).
+- You have a LinkedIn Page to associate with the app. LinkedIn asks for one when you create an app.
+- Your site runs on its public `https` address.
+
+## Step 1. Copy the Callback URL
+
+<Steps>
+  <Step title="Open Auth Settings">
+    Go to **Admin → Backend Settings → Auth Settings** and scroll to the **LinkedIn** section.
+  </Step>
+  <Step title="Copy the Callback URL">
+    Copy the value of the read-only **Callback URL** field. It looks like `https://your-domain.com/auth/linkedin/callback`. You paste it into LinkedIn next.
+  </Step>
+</Steps>
+
+## Step 2. Create the LinkedIn app
+
+<Steps>
+  <Step title="Create the app">
+    Go to [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps) and click **Create app**. Enter an **App name**, select the LinkedIn Page to associate, add a logo, accept the terms and create the app.
+  </Step>
+  <Step title="Add the OpenID Connect product">
+    Open the **Products** tab and request **Sign In with LinkedIn using OpenID Connect**. This product is what grants the `openid`, `profile` and `email` scopes. They cannot be added by hand. Do not pick the older sign-in product.
+  </Step>
+  <Step title="Add the redirect URL">
+    Open the **Auth** tab. Under **OAuth 2.0 settings**, next to **Authorized redirect URLs for your app**, click the edit icon and choose **Add redirect URL**. Paste the Callback URL from Step 1 and save.
+  </Step>
+  <Step title="Copy the credentials">
+    Still on the **Auth** tab, copy the **Client ID** and the **Primary Client Secret** from the application credentials.
+  </Step>
+</Steps>
+
+## Step 3. Configure MagicPost
+
+<Steps>
+  <Step title="Turn on the master switch">
+    On **Admin → Backend Settings → Auth Settings**, switch on **Login via Social (oAuth)**. It saves as soon as you toggle it.
+  </Step>
+  <Step title="Enable LinkedIn and fill in the credentials">
+    In the **LinkedIn** section, switch on **Enable LinkedIn Login** and fill in:
+
+    - **LinkedIn API Key**: the Client ID.
+    - **LinkedIn API Secret Key**: the Client Secret.
+    - **LinkedIn Redirect URL**: the same address as **Callback URL**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The toast reads **Settings were saved successfully**.
+  </Step>
+</Steps>
+
+| MagicPost field | LinkedIn value |
+|---|---|
+| **LinkedIn API Key** | Client ID |
+| **LinkedIn API Secret Key** | Client Secret |
+| **LinkedIn Redirect URL** | Authorized redirect URL. Must match exactly |
+| **Callback URL** | Read-only. The value to register as the authorized redirect URL |
+
+## Test it
+
+1. Open your site's login page in a private browser window.
+2. Click **LinkedIn** under **or continue with**.
+3. Approve the LinkedIn consent screen.
+4. You land on the dashboard. The registration page offers the same button under **or sign up with**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| LinkedIn says the redirect URL does not match | The address in the app differs from the one MagicPost sends | Make **Authorized redirect URLs for your app**, **LinkedIn Redirect URL** and **Callback URL** identical, including `https` and any language segment |
+| LinkedIn reports an unauthorized scope | The OpenID Connect product is not on the app | Add **Sign In with LinkedIn using OpenID Connect** on the **Products** tab |
+| Your social account did not share an email address, so we cannot sign you in. | The `email` scope is missing | Check that the OpenID Connect product is approved for the app |
+| No **LinkedIn** button on the login page | Master switch off, **Enable LinkedIn Login** off, or the Client ID or secret is empty | Check all three, then save |
+| That social login option is not available. | Same as above, reached by a direct link | Same fix |
+| We could not complete the social login. Please try again. | Wrong Client Secret, redirect address mismatch, or the sign-in started and ended on different site addresses | Re-copy the secret, check the redirect address, and use one site address |
+| Registration is currently closed, so a new account could not be created. | **User Registration** is off and no account has that email | Turn on **User Registration** under **Admin → Backend Settings → Registration Settings**, or create the user first |
+| Your account is not active. Please contact support. | The matching account is banned or suspended | Reactivate the account in the admin panel |

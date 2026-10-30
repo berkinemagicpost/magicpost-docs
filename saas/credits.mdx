@@ -1,0 +1,96 @@
+---
+title: "Credits and allowances"
+description: "How MagicPost grants, holds and spends AI credits: plan allowances, credit packs, registration credits, team sharing, per-run costs and admin adjustments."
+---
+
+AI writing and AI media runs cost credits. Every user has two credit balances, and MagicPost keeps an append-only history of every movement. This page explains how credits arrive, how they are spent and what you can adjust as an admin. Users see their side on the [Credits](/account/credits) page.
+
+## The two balances
+
+| Balance | Label the user sees | Behavior |
+|---|---|---|
+| Plan allowance | **Plan allowance** | Set by the user's plan and renewed every month. Spent first. Unused allowance does not carry over. |
+| Credit packs | **Credit packs** | Bought separately or shared by a team owner. Never expire. Spent after the allowance. |
+
+The balance a user can spend is the total of both, minus anything on hold. A plan with **AI credits** set to **-1** gives an unlimited allowance. Runs are then recorded as covered by unlimited credits and nothing is deducted.
+
+## How credits arrive
+
+| Source | What happens | Which balance |
+|---|---|---|
+| Registration | New accounts created through the registration form receive **Default Registration Credits**. | Plan allowance |
+| Buying or being assigned a Monthly, Yearly or Lifetime plan | The allowance is set to the plan's **AI credits**. | Plan allowance |
+| Renewing a Monthly plan | The gateway confirms the renewal charge and the allowance is set again. | Plan allowance |
+| Monthly refresh for Yearly and Lifetime plans | A scheduled task sets the allowance again on each monthly anniversary of the purchase. | Plan allowance |
+| Buying or being assigned a prepaid plan | The pack's credits are added. | Credit packs |
+| A team owner sharing credits | The member receives the credits as a pack. | Credit packs |
+| A referral commission with **Bonus Credits** set | The referrer receives the bonus. | Plan allowance |
+| An admin editing the user | The allowance is set to the number you enter. | Plan allowance |
+
+"Set" matters. The allowance is replaced, not added to. When a user starts or switches to a plan, whatever allowance they held, including registration credits, is replaced by the plan's credits. Credit packs are never touched by this.
+
+<Note>
+  The plan's credits are renewed monthly on every recurring plan type. A Yearly plan is charged once a year, but its allowance is refreshed each month by the scheduler.
+</Note>
+
+## Registration credits
+
+Open **General Settings** in the **Platform** section, stay on the **General** tab and set **Default Registration Credits**. It is the number of credits granted to a user automatically when they register for the first time. It must be a whole number of 0 or more. Click **Save**.
+
+Accounts created with a social login start with 0 credits, whatever this setting holds.
+
+## What an AI run costs
+
+You set the price of each model. Users are charged the model's price for the model they pick.
+
+| Run | Price | Where you set it |
+|---|---|---|
+| Caption writing | **Credits per run** of the writing model | **Writing Models** |
+| Alt text for a picture | **Credits per run** of the writing model | **Writing Models** |
+| Image generation | **Credits per picture** of the image model, times the number of pictures | **Media Models** |
+| Video generation | **Credits per second** of the video model, times the clip length in seconds | **Media Models** |
+
+A price of 0 makes a run free. See [AI models](/admin/ai-models) for the two model pages.
+
+## Holds
+
+Before a run starts, MagicPost sets the cost aside as a hold. Held credits cannot be spent on anything else.
+
+- When the run produces a usable result, the hold is converted into a charge. For images and video the charge covers only what was delivered, for example the pictures actually saved.
+- When the run fails or returns nothing usable, the hold is released and nothing is charged.
+- A hold that nobody settles stops counting once it expires. A scheduled task also marks expired holds as released every hour.
+
+Users see held credits as **On hold** on their credits page, with the time at which an unsettled hold is let go.
+
+## Team credits
+
+A team owner can move credits from their own balance to a team member with **Share credits** in **Teams**. The credits are taken from the owner's balance and given to the member as credit packs, so they do not expire and a plan renewal does not erase them. Credits from an unlimited plan cannot be shared. See [Teams](/account/teams).
+
+## Adjust credits as an admin
+
+<Steps>
+  <Step title="Open the user">
+    Go to **Accounts** → **Users** and open the user. See [Users](/admin/users).
+  </Step>
+  <Step title="Edit the allowance">
+    Choose the edit action and change **Credits**, then save. The value you enter becomes the user's plan allowance. Credit packs are not changed. The history records the change as adjusted by an administrator.
+  </Step>
+  <Step title="Review the history">
+    The user's page shows a **Credit history** card with the date, what happened, the change and the balance after it. Active holds are listed above the history with a **Release** button. Releasing a hold means the work it was held for is no longer charged.
+  </Step>
+</Steps>
+
+On a charge in the history, **Refund** gives the credits back to the balances they were taken from. Each charge can be refunded once, and the refund appears as its own entry.
+
+## Scheduled tasks
+
+Two tasks keep credits accurate. Both run from the Laravel scheduler, so the cron job must be set up. See [Cron and queue](/installation/cron-and-queue).
+
+| Task | When it runs | What it does |
+|---|---|---|
+| `credits:release-expired-holds` | Every hour, at minute 45 | Releases holds that passed their expiry. |
+| `credits:refresh-allowances` | Every hour, at minute 50 | Refreshes the monthly allowance of Yearly and Lifetime plans that are due, and ends unlimited credits whose plan has lapsed. |
+
+<Warning>
+  Without the scheduler, Yearly and Lifetime users do not get their monthly refresh, and expired holds keep credits out of reach until they are released.
+</Warning>

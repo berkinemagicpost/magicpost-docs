@@ -1,0 +1,87 @@
+---
+title: "Registration and login"
+description: "Open or close public sign-up, require email verification, and let people sign in with Google, Facebook, X or LinkedIn."
+---
+
+Two pages under **Platform**, **Backend Settings** control how people get into MagicPost:
+
+- **Registration Settings** decides who can create an account and whether they must verify their email.
+- **Auth Settings** adds sign-in with a social account.
+
+## Registration Settings
+
+Open **Registration Settings**. Each switch saves the moment you change it and shows a confirmation message. There is no Save button.
+
+| Switch | When on | When off |
+|---|---|---|
+| **User Registration** | Visitors can create an account. | The registration page is not available to new visitors and new accounts cannot be created through social sign-in. Existing users can still sign in. |
+| **Email Verification** | New users must verify their email address before they can use the product. | Nobody is asked to verify, including people who were part way through verification. |
+
+<Note>
+  Verification emails are sent with your SMTP settings. Set them up first, otherwise nobody receives the link. See [Email and SMTP](/admin/smtp). Accounts that sign in with a social provider are marked verified automatically.
+</Note>
+
+Each sign-up through the registration form adds a **New User Registered** notification for the first admin account. See [System notifications](/admin/system-notifications).
+
+<Tip>
+  Give new sign-ups starting credits with **Default Registration Credits** in [General settings](/admin/general-settings).
+</Tip>
+
+## Auth Settings
+
+**Auth Settings** lets people sign in or sign up with a social account. Supported providers are **Facebook**, **Twitter** (X), **Google** and **LinkedIn**.
+
+### Turn on a provider
+
+<Steps>
+  <Step title="Create the app at the provider">
+    Register an OAuth app with the provider. Use the **Callback URL** shown in that provider's block as the authorised redirect URI. Provider guides: [Google](/integrations/login/google), [Facebook](/integrations/login/facebook), [X](/integrations/login/x) and [LinkedIn](/integrations/login/linkedin).
+  </Step>
+  <Step title="Open Auth Settings">
+    Go to **Platform**, **Backend Settings**, **Auth Settings**.
+  </Step>
+  <Step title="Switch on the master switch">
+    Turn on **Login via Social (oAuth)**. It saves immediately. While it is off no provider works, whatever its own switch says.
+  </Step>
+  <Step title="Enter the provider keys">
+    In the provider's block, turn on its **Enable** switch and fill in the key and the secret. Labels per provider are in the table below.
+  </Step>
+  <Step title="Set the Redirect URL">
+    Paste the **Callback URL** from the same block into the **Redirect URL** field.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The confirmation reads "Settings were saved successfully".
+  </Step>
+</Steps>
+
+| Provider | Switch | Key field | Secret field | Redirect field |
+|---|---|---|---|---|
+| Facebook | **Enable Facebook Login** | **Facebook API Key** | **Facebook API Secret Key** | **Facebook Redirect URL** |
+| Twitter | **Enable Twitter Login** | **Twitter API Key** | **Twitter API Secret Key** | **Twitter Redirect URL** |
+| Google | **Enable Google Login** | **Google Client ID** | **Google Client Secret** | **Google Redirect URL** |
+| LinkedIn | **Enable LinkedIn Login** | **LinkedIn API Key** | **LinkedIn API Secret Key** | **LinkedIn Redirect URL** |
+
+When a provider's switch is on, the key, secret and redirect URL are all required. A provider only shows as an option on the login and registration pages when the master switch and the provider switch are on and both the key and the secret are filled in.
+
+### Callback URLs
+
+Each block shows a read-only **Callback URL** with a copy button:
+
+| Provider | Callback URL |
+|---|---|
+| Facebook | `APP_URL/auth/facebook/callback` |
+| Twitter | `APP_URL/auth/twitter/callback` |
+| Google | `APP_URL/auth/google/callback` |
+| LinkedIn | `APP_URL/auth/linkedin/callback` |
+
+`APP_URL` is the **Website URL** from [Global settings](/admin/global-settings). The X sign-in uses OAuth 2.0 and LinkedIn uses its OpenID Connect flow.
+
+### What happens when someone signs in
+
+- A returning user is matched on the provider's account, then on email.
+- If an account with the same email already exists, it is linked to the provider and marked verified.
+- A new person gets a new account only when **User Registration** is on. Otherwise they see "Registration is currently closed, so a new account could not be created."
+- The provider must share an email address. Without one, sign-in stops with a message.
+- Accounts with a status of Suspended cannot sign in this way.
+- A referral code on the sign-up link is kept through the round trip, so referrals still count. See [Referral program admin](/saas/affiliates).
+- Social accounts have no password. They are created with 0 credits, the group User and a verified email.

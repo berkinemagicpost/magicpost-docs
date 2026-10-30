@@ -1,0 +1,81 @@
+---
+title: "Set up Telegram"
+sidebarTitle: "Setup"
+description: "Create a Telegram bot with @BotFather, save its token in MagicPost, and connect a channel or group."
+---
+
+Telegram posts go out through a bot. You set it up once, and your users add it to their own channels and groups.
+
+## What you need
+
+- A Telegram account, to talk to @BotFather.
+- A bot made only for this site. A bot has one webhook, so saving it here takes its updates away from anything else that uses it.
+- For a webhook, a site served over https on port 443, 80, 88 or 8443. Otherwise choose polling.
+
+## Part 1: Admin setup
+
+<Steps>
+  <Step title="Create the bot">
+    In Telegram, open [@BotFather](https://t.me/BotFather) and send `/newbot`. Give the bot a name and a username that ends in `bot`, such as `YourSitePostsBot`, then copy the token it sends back. Optionally send `/setuserpic`, `/setdescription` and `/setabouttext` so people recognise the bot.
+  </Step>
+  <Step title="Open the setup panel">
+    Go to **Admin → Publishing → Platforms** and click **Add credentials** on the **Telegram** card.
+  </Step>
+  <Step title="Fill in the server and token">
+    - **Bot API server**: keep `https://api.telegram.org`. Change it only if you run your own Bot API server, which raises the video limit from 50 MB to 2,000 MB.
+    - **Bot token**: paste the token from @BotFather. It is stored encrypted.
+  </Step>
+  <Step title="Choose how people connect">
+    Under **How people connect**, tick **Through the site's bot** so everyone adds the bot whose token you saved. Tick **With their own bot** to let people paste the token of a bot they made themselves, so their posts carry that bot's name. Tick at least one. If you tick only the second, leave **Bot token** blank.
+  </Step>
+  <Step title="Choose how updates arrive">
+    Updates are Telegram's reports to the bot. They link accounts, connect a chat when the bot is added to it, and bring back reactions and replies.
+
+    - **Webhook** is the default. Telegram sends each update to your site as it happens, and the site needs https. MagicPost registers `https://your-domain.com/webhooks/telegram` with Telegram when you save, so you paste nothing.
+    - **Polling** makes your site ask Telegram once a minute through the scheduler. Use it for a site Telegram cannot reach, such as one on localhost or without https. It needs the cron job from [Cron and queue](/installation/cron-and-queue).
+
+    You can switch later by choosing the other option and saving.
+  </Step>
+  <Step title="Save">
+    Click **Save**. MagicPost checks the token with Telegram first. If the bot already sends its updates to another address, the save stops with a message. Tick **Move this bot's updates here** and save again to take them over.
+  </Step>
+  <Step title="Run the checks and enable it">
+    Click **Run checks** on the card. It lists **Ways to connect**, **Bot token**, **Bot**, **Delivery**, **Bot API server** and **Webhook address**. Fix anything that fails, then tick **Available to users** or use the switch on the card. The card shows **Live**.
+  </Step>
+</Steps>
+
+<Note>
+Keep one bot for the site. Saving the token of a different bot makes everyone add the new bot to their chats again.
+</Note>
+
+## Part 2: Connect a channel or group
+
+<Steps>
+  <Step title="Open Connect Telegram">
+    Go to **Publishing → Channels** and click **Telegram** in the **Add a channel** card.
+  </Step>
+  <Step title="Add your own bot (only if you use one)">
+    In the **Your own bot** card, create a bot with @BotFather, paste its token into **Bot token** and click **Use this bot**. An account can use one bot of its own.
+  </Step>
+  <Step title="Link your Telegram account">
+    In the **Link your Telegram account** card, click **Link Telegram account**, then **Open Telegram** and press **Start** in the chat with the bot. The page shows "Linked @yourname". The link runs out after 15 minutes, so start again if it does.
+  </Step>
+  <Step title="Add the bot to a chat">
+    In the next card, click **Add to a channel** or **Add to a group**. Telegram opens and asks which chat to use. Accept the admin rights it offers. For a channel, keep **Post messages** on. In a group the bot must be allowed to send messages, and admin rights also let MagicPost count reactions and new members.
+  </Step>
+  <Step title="Confirm it is connected">
+    The chat appears under **Your Telegram chats** and each one counts as a channel against your plan. A chat connects only when Telegram confirms that a linked account of yours is an admin of it. Until then it shows **Waiting** with the reason. Fix it, then click **Check again**.
+  </Step>
+</Steps>
+
+## Check it works
+
+As admin, **Run checks** shows **Bot** with the bot's username and **Delivery** with how updates arrive. As a user, open a channel's actions menu in **Publishing → Channels** and click **Check connection**. The rows are **Authorisation**, **Bot**, **Comments** (channels only) and **Audience**.
+
+## If something goes wrong
+
+- **"Telegram did not accept that token"**: copy the token again from @BotFather, with no spaces. If you regenerated it, use the new one.
+- **"Telegram only delivers to an https address on port 443, 80, 88 or 8443"**: serve the site over https and open the admin panel through it, or choose **Polling**.
+- **"This bot already sends its updates to ..."**: the bot is used by something else. Use a bot made only for this site, or tick **Move this bot's updates here**.
+- **Accounts never link, or chats stay on Waiting**: updates are not reaching the site. In **Run checks**, read the **Delivery** row. For a webhook, make sure `/webhooks/telegram` is reachable from the internet. For polling, make sure the cron job runs. In both cases the queue has to be running.
+- **A channel shows Expired**: the reason says why. "The bot was removed from this chat" or "The bot can no longer post in this chat" means adding the bot back as an admin, then **Reconnect** and **Check again**. "The site's Telegram bot stopped working" means you, the admin, must save a working token. "This site moved to a new Telegram bot" means adding the new bot to the chat.

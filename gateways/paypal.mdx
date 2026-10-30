@@ -1,0 +1,149 @@
+---
+title: 'PayPal'
+description: 'Connect PayPal to MagicPost to take one-time payments and recurring subscriptions with the PayPal REST API.'
+---
+
+PayPal supports every MagicPost plan type. Prepaid and Lifetime plans are paid as a PayPal order that MagicPost captures when the customer returns. Monthly and Yearly plans use PayPal subscriptions.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Paypal** |
+| Name at checkout | PayPal |
+| Test mode | **Mode → Sandbox**, with your PayPal sandbox app |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/paypal` |
+| Webhook events | `BILLING.SUBSCRIPTION.RENEWED`, `PAYMENT.SALE.COMPLETED`, `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED`, `BILLING.SUBSCRIPTION.SUSPENDED` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/paypal`, set by MagicPost on each payment |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, set by MagicPost on each payment |
+| Currency | The currency of the plan |
+
+## Get your credentials from PayPal
+
+<Steps>
+  <Step title="Open the developer dashboard">
+    Sign in to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/).
+  </Step>
+  <Step title="Choose Sandbox or Live">
+    Open **Apps & Credentials** and select the environment you are setting up. Sandbox and Live have separate apps and separate credentials.
+  </Step>
+  <Step title="Create an app">
+    Click **Create App**, enter an **App Name** such as your product name, and choose **Merchant** as the app type.
+  </Step>
+  <Step title="Copy the credentials">
+    Open the app. Copy the **Client ID** and the **Secret**.
+  </Step>
+</Steps>
+
+<Warning>
+Keep the Secret private. Do not share it or put it in client-side code.
+</Warning>
+
+## Create the webhook in PayPal
+
+<Steps>
+  <Step title="Add a webhook">
+    On the same app page, find the **Webhooks** section and click **Add Webhook**.
+  </Step>
+  <Step title="Enter the URL">
+    Enter:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/paypal
+    ```
+  </Step>
+  <Step title="Select the events">
+    Select the events MagicPost acts on:
+
+    - `BILLING.SUBSCRIPTION.RENEWED`
+    - `PAYMENT.SALE.COMPLETED`
+    - `BILLING.SUBSCRIPTION.CANCELLED`
+    - `BILLING.SUBSCRIPTION.EXPIRED`
+    - `BILLING.SUBSCRIPTION.SUSPENDED`
+  </Step>
+  <Step title="Copy the Webhook ID">
+    Save the webhook, then copy its **Webhook ID**.
+  </Step>
+</Steps>
+
+## Add the credentials in MagicPost
+
+<Steps>
+  <Step title="Open the PayPal card">
+    Go to **Admin → Finance → Payment Gateways** and click **Paypal**. The page is titled **Paypal Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the credentials">
+    Under **Keys**, fill in:
+
+    - **Live Paypal Client ID**
+    - **Live PayPal Client Secret**
+    - **Sandbox Paypal Client ID**
+    - **Sandbox PayPal Client Secret**
+  </Step>
+  <Step title="Paste the Webhook ID">
+    Under **Webhooks**, compare **Webhook URL** with the one you gave PayPal, then paste the ID into **Webhook ID**.
+  </Step>
+  <Step title="Save">
+    Click **Save**.
+  </Step>
+</Steps>
+
+<Warning>
+If **Webhook ID** is empty, MagicPost accepts webhook requests without verifying them with PayPal. Fill it in on a live site. There is one Webhook ID field for both modes, so replace it when you switch **Mode**.
+</Warning>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost creates a PayPal order for the plan price and sends the customer to PayPal to approve it. The checkout page shows your site name (the application name) as the brand and asks for no shipping address. When the customer returns, MagicPost captures the payment, records the order, and for Lifetime plans creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates a PayPal catalog product and a billing plan that charges every month or every year with no end date. It then creates a PayPal subscription for the customer and sends them to PayPal to approve it. You do not create billing plans by hand.
+
+**After PayPal.** The customer comes back to the return URL. MagicPost checks the result, records the order and opens the success page. The customer must come back in the same browser session in which they started the payment.
+
+**Renewals and cancellation.**
+
+- `BILLING.SUBSCRIPTION.RENEWED` and `PAYMENT.SALE.COMPLETED` extend the subscriber's period and renew the credit allowance.
+- `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED` and `BILLING.SUBSCRIPTION.SUSPENDED` mark the subscription as cancelled.
+- When a subscriber is cancelled in MagicPost, MagicPost also cancels the PayPal subscription.
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost deactivates the old billing plan and creates a new one at the next purchase.
+
+## Currency
+
+MagicPost sends the plan's currency code in uppercase and the price with two decimals. Your PayPal account must be able to receive that currency.
+
+## Test mode
+
+Select **Sandbox**, enter the sandbox Client ID and Secret, and save. MagicPost then talks to PayPal's sandbox, where you pay with a sandbox buyer account from the developer dashboard. Switch back to **Live** before you accept real payments.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for PayPal. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    The credentials for the selected Mode are missing or wrong. In the log you see "PayPal is not configured" or "PayPal authentication failed" with PayPal's reply.
+  </Accordion>
+  <Accordion title="PayPal could not start the payment. Please try again. / PayPal could not start the subscription. Please try again.">
+    PayPal refused to create the order or the subscription. The response is logged in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for PayPal billing. Please contact support.">
+    The product or billing plan could not be created. Check the credentials and that the plan has a price above zero.
+  </Accordion>
+  <Accordion title="Missing PayPal session reference.">
+    The customer reached the return URL without the session that started the payment, for example in another browser or after the session expired.
+  </Accordion>
+  <Accordion title="PayPal could not capture the payment. / PayPal could not verify the subscription.">
+    PayPal rejected the capture or the status lookup after the customer came back. Check the log entry for PayPal's answer.
+  </Accordion>
+  <Accordion title="Subscription was not activated.">
+    PayPal returned a status other than `ACTIVE`, `APPROVED` or `APPROVAL_PENDING`.
+  </Accordion>
+  <Accordion title="PayPal webhook returns 400 invalid signature">
+    **Webhook ID** does not belong to the webhook that sent the event, or belongs to the other environment.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

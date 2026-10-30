@@ -1,0 +1,146 @@
+---
+title: 'Scheduler and queue problems'
+description: 'Find out why posts stay scheduled or publishing, read the System health checks, and recover from a stopped cron job or queue.'
+---
+
+Posts only go out while two things keep running: the cron job that starts the Laravel scheduler once a minute, and the queue that carries out the sending. This page starts from what you see and works back to the cause. For the normal setup, read [Cron and queue](/installation/cron-and-queue).
+
+## How sending works
+
+1. Cron runs `php artisan schedule:run` every minute. The first scheduled task stamps a heartbeat so MagicPost can tell the cron job is alive.
+2. Every minute `publishing:dispatch` claims the posts that are due and puts them on the queue. It hands out at most the number set in **Hand out at most** (25 a minute by default), minus whatever is already waiting.
+3. Something has to work the queue. Under **Posts are sent by → The scheduler**, two scheduler tasks (`publishing:work`) do it for up to **Each pass sends for** seconds each minute. Under **A queue worker**, you keep `queue:work` running yourself.
+4. Every five minutes `publishing:recover` frees posts whose sending stopped half way.
+
+## Start with System health
+
+Go to **Admin → Publishing → Settings**. The **System health** card at the top lists every check and its state. Select **Check again** after a change. The title tells you how bad it is: "Ready to publish", "N things to look at", or "N problems stop posts from going out".
+
+| Line | What it means and what to do |
+|---|---|
+| **Cron job** | "The scheduler has never run" means cron is not set up. "The scheduler last ran ..." means it ran, then stopped for more than 5 minutes. Fix cron first. Nothing else matters until this is green. |
+| **Queue** | See [Queue messages](#queue-messages) below. |
+| **Database** | "Every database update is applied." is the healthy state. A failure means database updates are missing or waiting. Run `php artisan migrate --force` on the server, or sign in as an admin and open `{APP_URL}/app/admin/update/now`, which applies them. |
+| **Waiting posts** | Posts are due but held. Either a network is switched off in **Admin → Publishing → Platforms**, or the owner has to approve the post, resume the channel or reconnect it. |
+| **Stalled sends** | Posts have been in the sending state longer than **Pick up a stalled send after**. They are checked every 5 minutes and picked up again. |
+| **Background jobs** | Jobs failed in the last 7 days. The reasons are in the `failed_jobs` table and in `storage/logs/laravel.log`. |
+| **Locks** | The cache store is `array` or `null`, which cannot keep overlapping scheduler passes apart. Set `CACHE_STORE=database` or `file`. See [Cache and optimisation](/advanced/cache). |
+| **Email** | Emails are written to the log instead of being sent, so nobody hears about failed posts or reviews. Set up [SMTP](/admin/smtp). |
+| **Site address** | `APP_URL` is not public, is not `https`, or differs from the address you opened. Networks send people back to `APP_URL`. |
+| **Last 24 hours** | Counts sent and failed posts. It warns when failures outnumber successes and shows the most common error. |
+
+## Cron problems
+
+<AccordionGroup>
+  <Accordion title="The Cron job line says the scheduler has never run">
+    <Steps>
+      <Step title="Copy the command">
+        In **Admin → Publishing → Settings → Sending**, find **Cron job**. Select **Copy**. The command looks like `cd /path/to/site && /path/to/php artisan schedule:run >> /dev/null 2>&1`, with the real paths for your server. **Copy the crontab line** gives the same command with the five time fields in front.
+      </Step>
+      <Step title="Add it to your host">
+        In your hosting control panel open **Cron Jobs**, choose **Once Per Minute** and paste the command. On a VPS, add the crontab line with `crontab -e`.
+      </Step>
+      <Step title="Wait one minute">
+        Select **Check again**. The tag next to **Cron job** changes from **Has not run yet** to **Last ran** with a time.
+      </Step>
+    </Steps>
+  </Accordion>
+
+  <Accordion title="It ran before but stopped, or the time is more than a few minutes old">
+    - **Wrong PHP.** The command must use a PHP 8.3 or newer command-line binary. A cron job that calls an older PHP fails without a visible error. Ask your host for the path of the PHP 8.3 command-line program and put it in the command.
+    - **Output hidden.** The command ends with `>> /dev/null 2>&1`, which throws errors away. Run `cd /path/to/site && php artisan schedule:run` by hand over SSH, or remove the redirect for a day, to see the error.
+    - **Slow interval.** Some hosts allow cron only every 5 minutes. MagicPost still works, but posts can go out up to 5 minutes late, and the **Cron job** line counts anything older than 5 minutes as stale.
+    - **Cron changed or removed.** The host or a migration may have reset the crontab. Open the cron screen and check the entry is still there.
+
+    Run `php artisan schedule:list` to confirm the scheduler sees its tasks. The list includes `publishing:heartbeat`, `publishing:dispatch`, `publishing:recover` and the `publishing:work` lanes.
+  </Accordion>
+
+  <Accordion title="Posts that were due while cron was stopped">
+    They are not skipped. When the scheduler runs again, every due post on a healthy channel is sent, in batches of **Hand out at most** posts a minute, with each owner taking a turn. If you do not want an old post to go out late, open it and use **Pause** or **Remove** before you fix cron.
+  </Accordion>
+</AccordionGroup>
+
+## Queue messages
+
+The **Queue** line shows one of these. Where a number or name appears, MagicPost fills in the real value.
+
+| Message on the **Queue** line | Cause | Fix |
+|---|---|---|
+| The "null" queue throws jobs away, so nothing is published. | `QUEUE_CONNECTION=null`. | Set `QUEUE_CONNECTION=database` in `.env`. |
+| Jobs run the moment they are queued, so each post is sent inside the request or scheduler pass that queued it. | `QUEUE_CONNECTION=sync`. | Set `QUEUE_CONNECTION=database`. |
+| The jobs table is missing, so nothing can be queued. Run php artisan migrate. | The `jobs` table does not exist. | Run the database update. See **Database** above. |
+| N jobs are waiting, the oldest since a time, and no worker is taking them. Check that queue:work is running, or let the scheduler send posts. | **Posts are sent by** is set to **A queue worker** but no worker is running. | Start the worker, or switch to **The scheduler**. |
+| N jobs are waiting for the scheduler to run again. | **The scheduler** mode, and cron has stopped. | Fix the cron job. |
+| N jobs are waiting, the oldest since a time, so posts go out late. Let each scheduler pass send for longer, or run a queue worker. | More work than one pass can finish. | Raise **Each pass sends for** (10 to 55 seconds), or move to a queue worker. |
+
+### Run a queue worker instead
+
+A worker suits a VPS where you can keep a process running.
+
+<Steps>
+  <Step title="Switch the mode">
+    In **Admin → Publishing → Settings → Sending**, under **Posts are sent by**, choose **A queue worker** and select **Save settings**. The scheduler then stops working the queue itself.
+  </Step>
+  <Step title="Keep the worker running">
+    Copy the command shown under **Keep this running**. It is `php artisan queue:work --queue=publishing,default,media`. Run it from the application folder under Supervisor or systemd so it restarts if it stops.
+  </Step>
+  <Step title="Keep the cron job">
+    The cron job is still required. It decides what is due and hands it to the worker.
+  </Step>
+</Steps>
+
+After uploading new code, restart the worker with `php artisan queue:restart` so it loads the new files.
+
+## Post status problems
+
+<AccordionGroup>
+  <Accordion title="A post stays Scheduled after its time">
+    Work down this list:
+
+    1. **System health** shows a red **Cron job** or **Queue** line. Fix those first.
+    2. The post is **Paused** or **Awaiting approval**. Neither goes out until it is resumed or approved.
+    3. The channel is paused, needs reconnecting, or its network is switched off. The post page shows the reason and a **Resume channel** or **Reconnect** button. See [Channel connection problems](/troubleshooting/channel-connections).
+    4. The network asked MagicPost to slow down. The post page says "asked us to pause" and for how long. It goes out after that.
+    5. Many posts were due at once. Each minute only **Hand out at most** posts are claimed, so the rest follow over the next minutes.
+  </Accordion>
+
+  <Accordion title="A post stays Publishing">
+    Large videos take time, and the post page says "This is taking longer than usual. It carries on in the background, so you can leave this page." That is normal.
+
+    If it stays in this state past **Pick up a stalled send after** (15 minutes by default), the sending process died. The recovery task, which runs every five minutes, then does one of these:
+
+    - Marks the post published if the network already has it.
+    - Asks the network whether an unanswered attempt went through, and if it cannot tell, shows **Unconfirmed**.
+    - Puts it back in the queue, if it has attempts left.
+    - Fails it with "Publishing was interrupted and did not finish."
+
+    If it keeps happening, your host may be stopping long processes. Shorten **Each pass sends for**, or use a queue worker. Keep **Pick up a stalled send after** longer than your largest video takes to upload.
+  </Accordion>
+
+  <Accordion title="A post says it was held and then was not sent">
+    A post whose channel is paused, expired or switched off waits for the time set in **Wait for a channel for up to** (24 hours by default). The post page shows "Held until ... After that it is not sent." After that time the channel's part is closed with one of these messages:
+
+    - "This was not sent, because ... was paused for more than 24 hours." Skipped.
+    - "This was not sent, because ... was not reconnected within 24 hours." Failed.
+    - "This was not sent, because ... kept ... on pause for more than 24 hours." Failed.
+    - "This was not sent, because publishing to ... was unavailable for more than 24 hours." Failed.
+
+    The number of hours is your own setting. See [Failed posts](/troubleshooting/publishing-errors) for what to do next.
+  </Accordion>
+
+  <Accordion title="Videos stay in processing in the media library">
+    Video analysis is a background job on the `media` queue. It waits for the same scheduler or worker as publishing. Fix the cron job and the queue first, then see [Video processing](/advanced/video-processing).
+  </Accordion>
+</AccordionGroup>
+
+## Run the passes by hand
+
+If you have SSH, you can run the scheduler's tasks yourself to see what they report. They act on real posts, exactly as the scheduler would.
+
+```bash
+php artisan publishing:dispatch
+php artisan publishing:work --seconds=30
+php artisan publishing:recover
+```
+
+`publishing:dispatch` prints a line such as "Queued 3, held 1, skipped 0, failed 0." where **held** counts due posts that cannot go out yet. `publishing:recover` prints "Released 0, recovered 0, unconfirmed 0, failed 0." with the counts of what it settled.

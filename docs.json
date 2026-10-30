@@ -1,0 +1,211 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "MagicPost",
+  "colors": {
+    "primary": "#0353A4",
+    "light": "#8FBCE8",
+    "dark": "#04437F"
+  },
+  "logo": {
+    "light": "/logo/logo-for-light.svg",
+    "dark": "/logo/logo-for-dark.svg"
+  },
+  "favicon": "/logo/favicon.svg",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting started",
+        "pages": [
+          "getting-started/introduction",
+          "getting-started/requirements",
+          "getting-started/quickstart"
+        ]
+      },
+      {
+        "group": "Installation & updates",
+        "pages": [
+          "installation/web-installer",
+          "installation/manual-setup",
+          "installation/post-install-checklist",
+          "installation/cron-and-queue",
+          "updates/update-instructions",
+          "updates/changelog",
+          "license/activation",
+          "license/extended-license"
+        ]
+      },
+      {
+        "group": "User guide",
+        "pages": [
+          "user-guide/dashboard",
+          "user-guide/connect-channels",
+          "user-guide/composer",
+          "user-guide/ai-tools",
+          "user-guide/scheduling",
+          "user-guide/calendar",
+          "user-guide/posts-and-statuses",
+          "user-guide/approvals",
+          "user-guide/media-library",
+          "user-guide/captions-and-brand-voice",
+          "user-guide/feeds-and-import",
+          "user-guide/analytics",
+          {
+            "group": "Account",
+            "pages": [
+              "account/profile-and-security",
+              "account/notifications",
+              "account/teams",
+              "account/support",
+              "account/credits",
+              "account/billing",
+              "account/referrals",
+              "account/api-keys",
+              "account/rest-api",
+              "account/webhooks",
+              "account/language-and-theme"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Publishing channels",
+        "pages": [
+          "channels/overview",
+          "channels/x",
+          "channels/linkedin",
+          "channels/tiktok",
+          "channels/youtube",
+          "channels/pinterest",
+          {
+            "group": "Meta",
+            "pages": [
+              "channels/meta/facebook",
+              "channels/meta/instagram",
+              "channels/meta/threads"
+            ]
+          },
+          {
+            "group": "WhatsApp",
+            "pages": [
+              "channels/whatsapp/overview",
+              "channels/whatsapp/waha",
+              "channels/whatsapp/whapi",
+              "channels/whatsapp/official-cloud-api"
+            ]
+          },
+          {
+            "group": "Telegram",
+            "pages": [
+              "channels/telegram/overview",
+              "channels/telegram/setup"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Admin panel",
+        "pages": [
+          "admin/overview",
+          "admin/dashboard",
+          "admin/users",
+          "admin/publishing-platforms",
+          "admin/publishing-settings",
+          "admin/ai-models",
+          "admin/general-settings",
+          "admin/global-settings",
+          "admin/registration-and-login",
+          "admin/smtp",
+          "admin/privacy-gdpr",
+          "admin/website-content",
+          "admin/blog",
+          "admin/support-tickets",
+          "admin/system-notifications",
+          "admin/system-status",
+          "admin/languages",
+          "admin/plugins-and-themes"
+        ]
+      },
+      {
+        "group": "SaaS & billing",
+        "pages": [
+          "saas/overview",
+          "saas/plans",
+          "saas/free-tier",
+          "saas/prepaid-plans",
+          "saas/credits",
+          "saas/subscriptions",
+          "saas/orders",
+          "saas/finance-settings",
+          "saas/invoices",
+          "saas/affiliates",
+          "saas/finance-dashboard",
+          {
+            "group": "Payment gateways",
+            "pages": [
+              "gateways/overview",
+              "gateways/stripe",
+              "gateways/paypal",
+              "gateways/paystack",
+              "gateways/razorpay",
+              "gateways/mollie",
+              "gateways/flutterwave",
+              "gateways/paddle",
+              "gateways/yookassa",
+              "gateways/braintree",
+              "gateways/iyzico",
+              "gateways/midtrans",
+              "gateways/coinbase",
+              "gateways/bank-transfer",
+              "gateways/wallet"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Plugins",
+        "pages": [
+          "plugins/overview"
+        ]
+      },
+      {
+        "group": "Integrations",
+        "pages": [
+          "integrations/overview",
+          "integrations/ai/openai",
+          "integrations/ai/anthropic",
+          "integrations/ai/gemini",
+          "integrations/ai/xai",
+          "integrations/ai/fal",
+          "integrations/login/google",
+          "integrations/login/facebook",
+          "integrations/login/x",
+          "integrations/login/linkedin"
+        ]
+      },
+      {
+        "group": "Advanced",
+        "pages": [
+          "advanced/environment-variables",
+          "advanced/storage",
+          "advanced/video-processing",
+          "advanced/cache",
+          "advanced/google-analytics",
+          "advanced/google-recaptcha",
+          "advanced/google-maps"
+        ]
+      },
+      {
+        "group": "Troubleshooting",
+        "pages": [
+          "troubleshooting/installation",
+          "troubleshooting/scheduler-and-queue",
+          "troubleshooting/publishing-errors",
+          "troubleshooting/channel-connections",
+          "troubleshooting/billing-and-payments",
+          "troubleshooting/faq"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+---
+title: 'License activation'
+description: 'Activate, check and deactivate your MagicPost license, and what to do when you move to a new server.'
+---
+
+MagicPost is activated with the license key from your Envato purchase and the Envato username of the buyer. You enter both once in the web installer. Afterwards you manage them on the **Activation** page of the admin panel.
+
+## What activation does
+
+When you activate, MagicPost sends the key to the license server. If the server accepts it:
+
+- The server's reply is saved in a file named `.lic` in the application root.
+- The license key, the username and the license type are saved in the database, in General Settings.
+
+The Activation page shows **Activated** when the `.lic` file exists and is not empty. In-app updates send the stored key to the license server, so keep the license activated if you want to update from the admin panel. See [Update instructions](/updates/update-instructions).
+
+<Note>
+`.lic` is a hidden file. If you move or restore the application by copying files, include hidden files, or the Activation page shows **Not Activated** until you activate again.
+</Note>
+
+## Find your license key
+
+The license key is your Envato purchase code. See [Where is my purchase code](https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code-) on Envato's help center.
+
+## Activate your license
+
+You are asked for the key at the last step of the installer. To activate later, or after a deactivation:
+
+<Steps>
+  <Step title="Open the Activation page">
+    In the admin sidebar open **Platform → Activation**. The page is titled **License Activation**.
+  </Step>
+  <Step title="Enter your details">
+    Under **Activation Details**, enter the **License Key** and the **Envato Username**. Both are required. The fields are masked while you type.
+  </Step>
+  <Step title="Activate">
+    Click **Activate License**. When the server accepts the key, the message **Application license was successfully activated** appears.
+  </Step>
+  <Step title="Check the result">
+    In the **License Status** card, **Status** reads **Activated** and **License Type** shows the type the license server returned for your key, for example a Regular License or an Extended License. **License Type** reads **No Valid License** when the server returned none. While the license is active, the key and username fields are read-only.
+  </Step>
+</Steps>
+
+If you installed MagicPost earlier, the key and username fields are already filled in from the saved settings. In that case you only need to click **Activate License**.
+
+## Deactivate your license
+
+Deactivate before you move MagicPost to another domain or server, or when you switch to a different license. See [Extended license](/license/extended-license) for the second case.
+
+<Steps>
+  <Step title="Open the Activation page">
+    Open **Platform → Activation**.
+  </Step>
+  <Step title="Deactivate">
+    Click **Deactivate License**. MagicPost asks the license server to release the activation.
+  </Step>
+  <Step title="Confirm">
+    When the message **Application license was successfully deactivated** appears, the `.lic` file has been deleted and the saved key, username and license type have been cleared.
+  </Step>
+</Steps>
+
+If the license server reports that the activation is already inactive or not recognised, MagicPost still clears its own copy and shows the same success message. Any other server answer is shown as an error and nothing is cleared.
+
+Deactivating does not delete any of your data.
+
+## Move to a new server
+
+<Steps>
+  <Step title="Deactivate on the old server">
+    Deactivate the license as described above.
+  </Step>
+  <Step title="Install on the new server">
+    Install or restore MagicPost on the new server. If you ran the web installer, you entered the key there, and nothing more is needed.
+  </Step>
+  <Step title="Activate">
+    If you restored the files and the database instead, open **Platform → Activation** and click **Activate License**.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="There was an error while activating your application, please contact support team">
+    The license server did not accept the details or could not be reached. Check the key for typos and spaces, check the username, and confirm that your host allows outbound HTTPS requests through `curl`, in particular to `license.berkine.space`. Then try again.
+  </Accordion>
+  <Accordion title="The page says Not Activated but my key is filled in">
+    The `.lic` file is missing or empty, usually because it was not copied with the other files. Click **Activate License** to create it again.
+  </Accordion>
+  <Accordion title="There was an error while deactivating your application">
+    The server answered with something other than success, and with no message of its own. Try again after a few minutes. If it keeps failing, contact support with the exact text shown.
+  </Accordion>
+</AccordionGroup>

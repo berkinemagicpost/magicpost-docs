@@ -1,0 +1,121 @@
+---
+title: 'YooKassa'
+description: 'Connect YooKassa to MagicPost to take payments in the hosted YooKassa checkout, and learn how recurring plans behave.'
+---
+
+YooKassa accepts every MagicPost plan type for the first payment. Customers pay on a YooKassa page and are sent back to MagicPost. Recurring renewals are the exception: MagicPost saves the customer's payment method but does not charge it on a schedule. See [Subscriptions](#subscriptions).
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Yookassa** |
+| Name at checkout | YooKassa |
+| Test mode | **Mode → Sandbox**, with your YooKassa test shop credentials |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/yookassa` |
+| Webhook secret | None |
+| Webhook events | `payment.succeeded`, `payment.canceled` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/yookassa`, set by MagicPost on each payment |
+| Cancel URL | None is sent. A customer who returns without paying lands on `https://YOUR_DOMAIN/app/user/billing` |
+| Currency | The currency of the plan |
+
+## Get your credentials from YooKassa
+
+<Steps>
+  <Step title="Open your shop">
+    Sign in to your YooKassa account and select the shop you want to connect. A test shop has its own credentials.
+  </Step>
+  <Step title="Open the API keys">
+    Go to **Integration**, then **API keys**.
+  </Step>
+  <Step title="Copy the credentials">
+    Copy the **Shop ID** and the **Secret key**.
+  </Step>
+</Steps>
+
+## Set up notifications in YooKassa
+
+<Steps>
+  <Step title="Open HTTP notifications">
+    In the same shop, go to **Integration**, then **HTTP notifications**.
+  </Step>
+  <Step title="Enter the URL">
+    Use the **Webhook URL** from the MagicPost YooKassa page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/yookassa
+    ```
+  </Step>
+  <Step title="Select the events">
+    Enable `payment.succeeded` and `payment.canceled`.
+  </Step>
+</Steps>
+
+YooKassa gives no signing secret for this method. MagicPost does not trust the notification body: for every event it fetches the payment from YooKassa by ID and acts on the status it gets back.
+
+## Add the credentials in MagicPost
+
+<Steps>
+  <Step title="Open the YooKassa card">
+    Go to **Admin → Finance → Payment Gateways** and click **Yookassa**. The page is titled **Yookassa Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the credentials">
+    Under **Keys**, fill in:
+
+    - **Live Yookassa Shop ID**
+    - **Live Yookassa Secret Key**
+    - **Sandbox Yookassa Shop ID**
+    - **Sandbox Yookassa Secret Key**
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Yookassa settings saved successfully."
+  </Step>
+</Steps>
+
+## How payments work
+
+MagicPost creates a YooKassa payment for the plan price, captures it automatically, and redirects the customer to YooKassa's confirmation page. Each payment includes a receipt for the customer's email, with the plan as one service line, payment mode full prepayment and VAT code 1.
+
+When the customer returns, MagicPost fetches the payment and records the order only if its status is `succeeded`. For Lifetime plans it also creates the subscription. The `payment.succeeded` webhook records the same payment if the customer never came back, provided the payment still carries the user and plan details MagicPost attached. `payment.canceled` is written to the log and changes nothing else.
+
+## Subscriptions
+
+For a Monthly or Yearly plan, MagicPost asks YooKassa to save the customer's payment method on the first payment. When the payment succeeds, MagicPost creates the subscription and stores the saved payment method on it. YooKassa has no plan objects, so there is nothing to create in YooKassa ahead of time.
+
+<Warning>
+MagicPost includes the code to charge a renewal against the saved payment method, but nothing in the application or its scheduled tasks calls it. YooKassa renewals are not collected automatically. Cancelling a subscriber in MagicPost does not contact YooKassa either.
+</Warning>
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price with two decimals. Your YooKassa shop must be able to accept the plan's currency.
+
+## Test mode
+
+YooKassa uses the same API address for test and live shops. **Mode** only chooses which credential pair MagicPost sends. Put the test shop's Shop ID and Secret key in the two **Sandbox** fields, select **Sandbox** and save. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Yookassa. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    The Shop ID or Secret Key for the active Mode is missing. The log says "YooKassa shop_id / secret_key are missing."
+  </Accordion>
+  <Accordion title="YooKassa could not start the payment. Please try again. / YooKassa returned an unexpected response.">
+    YooKassa refused the payment request. Its reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="YooKassa did not return a confirmation URL.">
+    YooKassa answered but gave no redirect address. The reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for YooKassa billing. Please contact support.">
+    The plan is not a Monthly or Yearly plan with a price above zero, or the credentials are missing.
+  </Accordion>
+  <Accordion title="Missing YooKassa session reference. / YooKassa payment lookup failed. / Payment was not completed.">
+    The customer came back in a different browser session, YooKassa could not be reached, or the payment status is not `succeeded`.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

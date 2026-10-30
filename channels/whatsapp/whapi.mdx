@@ -1,0 +1,79 @@
+---
+title: "Whapi.Cloud (hosted)"
+sidebarTitle: "Whapi.Cloud"
+description: "Connect MagicPost to Whapi.Cloud and link a WhatsApp number through a Whapi.Cloud channel."
+---
+
+[Whapi.Cloud](https://whapi.cloud/) is a hosted WhatsApp API, so you run no server. Each user creates a Whapi.Cloud channel, pastes its token into MagicPost and links their number by scanning a code. Each user also pays Whapi.Cloud for their own channel. Whapi.Cloud is not an official WhatsApp API, see the warning on the [overview](/channels/whatsapp/overview).
+
+## What you need
+
+- A Whapi.Cloud account, for the test token (admin) and a channel with a token (every user).
+- A site served over HTTPS, because Whapi.Cloud only delivers webhooks to `https` addresses.
+- A phone with WhatsApp for every number that will be linked.
+
+## Part 1: Admin setup
+
+<Steps>
+  <Step title="Get a test token">
+    Register in the [Whapi.Cloud dashboard](https://panel.whapi.cloud/), open a channel and copy its API token. MagicPost only uses it to test the connection from the admin panel, never to post. See Whapi.Cloud's [getting started guide](https://support.whapi.cloud/help-desk/getting-started/getting-started).
+  </Step>
+  <Step title="Open the setup panel">
+    Go to **Admin → Publishing → Platforms**, click **Add credentials** on the **WhatsApp** card and choose **Whapi.Cloud (hosted)** under **Kind of app**.
+  </Step>
+  <Step title="Fill in the fields">
+    - **API address**: keep `https://gate.whapi.cloud` unless Whapi.Cloud gave you another one. It must start with `https://`.
+    - **Test token**: the API token you copied.
+    - **Webhook signing key**: leave it blank and MagicPost generates one.
+    - **Custom webhook URL**: leave it blank unless Whapi.Cloud must reach your site at a different address.
+    - **Shortest gap** and **Longest gap**: keep 5 and 15 seconds, see [Pacing](/channels/whatsapp/overview#pacing).
+  </Step>
+  <Step title="Check the webhook address">
+    Under **What to register**, the panel shows the **Webhook URL**:
+
+    ```text
+    https://your-domain.com/webhooks/whatsapp/whapi
+    ```
+
+    You do not paste it into Whapi.Cloud. MagicPost sets it on each user's channel when they connect, and leaves any other webhooks on that channel alone. Your site only has to answer at this address over https.
+  </Step>
+  <Step title="Save, check and enable">
+    Click **Save**, then **Run checks** on the card. Every row should pass. Then tick **Available to users**, or use the switch on the card.
+  </Step>
+</Steps>
+
+## Part 2: Connect a number
+
+<Steps>
+  <Step title="Create a Whapi.Cloud channel">
+    In the Whapi.Cloud dashboard, create a channel and copy its API token. The free sandbox allows about 150 messages a day and 1,000 API requests a month, which a few posts to large groups can use up. Whapi.Cloud advises waiting a day or more before linking a brand new WhatsApp number.
+  </Step>
+  <Step title="Open Connect WhatsApp">
+    Go to **Publishing → Channels** and click **WhatsApp** in the **Add a channel** card. Paste the token into **Whapi.Cloud API token**.
+  </Step>
+  <Step title="Choose how to link">
+    Under **How to link**, pick **Scan a QR code** or **Enter a code on the phone**, then click **Start linking**.
+  </Step>
+  <Step title="Link on the phone">
+    On the phone with the number you want to post from, open WhatsApp and go to **Settings → Linked devices → Link a device**. Scan the code on the page, or choose to link with a phone number instead and enter the code shown after you click **Get a code**.
+  </Step>
+  <Step title="Choose where to post">
+    When the page shows **Choose where to post**, tick the groups, WhatsApp Channels and Status you want and click **Connect**. Each one you pick counts as a channel against the plan limit. A channel that is already signed in skips the scan and goes straight to this list.
+  </Step>
+</Steps>
+
+Keep the phone active: open WhatsApp on it at least once every 14 days, or WhatsApp signs the number out.
+
+## Check it works
+
+As admin, **Run checks** shows **Whapi.Cloud reachable** with the state of the test channel, and **Webhook URL** passes only for an `https` address.
+
+As a user, open the actions menu of a channel in **Publishing → Channels** and click **Check connection**. The **Session** row says whether the number is linked.
+
+## If something goes wrong
+
+- **"Whapi.Cloud did not accept that token"**: copy the token again from your channel in the Whapi.Cloud dashboard.
+- **"That Whapi.Cloud channel is already connected to another account"**: one Whapi.Cloud channel serves one MagicPost account. Use a channel of your own.
+- **"The Whapi.Cloud plan for this number has run out of messages or requests"**: upgrade the plan at Whapi.Cloud, then retry the post.
+- **"This number is not allowed to post in this chat"**: the number has left the group, or the group lets only admins post and the number is not one.
+- **"This number was unlinked from its Whapi.Cloud channel"**: the channel was linked to another phone. Use **Reconnect** on the channel and paste the token again.

@@ -1,0 +1,187 @@
+---
+title: 'Profile and security'
+description: 'Update your profile and photo, change your password, turn on two-factor authentication, set your time zone and delete your account.'
+---
+
+Your personal settings sit behind the profile block at the bottom of the sidebar. Click your name to open the menu, then pick the page you need.
+
+| Menu entry | Page | Path |
+|---|---|---|
+| Profile | My Profile | `/app/settings/profile` |
+| Security → Password | Password | `/app/settings/password` |
+| Security → Two-factor auth | Two-Factor Authentication | `/app/settings/two-factor` |
+| Time and date | Time and date | `/app/settings/time` |
+| Appearance (top of the menu) | Appearance | `/app/settings/appearance` |
+
+<Note>
+The paths are relative to your site address. If you use a language other than the site default, the path starts with that language code.
+</Note>
+
+## Update your profile
+
+<Steps>
+  <Step title="Open My Profile">
+    Click your name at the bottom of the sidebar, then click **Profile**.
+  </Step>
+  <Step title="Edit your details">
+    In the **Personal information** card, change any of the fields listed below.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**. A **Saved.** message confirms the update.
+  </Step>
+</Steps>
+
+| Field | Rules |
+|---|---|
+| Full name | Required, up to 255 characters |
+| Email address | Required, must be unique, up to 255 characters |
+| Company | Optional, up to 100 characters |
+| Phone number | Optional, up to 20 characters |
+| Website | Optional, must be a valid URL, up to 255 characters |
+| Street address | Optional, up to 255 characters |
+| City | Optional, up to 100 characters |
+| Postal code | Optional, up to 20 characters |
+| Country | Optional, picked from the list |
+
+If billing details are required at checkout, these fields prefill the checkout form. See [Billing and subscription](/account/billing).
+
+### Change your email address
+
+When you save a new email address, MagicPost marks it as unverified. Click **Re-send verification email** under the field and open the link in the message.
+
+<Warning>
+Until the address is verified, the workspace pages (dashboard, composer, calendar, channels and the rest) stay closed to you. The settings pages remain available so you can request a new verification email.
+</Warning>
+
+### Change your profile photo
+
+<Steps>
+  <Step title="Choose a file">
+    Hover over your photo and click the camera icon, or click the pencil button at the corner of the photo.
+  </Step>
+  <Step title="Save the photo">
+    Click **Save photo** at the top of the page. Click **Cancel** to discard the selection.
+  </Step>
+</Steps>
+
+You can upload a JPEG, PNG, WEBP or GIF image up to 4 MB. If you signed up with a social login, the photo from that provider shows until you upload your own. Without a photo, MagicPost shows your initials.
+
+### The Account card
+
+The **Account** card shows your **User ID**, your **Referral ID**, your **Email status** (Verified or Unverified), whether **Two-factor** is on, and your **Member since** date. It also has shortcuts to the **Password** and **Two-factor auth** pages.
+
+When SaaS Business is enabled, the profile page also shows a **Current plan** card with a **Manage subscription** or **View plans** button, and a **Recent billing** card with your five latest orders. See [Billing and subscription](/account/billing).
+
+## Change your password
+
+<Steps>
+  <Step title="Open the Password page">
+    Click your name at the bottom of the sidebar, then click **Security** and **Password**.
+  </Step>
+  <Step title="Fill in the form">
+    Enter your **Current password**, then your **New password** and **Confirm Password**.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**.
+  </Step>
+</Steps>
+
+On a site running in production mode (`APP_ENV=production`), a new password needs at least 12 characters, with upper and lower case letters, a number and a symbol, and it must not appear in known data breaches. On other environments the Laravel default applies, which is a minimum of 8 characters.
+
+If a password check fails, MagicPost clears all three fields so you can start again.
+
+## Two-factor authentication
+
+Two-factor authentication adds a one-time code from an authenticator app (any TOTP app) to every sign-in.
+
+<Steps>
+  <Step title="Open the page">
+    Click your name at the bottom of the sidebar, then click **Security** and **Two-factor auth**. If MagicPost shows **Confirm your password**, enter your password and click **Confirm**. A confirmation stays valid for 3 hours by default.
+  </Step>
+  <Step title="Enable it">
+    Click **Enable 2FA**. The **Enable Two-Factor Authentication** window opens.
+  </Step>
+  <Step title="Add the account to your app">
+    Scan the QR code with your authenticator app. If you cannot scan, use the setup key under **or, enter the code manually**. Then click **Continue**.
+  </Step>
+  <Step title="Confirm with a code">
+    On the **Verify Authentication Code** screen, enter the 6-digit code from the app and click **Confirm**. **Back** returns you to the QR code.
+  </Step>
+</Steps>
+
+Two-factor is only active once you confirm the code. If you close the window before confirming, it stays off and the next visit to the page starts over.
+
+### Recovery codes
+
+Once two-factor is on, the **2FA Recovery Codes** panel appears on the same page.
+
+- **View Recovery Codes** shows your codes and **Hide Recovery Codes** hides them again.
+- **Regenerate Codes** creates a new set.
+- Each code works once and is removed after use.
+
+Store the codes in a password manager. They are the way back in if you lose your device.
+
+### Sign in with two-factor
+
+After your email and password, MagicPost asks for **Enter your code**. Type the code from your app. If you lost your device, click **Use a recovery code** and enter one of your saved codes.
+
+### Turn two-factor off
+
+On the Two-Factor Authentication page, click **Disable 2FA**. It takes effect immediately, without a further prompt.
+
+## Time and date
+
+This page controls how times read for you across the app. Posts still go out at the moment they were scheduled for.
+
+<Steps>
+  <Step title="Open the page">
+    Click your name at the bottom of the sidebar, then click **Time and date**.
+  </Step>
+  <Step title="Set your options">
+    Choose a time zone, a clock and the first day of the week (described below). The panel at the top, **Right now, for you**, previews the result.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**.
+  </Step>
+</Steps>
+
+| Option | Choices |
+|---|---|
+| **Time zone** | Any time zone in the list. The first entry, **Workspace default**, shows the time zone the administrator set. Click **Use this device's time zone** to pick the one your browser reports. |
+| **Clock** | **24-hour** or **12-hour** |
+| **Week starts on** | Sunday, Monday or Saturday. The calendar, the dashboard and posting slots use it. |
+
+Until you save a choice, you get the workspace time zone, a 24-hour clock and a Sunday start. The administrator sets the workspace time zone under Admin → Publishing → Settings → **Default timezone**. See [Publishing settings](/admin/publishing-settings).
+
+## Appearance
+
+The user menu has a **Light**, **Dark** and **System** switch. See [Language and theme](/account/language-and-theme).
+
+## Delete your account
+
+<Warning>
+Deleting your account permanently deletes the account and its data. This cannot be undone. If you have an active subscription, cancel it from Billing first.
+</Warning>
+
+<Steps>
+  <Step title="Open My Profile">
+    Click your name at the bottom of the sidebar, then click **Profile**.
+  </Step>
+  <Step title="Start the deletion">
+    Scroll to the **Delete account** panel at the bottom of the page and click **Delete account**.
+  </Step>
+  <Step title="Confirm with your password">
+    In **Are you sure you want to delete your account?**, enter your **Password** and click **Delete account**.
+  </Step>
+</Steps>
+
+MagicPost signs you out and returns you to the home page.
+
+<CardGroup cols={2}>
+  <Card title="Notifications" icon="bell" href="/account/notifications">
+    Choose what you hear about and where.
+  </Card>
+  <Card title="API keys" icon="key" href="/account/api-keys">
+    Create keys for your own scripts.
+  </Card>
+</CardGroup>

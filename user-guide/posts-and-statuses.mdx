@@ -1,0 +1,144 @@
+---
+title: 'Posts and statuses'
+description: 'Find, filter and manage every post, understand each status, and handle retries, duplicates and CSV export.'
+---
+
+The **Posts** page lists everything you have composed and where each post got to. Open **Publishing → Posts** in the sidebar. Select a row to open the post page.
+
+## The Posts page
+
+The buttons at the top are **Import**, **Export**, **Calendar** and **New post**. Four tiles summarise your posts:
+
+| Tile | What it counts |
+|---|---|
+| **Drafts** | Posts still being written, with a split into **Draft** and **Pending approval**. |
+| **Scheduled** | Posts waiting to go out, and how many are due in the next 7 days. |
+| **Published** | Posts out in the world, including partly published ones, and how many in the last 14 days. |
+| **Failed** | Posts that failed, split into **Published**, **Partly published** and **Failed**. |
+
+The table has these columns: **Post** (the first 60 characters of the caption and the channels), **Status**, **Channels** (for example **2 of 3 sent**), **Scheduled**, **Published** and **Created**. **Published** can be hidden and **Created** is hidden by default. Use the column menu to show or hide them. Search matches the caption text. The page keeps your sort and search while you work. Choose 10, 25, 50 or 100 rows per page, with 25 as the default.
+
+### Filters
+
+Open the filter menu to narrow the list:
+
+| Filter | Options |
+|---|---|
+| **Status** | Any of the eight post statuses below. |
+| **Platform** | A network. |
+| **Channel** | One of your channels. |
+| **Label** | A label you added in the composer. |
+| **Check needed** | Posts with a channel whose result could not be confirmed. See [Unconfirmed posts](#unconfirmed-posts). |
+| **Kind** | **Repeating series**, **From a series**, **One-off**, **Evergreen** or **Evergreen repeat**. |
+
+### Row actions
+
+Open a row's menu for:
+
+- **View** opens the post page.
+- **Edit** opens the composer. It appears only while the post can still be edited.
+- **Retry failed channels** tries every failed channel again. It skips channels whose result is unconfirmed, because sending again could post twice.
+- **Publish now** asks for confirmation and sends the post straight away.
+- **Duplicate** copies the post to a new draft.
+- **Pause** and **Resume** hold a post or put it back on the schedule.
+- **Remove** takes the post off the schedule after you confirm.
+
+### Bulk actions
+
+Tick several rows to bulk **Pause**, **Resume**, **Move to a new time**, **Duplicate** or **Remove**. **Move to a new time** asks for a **New date and time**. Each action reports how many posts changed, and **Nothing changed** when none did. A post that cannot be moved, such as one already published, is left alone.
+
+## Post statuses
+
+Each post has one status. It is a summary of what is happening on its channels.
+
+| Status | Meaning |
+|---|---|
+| **Draft** | Saved but not on the schedule. A post that a reviewer rejected, or sent back for changes, returns here. So does an approved post that had no time. |
+| **Awaiting approval** | A reviewer on your team has to sign it off before it goes out. See [Approval workflow](/user-guide/approvals). |
+| **Scheduled** | On the schedule and waiting for its time. |
+| **Paused** | You paused it. The time is kept, and **Resume** puts it back. |
+| **Publishing** | At least one channel is being sent right now, or some channels have gone out and others are still in progress. |
+| **Published** | Every channel was published. Channels you skipped are not counted. |
+| **Partly published** | At least one channel was published and at least one failed or is held back. |
+| **Failed** | Nothing was published and nothing is left to send. Open the post to see why. |
+
+A post can be edited while it is a **Draft**, **Awaiting approval**, **Scheduled**, **Paused** or **Failed**. In **Publishing**, **Published** or **Partly published**, the composer refuses edits with **This post has already been published and can no longer be edited.** Use **Duplicate** to start again from it.
+
+Statuses use the same label and colour everywhere, including Posts, Calendar and Home: neutral for routine states, brand colour for a person or a send in progress, green for **Published**, and red for **Failed**, the only status that asks you to act.
+
+## The post page
+
+Select a post to open its page. Its header shows the status, the scheduled or published time, and the buttons **Edit**, **Publish now** and **More actions** (**Duplicate**, **Pause** or **Resume**, **Remove**).
+
+Banners explain the state of the whole post. For example **Waiting for approval.**, **It goes out as soon as it is approved.**, **This post was not approved.** or **Changes were requested.** with an **Edit and send back** button. While channels are being sent, **This page updates on its own.** is shown. If it takes more than a few minutes, **This is taking longer than usual. It carries on in the background, so you can leave this page.**
+
+### Channels
+
+The **Channels** list shows one row per channel with its own status:
+
+| Channel status | Meaning |
+|---|---|
+| **Waiting** | Not armed yet, for example a draft or a post waiting for approval. |
+| **Scheduled** | Waiting for its time or its next attempt. |
+| **Publishing** | Being sent now. |
+| **Published** | On the network. **Open** goes to the live post. |
+| **Failed** | The network refused it or it could not be sent. The error message is shown. |
+| **Skipped** | Dropped, by you with **Skip**, or because the channel was disconnected or the post removed. |
+| **Paused** | Held with the post. |
+| **On hold** | Due, but the channel is paused, needs reconnecting, is cooling down, or the network is switched off. |
+| **Unconfirmed** | A send may or may not have reached the network. See below. |
+
+Each row shows the caption and first comment actually used for that channel, the options, the attempt count (**N of M attempts used**), when it was sent, when the next attempt is, and the figures the network returned (likes, comments, shares, views, impressions, reach, clicks and engagement rate, or **Not reported** where the network does not provide one). When files were converted for a network, for example re-encoded or cropped, a line says what was done.
+
+When a channel needed more than one run, or did not publish cleanly, a history list shows each run with its outcome: **Published**, **Found live**, **Marked as sent**, **Failed**, **Failed, tried again**, **Failed, will try again**, **Unconfirmed**, **Held**, **Interrupted**, **Processing** or **Sending**.
+
+Per-channel buttons appear when they apply:
+
+- **Try again** sends a failed or skipped channel again and clears its attempt count.
+- **Skip** drops one channel from the post and leaves the rest alone.
+- **Reconnect** and **Resume channel** appear when the channel is why the post is held. They take you to the connection or resume the channel.
+
+## Retries and holds
+
+Failed sends are retried automatically when the cause can pass, such as a timeout, a network outage or a rate limit.
+
+- The number of tries comes from the administrator's **Tries before a post fails** setting. The default is 3.
+- The wait before each retry is 2 minutes, then 10, then 30. A rate-limited network can ask for a longer wait, up to a day, and MagicPost waits as long as it asks. The channel then shows **Cooling down** and other posts for it wait too. If the wait would push the post past the hold time below, the post fails instead, with a message that the network asked for a longer wait than posts are allowed.
+- Content a network will never accept, such as a rejected caption or a duplicate post, is not retried. It fails straight away with the network's message.
+- If a channel's authorisation is refused, MagicPost first tries to renew it. If that fails, the channel is marked as needing a reconnect and the post is held, not failed.
+- A post that is due but held by a paused channel, a channel that needs reconnecting, or a network the administrator switched off waits for up to the hold time, **24 hours** by default. The row shows **Held until** a time. After that it is not sent.
+- A send that stops part way, for example when the server restarts, is picked up after the stalled-send time set by your administrator, **15 minutes** by default, and is either found live, tried again, or marked as failed.
+
+Your administrator controls these under **Publishing → Settings**. See [Publishing settings](/admin/publishing-settings) and [Failed posts](/troubleshooting/publishing-errors).
+
+### Unconfirmed posts
+
+Sometimes a send reaches the network but the answer never comes back, so nobody can say whether it posted. MagicPost asks the network first. If the network cannot say, the channel shows **Unconfirmed** and the post appears under the **Check needed** filter. It is not retried automatically, because that could post it twice.
+
+Open the post, look at the channel on the network, then choose:
+
+- **It went out** if you find the post. The channel becomes **Published**, marked as **Marked as sent**.
+- **Send it again** if you do not find it. A confirmation warns that if it already went out, it will appear twice.
+
+## Duplicate a post
+
+**Duplicate** copies the post into a new draft and opens it in the composer. The copy goes through the composer's checks again, so a channel that has been paused since drops out, and today's content rules and plan limits apply.
+
+## Remove a post
+
+**Remove** asks for confirmation, takes the post off the schedule and removes it from your lists. Any channel not yet sent is skipped with the note **The post was cancelled.** Posts already published stay on the network, and removing a post here does not delete them there. Removing a repeating series also removes the upcoming occurrences that have not gone out.
+
+## Export your posts
+
+Select **Export** on the Posts page to download a CSV file named `posts-` followed by the date. It contains these columns:
+
+```text
+id, status, scheduled_at, published_at, timezone, channels, networks, content,
+first_comment, link, labels, post_links, likes, comments, shares, impressions
+```
+
+Times are in your time zone. Multiple channels, networks and labels are separated by semicolons. `post_links` holds the links to the live posts, separated by spaces, and the engagement columns add up the latest figures across the post's channels. The file is UTF-8 with a byte order mark so spreadsheets read it correctly. To protect you from formulas, a cell that begins with `=`, `+`, `-` or `@` is saved with a leading apostrophe.
+
+To export a single status, add `?status=` and a status key to the export address, for example `?status=failed`. The keys are `draft`, `pending_approval`, `scheduled`, `paused`, `publishing`, `published`, `partially_published` and `failed`.
+
+To bring posts in, see [RSS feeds and CSV import](/user-guide/feeds-and-import).

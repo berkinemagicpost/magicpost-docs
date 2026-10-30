@@ -1,0 +1,179 @@
+---
+title: 'Scheduling'
+description: 'Publish now, pick a date and time, use your posting queue, repeat a post on a schedule or recycle a successful post as evergreen.'
+---
+
+Every post goes out in one of four ways. You choose in the composer, on the **When** tab, or by the button you press at the bottom of the screen.
+
+| Option | Where | What happens |
+|---|---|---|
+| **Publish now** | Bottom bar, Posts list, post page | The post is sent straight away. |
+| **At a time** | **When** tab | The post goes out on the date and time you pick. |
+| **Queue** | **When** tab | The post takes the next free posting slot of the selected channels. |
+| **Repeat** | **When** tab | A series of posts is created from one definition, daily, weekly or monthly. |
+
+A post saved with **Save draft** has no time. It stays a draft until you schedule it.
+
+<Note>
+Scheduled posts are sent by the server's scheduler, which must run every minute. If it stops, posts stay scheduled. See [Cron and queue](/installation/cron-and-queue) and [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).
+</Note>
+
+## Time zones
+
+You pick times on your own clock. MagicPost stores them in UTC and converts them at each occurrence, so a repeating post keeps the same local time through daylight saving changes.
+
+The time zone comes from, in order:
+
+1. The **Time zone** you choose under **Time and date** in the user menu. See [Profile and security](/account/profile-and-security).
+2. The workspace default time zone your administrator set under **Publishing → Settings → Default timezone**.
+
+In the composer, the **Timezone** field at the bottom of the **When** tab sets the time zone for that one post. The post page shows **Scheduled in** when that differs from your own. The queue, calendar, dashboard and lists all show times in your time zone and clock format.
+
+## Publish now
+
+Select **Publish now** at the bottom of the composer and confirm **Publish now?** The post is sent to every selected channel straight away. From the Posts list, choose **Publish now** in the row menu, and from a post page select **Publish now**. A paused post that you publish now stops being paused.
+
+A channel that is paused or needs reconnecting is held back and you are told why, while the other channels still go out. The held channel is sent once it is back, within the hold time your administrator sets (24 hours by default). After that the post is not sent to it. If the post is waiting for approval it goes out once it is signed off. See [Approval workflow](/user-guide/approvals).
+
+## Schedule at a time
+
+<Steps>
+  <Step title="Open When">
+    In the composer, open the **When** tab and choose **At a time**.
+  </Step>
+  <Step title="Pick a day">
+    Select a day in the strip of the next 14 days, or use **Another date** for a later day. A dot under a day marks a **queue day**, where the selected channels have posting slots.
+  </Step>
+  <Step title="Pick a time">
+    Select one of the time buttons or type a time in the time box. Buttons come from, in order of preference:
+
+    - **from your queue**: the posting slots of the selected channels on that day
+    - **suggested for these channels**: the strongest hours from your own results, or typical hours for the network until enough posts are measured
+    - **common times**: 09:00, 12:00, 15:00, 18:00 and 21:00
+  </Step>
+  <Step title="Or use a quick pick">
+    **Next best time**, **In an hour**, **This evening** (18:00 today, or tomorrow at 18:00 once it is 18:00 or later), **Tomorrow 09:00** and **Monday 09:00**. **Next best time** needs a channel to be selected first.
+  </Step>
+  <Step title="Schedule">
+    Select **Schedule**. A message confirms **Post scheduled for** the time.
+  </Step>
+</Steps>
+
+A time that has already passed is refused with **That time has already passed. Pick a time in the future.** You can edit a post that is already late, for example one held by a paused channel, without being forced to pick a new time.
+
+To reschedule later, drag the post to another day or hour on the [Calendar](/user-guide/calendar), edit it in the composer, or select posts in the Posts list and use **Move to a new time**. A post that has already gone out cannot be moved.
+
+## Posting queue
+
+The queue lets you define the times each channel publishes at, then send posts to "the next slot" instead of picking a date yourself.
+
+Open **Publishing → Queue** in the sidebar. The page title is **Posting Queue**.
+
+### Set posting times
+
+<Steps>
+  <Step title="Choose a channel">
+    Pick a channel under **Channels**. Each channel has its own week.
+  </Step>
+  <Step title="Fill the week">
+    Use **Fill the week** to apply a ready-made schedule, or add times day by day:
+
+    | Preset | Days | Times |
+    |---|---|---|
+    | **Once a day** | Every day | 09:00 |
+    | **Three times a day** | Every day | 09:00, 13:00, 17:00 |
+    | **Weekdays only** | Monday to Friday | 08:30, 12:30, 16:30 |
+    | **Weekends only** | Saturday and Sunday | 10:00, 15:00 |
+
+    To add a single time, select **Add time** under a day, type the time as `HH:MM` and select **Add**. Select a time to **Remove** it.
+  </Step>
+  <Step title="Check the preview">
+    **Next openings** lists the next dates the queue would hand out. Slots already taken by a scheduled post are skipped.
+  </Step>
+</Steps>
+
+You can also:
+
+- **Copy these times to every day** from one day's slot list.
+- **Copy to other channels** to put the whole week on all your other channels.
+- **Clear** to remove every posting time on the channel, after you confirm. Posts already scheduled keep their time.
+- Open **Best times** and select **Add to the queue** to add up to two of the strongest hours for each day, at least three hours apart. The **Strongest hours** grid shades the best hours and outlines the ones already in the queue.
+
+### Send a post to the queue
+
+In the composer, open **When** and choose **Queue**. The panel shows **Next opening**. When you select **Schedule**, the post takes that slot.
+
+- A post for several channels goes out once, at the earliest opening that any of the selected channels offers.
+- The search looks up to 28 days ahead. If none of the selected channels has a free slot you see **No posting slots are set up on the selected channels yet.** with a **Set up the queue** button.
+- A slot counts as taken when a post on that channel already sits on that minute, including posts that have been published.
+- Saving a queued post again keeps the slot it already has.
+
+### Manage the queue
+
+Under **Up next** you see the queued posts on the channel in the order they go out. **Posts given a fixed time are left where they are.** Use **Move earlier** and **Move later** to swap a post with its neighbour. **Shuffle** deals the times out again in a random order. **Fill the gaps** moves queued posts onto the earliest open slots, keeping their order, so gaps left by a deleted post close up. These actions only move queued posts, and a post that is also queued on other channels moves there too.
+
+## Repeat a post
+
+A repeating post is a definition that creates ordinary scheduled posts. It needs the **Recurring and evergreen posts** feature on your plan. Without it, **Repeat** is greyed out with a lock, and an existing repeat is shown read only with **Remove repeat**.
+
+<Steps>
+  <Step title="Choose Repeat">
+    In **When**, choose **Repeat**. The date strip now sets **Starts on**.
+  </Step>
+  <Step title="Set the rule">
+    - **Repeats**: **Daily**, **Weekly** or **Monthly**.
+    - **Every**: a number from 1 to 12. For example, weekly and every 2 means every second week.
+    - **On these days**: for Weekly, the days of the week. It starts with the weekday of the start date.
+    - **Ends on**: an optional last date.
+  </Step>
+  <Step title="Set the time and zone">
+    Pick the time as for any post, and check **Timezone**.
+  </Step>
+  <Step title="Check the dates">
+    **Next dates** lists the next three. **That repeat schedule has no upcoming dates. Check the days and the end date.** means the rule can produce none, and **Review the rule** takes you back to **When**.
+  </Step>
+  <Step title="Schedule">
+    Select **Schedule**. The message reads **Repeating post saved. The next one goes out** followed by the time.
+  </Step>
+</Steps>
+
+A monthly repeat uses the day of the month of the start date. In a shorter month it falls on the last day of the month.
+
+### How the series works
+
+- The definition never publishes itself. Occurrences are created about two weeks ahead and each one is an ordinary scheduled post that you can open, edit, pause or remove on its own.
+- In the Posts list, the **Kind** filter separates **Repeating series**, **From a series**, **One-off**, **Evergreen** and **Evergreen repeat**.
+- Editing the definition rebuilds the upcoming occurrences nobody touched. One that you moved or edited yourself keeps your version, and so does anything already going out.
+- Pausing the series pauses what it already lined up. Removing it removes upcoming occurrences that have not been sent.
+- Only occurrences count towards your monthly post total and your scheduled-ahead limit. The definition does not.
+- If your plan loses the feature, no new occurrences are created. Dates that passed meanwhile are not filled in when the feature returns.
+
+## Evergreen posts
+
+An evergreen post is a published post that goes out again after a gap. It is useful for posts that stay relevant, such as a guide or an offer.
+
+1. Open a published or partly published post from **Posts**. Posts created from a series cannot be made evergreen.
+2. Select **Make it evergreen**.
+3. Set **Share it again every** to 7, 14, 30, 60, 90 or 180 days.
+4. Set **How many more times** to 1, 2, 3, 5 or 10, or **Until I stop it** for no end.
+5. Leave **Leave X out of the repeats** on if the post goes to X. X turns away a post that repeats one it has already seen.
+6. Select **Save**.
+
+The post page then shows the plan, for example **Goes out again every 30 days**, and **The next one is lined up around** a date. **Change** edits the settings and **Stop** ends the repeats. Repeats already lined up stay as they are.
+
+Each repeat is a fresh copy that goes through the composer, so today's content rules, plan limits and approval apply. It takes the channels' next free queue slot. When no slot is free it goes out the next day at the time of the original. Channels that cannot publish at that moment are left out. If the copy cannot be made, MagicPost keeps the reason as a note on the post and tries again 24 hours later.
+
+A repeat shows **This is a repeat of an evergreen post.** with an **Open the original** link. Evergreen needs the **Recurring and evergreen posts** feature. Saving settings that the post already has is allowed on any plan, and without the feature no new repeats are lined up.
+
+## Pause and resume
+
+Pausing holds a post without losing its timing. You can pause from the Posts list, the Calendar or the post page. A paused post shows the **Paused** status. **Resume** puts it back on the schedule at its original time. Posts waiting for approval cannot be paused.
+
+You can also pause a whole channel from [Connect channels](/user-guide/connect-channels).
+
+## Plan limits
+
+- **Posts scheduled ahead** is the number of posts waiting in the **Scheduled**, **Awaiting approval** and **Paused** statuses. At the limit, **Schedule** is disabled and a note shows your usage.
+- **Posts per month** counts posts created this calendar month. A post that went out still counts after you delete it.
+
+Editing a post that already holds a place never uses a new place. When billing is not turned on for the site, these limits do not apply. See [Billing and subscription](/account/billing).

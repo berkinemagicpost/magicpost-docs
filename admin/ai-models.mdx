@@ -1,0 +1,121 @@
+---
+title: "AI models"
+description: "Store provider API keys, switch writing and media models on or off, test them, set credit prices and add fal.ai endpoints."
+---
+
+MagicPost's AI caption writer and its Image and Video Studio run on models from outside providers. You connect the providers and decide which models customers can use on two admin pages under **Publishing**:
+
+- **Writing Models** for captions and text.
+- **Media Models** for pictures and video.
+
+<Note>
+  Both pages share one set of provider keys. A key you save on **Media Models** for OpenAI, Google or xAI is the same key **Writing Models** uses. How customers use the models is covered in [AI writing and media](/user-guide/ai-tools).
+</Note>
+
+## When a model is usable
+
+A model appears to customers only when both of these are true:
+
+1. The provider's API key is stored.
+2. The model's own switch is on.
+
+Each page opens with a line that counts how many models are ready, or tells you that none is usable yet.
+
+## Writing models
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Publishing**, **Writing Models**. Under **Provider keys** there is one field for each provider on the list: **OpenAI GPT**, **Google Gemini**, **Anthropic Claude** and **xAI Grok**.
+  </Step>
+  <Step title="Paste the keys">
+    Paste each key you have into its field. The eye icon shows the value. Click **Save keys**. Leave a field empty for a provider you do not use. Clearing a field removes that key.
+  </Step>
+  <Step title="Check the provider card">
+    Each provider has a card with a **Key stored** or **No key** badge, and a row for each of its models.
+  </Step>
+  <Step title="Test a model">
+    Click **Test** on a model row. MagicPost sends the smallest possible real request. A success message names the model and says it answered. A failure shows the provider's reason. The request is tiny, but it is made with your provider account and counts as usage there.
+  </Step>
+  <Step title="Switch it on">
+    Turn on the switch at the end of the row. Models from the starting list come switched on, so a missing key is usually the only thing keeping them unusable.
+  </Step>
+</Steps>
+
+Getting keys: [OpenAI](/integrations/ai/openai), [Anthropic](/integrations/ai/anthropic), [Google Gemini](/integrations/ai/gemini) and [xAI Grok](/integrations/ai/xai).
+
+### Edit a model
+
+Click **Edit** on a row to change it.
+
+| Field | Notes |
+|---|---|
+| **Model identifier** | The model name exactly as the provider names it in their API. Up to 191 characters. |
+| **Display name** | What customers see. Up to 191 characters. |
+| **Description** | Optional, up to 500 characters. |
+| **Tier** | **Premium**, **Standard** or **Fast**. Shown as a badge. |
+| **Credits per run** | The price of one generation, a whole number from 0 to 1000. |
+
+Provider model names change over time. If a test reports an unknown model, correct the identifier here. When a model turns down one of the settings MagicPost sends, the test says which ones, and MagicPost stops sending them to that model.
+
+## Media models
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Publishing**, **Media Models**. If the list is empty, click **Load the starting list**. A fresh install already has it.
+  </Step>
+  <Step title="Paste the keys">
+    The **Provider keys** form lists **OpenAI**, **Google**, **xAI** and **fal.ai**. Paste the keys you have and click **Save keys**.
+  </Step>
+  <Step title="Test a picture model">
+    Click **Test** on a picture model. MagicPost makes one small picture to prove the key and the model identifier work together. Video models and models that need a source picture have no Test button.
+  </Step>
+  <Step title="Switch models on">
+    Use the switch on each row.
+  </Step>
+</Steps>
+
+Pictures are priced per picture and video clips per second. Credits are held while the work runs and charged only for what arrives. See [Credits and allowances](/saas/credits).
+
+Each row shows the model name, a tag with its price (for example "credits a picture" or "credits a second"), the shapes it makes and, for video, the clip lengths. Further tags say **Edits**, **From a picture** or **Needs a picture**.
+
+**Refresh the starting list** reloads the built-in models. It adds models that are missing and resets display names, descriptions and capabilities to the starting values. It keeps the credit cost and the on/off switch of models already on the list.
+
+### Edit a media model
+
+| Field | Notes |
+|---|---|
+| **Model identifier** | Exactly as the provider names it. Unique within the provider. |
+| **Display name**, **Description** | As for writing models. |
+| **Credits per picture** or **Credits per second** | Whole number from 0 to 10000. |
+| **Pictures per request** | Picture models only. **Up to** 1, 2, 3 or 4. |
+| **Can edit a picture** | Picture models only. |
+| **Clip lengths, in seconds** | Video models only. Comma-separated whole numbers of up to two digits, for example `4, 6, 8`. |
+| **Can start from a picture** | Video models only. |
+| **Shapes it makes** | Tick at least one of 1:1, 4:5, 3:4, 4:3, 3:2, 2:3, 16:9, 9:16. |
+
+### Add a fal.ai endpoint
+
+fal.ai serves many picture and video models behind one key, so you add the ones you want by endpoint id.
+
+<Steps>
+  <Step title="Fill in the form">
+    At the bottom of **Media Models**, under **Add a fal.ai endpoint**, enter the **Endpoint id** exactly as fal.ai shows it, for example `fal-ai/flux-2` (at least two parts separated by a slash, made of letters, digits, dots, hyphens and underscores), a **Display name**, what it **Makes** (**Pictures** or **Video**), and the credit price.
+  </Step>
+  <Step title="Add it">
+    Click **Add endpoint**. The model is added switched off and its editor opens.
+  </Step>
+  <Step title="Check the request mapping">
+    The **Request mapping** box holds JSON that tells MagicPost which fields the endpoint expects. It must be a JSON object that contains `inputs.prompt`, the field that takes the description. Compare the field names with the endpoint's API page on fal.ai.
+  </Step>
+  <Step title="Save and switch on">
+    Tick **Only works from a picture** if the endpoint cannot run without a source image. Click **Save**, then turn the model's switch on.
+  </Step>
+</Steps>
+
+The mapping uses these keys: `inputs` names the endpoint's fields for prompt, shape, count, seconds and image (end a field name with `[]` to send a list); `shape_values` renames shapes; `seconds_as` sends the length as a `string` or a `number`; `preset` goes with every request; and `output` says where the files are: `images`, `image` or `video`.
+
+Use the trash icon on a fal.ai row to remove it. You cannot remove a model while something is still being made with it. Pictures and clips already made stay in the libraries.
+
+## Provider keys are secrets
+
+Provider keys are stored encrypted in the database. Never paste them into support tickets or screenshots.

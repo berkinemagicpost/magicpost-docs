@@ -1,0 +1,137 @@
+---
+title: 'Flutterwave'
+description: 'Connect Flutterwave to MagicPost to take payments for one-time and recurring plans through the hosted Flutterwave checkout.'
+---
+
+Flutterwave supports every MagicPost plan type. Customers pay on a Flutterwave page and are sent back to MagicPost, which verifies the transaction with Flutterwave before it grants the plan. MagicPost uses the Flutterwave v3 API.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Flutterwave** |
+| Name at checkout | Flutterwave |
+| Test mode | **Mode → Sandbox**, with your Flutterwave test keys |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/flutterwave` |
+| Webhook events | `charge.completed` (successful charges only), `subscription.cancelled` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/flutterwave`, set by MagicPost on each payment |
+| Cancel URL | A cancelled payment returns to the return URL and then to `https://YOUR_DOMAIN/app/user/billing` |
+| Currency | The currency of the plan |
+
+## Get your keys from Flutterwave
+
+<Steps>
+  <Step title="Sign in">
+    Open your Flutterwave Dashboard and sign in.
+  </Step>
+  <Step title="Open the API keys">
+    Go to **Settings**, then **API Keys**. Use the test keys while the dashboard is in test mode and the live keys for production.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the **Public Key** and the **Secret Key**.
+  </Step>
+</Steps>
+
+<Note>
+MagicPost calls the Flutterwave v3 API, so it needs v3 keys (a public key and a secret key). The v4 client ID and client secret do not work here. Flutterwave explains the difference in its [authentication guide](https://developer.flutterwave.com/v3.0/docs/authentication).
+</Note>
+
+## Set the webhook in Flutterwave
+
+<Steps>
+  <Step title="Choose a secret hash">
+    Pick a long random string. Flutterwave sends it back with every webhook so MagicPost can tell the request is genuine.
+  </Step>
+  <Step title="Open the webhook settings">
+    In the Flutterwave Dashboard, go to **Settings**, then **Webhooks**.
+  </Step>
+  <Step title="Enter the URL and the hash">
+    Paste the **Webhook URL** from the MagicPost Flutterwave page and your secret hash:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/flutterwave
+    ```
+  </Step>
+  <Step title="Save">
+    Save the settings in Flutterwave.
+  </Step>
+</Steps>
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Flutterwave card">
+    Go to **Admin → Finance → Payment Gateways** and click **Flutterwave**. The page is titled **Flutterwave Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Flutterwave Public Key**
+    - **Live Flutterwave Secret Key**
+    - **Sandbox Flutterwave Public Key**
+    - **Sandbox Flutterwave Secret Key**
+  </Step>
+  <Step title="Paste the secret hash">
+    Under **Webhooks**, type the same string into **Secret Hash**. MagicPost compares it with the `verif-hash` header on each request.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Flutterwave settings saved successfully."
+  </Step>
+</Steps>
+
+<Warning>
+When **Secret Hash** is empty, MagicPost accepts webhook requests without checking them. Fill it in on a live site. There is one field for both modes.
+</Warning>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost creates a Flutterwave payment for the plan price and redirects the customer to the link Flutterwave returns. When the customer comes back, MagicPost verifies the transaction with Flutterwave and records the order only if the transaction was successful. For Lifetime plans it also creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates a Flutterwave payment plan (monthly or yearly, with no end) and attaches it to the payment. Flutterwave creates the subscription after the first successful charge. MagicPost then looks it up by customer email and plan and stores its ID, or falls back to the payment reference.
+
+**Webhook.**
+
+- `charge.completed` with a successful status records the order if it has not been recorded yet. MagicPost needs the user and plan details it attached when it started the payment. For a Monthly or Yearly plan it also creates a subscription record.
+- `subscription.cancelled` marks the subscription as cancelled.
+
+<Note>
+There is no separate renewal handler for Flutterwave. A renewal charge is recorded only when its `charge.completed` notification carries the user and plan details from checkout. Check the first renewal of a new plan in your Flutterwave Dashboard and in **Admin → Finance → Orders**.
+</Note>
+
+Cancelling a subscriber in MagicPost does not cancel it at Flutterwave. Also cancel it in your Flutterwave Dashboard.
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost cancels the old Flutterwave payment plan and creates a new one at the next purchase.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the plan price as it is, without conversion. Your Flutterwave account must be able to charge the plan's currency.
+
+## Test mode
+
+Fill in the **Sandbox** key fields, select **Sandbox** under **Mode** and save. Pay with Flutterwave's test details while your dashboard is in test mode. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Flutterwave. Turn it on and save.
+  </Accordion>
+  <Accordion title="Flutterwave could not start the payment. Please try again.">
+    The request to Flutterwave failed, usually because the Secret Key for the active Mode is wrong or from the wrong API version. The reason is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Flutterwave returned an unexpected response.">
+    Flutterwave answered but did not return a payment link, for example because the currency is not enabled on your account.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Flutterwave billing. Please contact support.">
+    The Flutterwave payment plan could not be created. The log line begins with "Flutterwave plan create failed".
+  </Accordion>
+  <Accordion title="Payment was cancelled. / Missing Flutterwave reference. / Flutterwave verification failed.">
+    The customer cancelled on the Flutterwave page, came back without a transaction ID and reference, or Flutterwave could not verify the transaction.
+  </Accordion>
+  <Accordion title="Flutterwave shows the webhook failing with status 400">
+    The body is `invalid signature`: **Secret Hash** in MagicPost differs from the hash in the Flutterwave Dashboard.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

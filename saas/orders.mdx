@@ -1,0 +1,97 @@
+---
+title: "Orders and transactions"
+description: "Find every payment under Finance, Orders, read order details, approve or decline bank transfers by checking the proof of payment, and download invoices."
+---
+
+An order is the record of one purchase. MagicPost creates one whenever a customer pays, a free plan is activated, or you assign a plan. You review them under **Finance** → **Orders**.
+
+## The orders list
+
+The page title is **Orders** and the subtitle gives the total number of payment transactions. The newest orders come first.
+
+| Column | Meaning |
+|---|---|
+| Order ID | The reference of the order. |
+| Customer | Name, with the email underneath. |
+| Price | The amount with its currency code. |
+| Pricing Plan | The plan name, with its type underneath. |
+| Gateway | How it was paid. |
+| Status | Pending, Cancelled, Completed, Failed or Declined. |
+| Created On | Date and time. |
+
+You can search by order ID, customer, plan, gateway and status, sort, show or hide columns, and filter by **Status**. Each row has these actions.
+
+| Action | Notes |
+|---|---|
+| View | Opens the order page. |
+| Download Invoice | Only for completed orders. See [Invoices](/saas/invoices). |
+| Delete | Removes the order record after you confirm. |
+
+You can also tick rows and delete them in bulk. Deleting an order only removes the record. It does not cancel a subscription or take credits back, and it changes the totals on the [Finance dashboard](/saas/finance-dashboard).
+
+### Order ID prefixes
+
+| Prefix | Created by |
+|---|---|
+| `BT-` | A customer choosing bank transfer at checkout. |
+| `MANUAL-` | You, with **Assign Subscription**. The gateway is shown as Manual. |
+| `FREE-` | A customer activating a free plan. The gateway is shown as Free and the price is 0. |
+
+Orders paid through an online gateway carry the reference supplied by that gateway.
+
+## Order statuses
+
+| Status | Meaning |
+|---|---|
+| Completed | The payment is confirmed and the plan's benefits have been granted. |
+| Pending | A bank transfer is waiting for your review. Nothing has been granted yet. |
+| Declined | You rejected a bank transfer. Nothing was granted and the customer sees the failed attempt in their billing history. |
+| Cancelled | You set this on a bank transfer order. Benefits that were already granted are not taken back. |
+| Failed | Offered in the status filter and counted separately on the Finance dashboard. |
+
+When an order completes, MagicPost grants the plan's credits, creates the subscription for Monthly, Yearly and Lifetime plans, stamps an invoice number, notifies the first admin account about the payment, and awards a referral commission when the buyer was referred. See [Referral program admin](/saas/affiliates).
+
+## Order details
+
+Open **View** on a row. The page heading is **Order ID** followed by the reference. Completed orders show an **Invoice** button.
+
+| Card | What it shows |
+|---|---|
+| Order Details | Order ID, Payment Gateway, Payment Type, Status, Price and Gateway Transaction ID. The last field repeats the order reference. |
+| Bank Transfer | Only on bank transfer orders. Proof of payment and the status control, described below. |
+| Customer | Name and email, and **Next Payment Date** when the order has an access period. |
+| Subscription Details | The **Plan Name** and **Included Credits**. |
+
+## Approve a bank transfer
+
+Bank transfers are settled by hand, so each one waits as a **Pending** order until you confirm the money arrived. There is no webhook and the customer is not charged again at renewal. Set up the account details your customers pay into under [Bank transfer](/gateways/bank-transfer).
+
+<Steps>
+  <Step title="The customer orders">
+    At checkout the customer picks **Bank Transfer**. MagicPost creates a Pending order with a `BT-` reference and shows an instructions page with your bank details and a reminder to quote the reference in the transfer description.
+  </Step>
+  <Step title="The customer uploads proof">
+    On their Profile, the **Recent billing** card shows an **Upload proof of payment** button on the pending order. The proof can be a PDF, JPG, PNG or WEBP file of up to 8 MB. They can replace it later.
+  </Step>
+  <Step title="Open the order">
+    Go to **Finance** → **Orders** and open the order with **View**. The **Bank Transfer** card appears.
+  </Step>
+  <Step title="Check the proof">
+    Under **Proof of Payment**, click **View attachment** to open the file. If nothing was uploaded, the card says so. It also shows when the file was uploaded.
+  </Step>
+  <Step title="Set the status">
+    In **Order Status** choose **Completed**, **Declined**, **Cancelled** or **Pending**, then click **Update status** and confirm.
+  </Step>
+</Steps>
+
+Choosing **Completed** releases the plan's credits and creates the subscription, and the message **Order approved. The customer now has access.** appears. Approval is idempotent: approving an already completed order does nothing, so credits are never granted twice. Any other status only records your decision.
+
+<Note>
+  The status control works for bank transfer orders only. For other gateways the status is set by the payment confirmation that arrives from the gateway. If an online payment looks stuck, see [Billing problems](/troubleshooting/billing-and-payments).
+</Note>
+
+Proof files are stored privately. Only the customer who owns the order and admins can open them.
+
+## What a pending order does not do
+
+A pending bank transfer order has no access period. The customer gets no credits, no subscription and no invoice until you complete it. The order's credits are saved on the order for reference only.

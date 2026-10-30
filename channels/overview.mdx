@@ -1,0 +1,300 @@
+---
+title: 'Publishing channels'
+description: 'How MagicPost connects to social networks: one app per network, connected accounts, channel states, and where publishing limits come from.'
+---
+
+MagicPost publishes through the official API of each network. You, as the administrator, register one app with every network you want to offer and store its keys in MagicPost once. Your users then connect their own accounts through that app. They never see the keys. WhatsApp and Telegram work differently: WhatsApp links a number through a provider you choose, and Telegram posts through a bot that you create.
+
+A connected account is called a **channel**. One login can produce several channels: a LinkedIn member who manages two Pages connects up to three channels.
+
+## Supported networks
+
+<CardGroup cols={3}>
+  <Card title="X (Twitter)" href="/channels/x">
+    Posts with images or video, and a first comment as a reply.
+  </Card>
+  <Card title="LinkedIn" href="/channels/linkedin">
+    Personal profiles, and company Pages with the Community Management API.
+  </Card>
+  <Card title="Facebook Pages" href="/channels/meta/facebook">
+    Feed posts, Reels and Stories on Pages you manage.
+  </Card>
+  <Card title="Instagram" href="/channels/meta/instagram">
+    Feed posts, Reels and Stories on professional accounts.
+  </Card>
+  <Card title="Threads" href="/channels/meta/threads">
+    Text, image and video posts with reply control.
+  </Card>
+  <Card title="TikTok" href="/channels/tiktok">
+    Direct-posted videos and photo posts.
+  </Card>
+  <Card title="YouTube" href="/channels/youtube">
+    Videos and Shorts, with title and visibility.
+  </Card>
+  <Card title="Pinterest" href="/channels/pinterest">
+    Image, carousel and video pins on a board.
+  </Card>
+  <Card title="WhatsApp" href="/channels/whatsapp/overview">
+    Groups, WhatsApp Channels and Status through WAHA, Whapi.Cloud or the official Cloud API.
+  </Card>
+  <Card title="Telegram" href="/channels/telegram/overview">
+    Channels and groups through a bot you create with @BotFather.
+  </Card>
+</CardGroup>
+
+| Network | Post types | Text limit | First comment |
+|---|---|---|---|
+| X (Twitter) | Post | 280 characters, 25,000 for accounts with an X subscription | Yes |
+| LinkedIn | Post | 3,000 characters | Yes, with the Profiles and Pages setup |
+| Facebook Page | Feed post, Reel, Story | 63,206 for a feed post, 2,200 for a Reel, none for a Story | Feed post and Reel |
+| Instagram | Feed post, Reel, Story | 2,200 for a feed post and a Reel, none for a Story | Feed post and Reel |
+| Threads | Post | 500 characters | Yes |
+| TikTok | Video, Photo | 2,200 for a video, 4,000 for a photo post | No |
+| YouTube | Video, Short | 5,000 bytes for the description | Yes |
+| Pinterest | Pin | 800 characters | No |
+| WhatsApp | Message | 4,096 characters, 1,024 under a picture or video | No |
+| Telegram | Message | 4,096 characters, 1,024 under a picture or video | Yes, where the bot can reach the comments |
+
+The first comment needs the network permission named on each network's page. A connection that lacks it does not show the First comment field. Telegram has no permission to grant. A Telegram channel takes a first comment only when it has a discussion group with the bot as an admin. A Telegram group needs nothing extra. See [Telegram channels](/channels/telegram/overview#first-comment).
+
+## How connecting works
+
+<Steps>
+  <Step title="You register an app on the network">
+    Each network has its own developer console. The network's page in this section lists the steps and the permissions to request.
+  </Step>
+  <Step title="You store the keys in MagicPost">
+    Go to **Admin** → **Publishing** → **Platforms** and add the keys on the network's card. See [Channel credentials](/admin/publishing-platforms).
+  </Step>
+  <Step title="Users connect their accounts">
+    Users open **Publishing** → **Channels**, click the network, and approve access on the network's own sign-in page.
+  </Step>
+  <Step title="MagicPost keeps the connection alive">
+    It renews tokens ahead of time, checks channels that have posts coming up, and asks the owner to reconnect when a network turns the authorisation down.
+  </Step>
+</Steps>
+
+## Store the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Platforms page">
+    Go to **Admin** → **Publishing** → **Platforms**. Each network has a card.
+  </Step>
+  <Step title="Open the setup panel">
+    Click **Add credentials** on the card. The button reads **Edit credentials** once keys are stored. A panel titled **Set up** and the network name opens.
+  </Step>
+  <Step title="Copy the redirect URI">
+    Under **What to register**, copy the **Redirect URI** and add it to the app in the network's developer console. Under **Permissions asked for**, **Copy all** copies the permission list.
+  </Step>
+  <Step title="Paste the keys">
+    Paste the app's ID into **Client ID** and its secret into **Client secret**. Tick **Available to users**, then click **Save**.
+  </Step>
+  <Step title="Run the checks">
+    Click **Run checks** on the card. The **Configuration checks** window lists what was verified.
+  </Step>
+</Steps>
+
+The panel fields:
+
+| Field | What it does |
+|---|---|
+| **Client ID** | The app's public ID. The hint under the field names the label the network's console uses for it. |
+| **Client secret** | The app's secret. It is stored encrypted. When a secret is stored, leave the field blank to keep it. |
+| **Custom redirect URI** | Optional. A full URL that replaces the redirect URI shown above. Leave it empty unless you know you need it. |
+| **Available to users** | Shows the network to users. The switch on the card does the same, and stays disabled until an ID and a secret are stored. |
+| **Kind of app** | Shown for LinkedIn and WhatsApp. For LinkedIn, choose **Profiles** or **Profiles and Pages**. Changing it later means everyone reconnects their channels on that network. |
+| **Use the Pinterest sandbox** | Pinterest only. Sends pins to Pinterest's sandbox. |
+
+**Remove** deletes the stored ID and secret and switches the network off.
+
+The WhatsApp and Telegram panels ask for different fields. See [WhatsApp channels](/channels/whatsapp/overview) and [Set up Telegram](/channels/telegram/setup).
+
+<Warning>
+Stored keys and every channel's tokens are encrypted with the `APP_KEY` of the installation. If `APP_KEY` changes, MagicPost can no longer read them, and you have to enter the keys again and every user has to reconnect.
+</Warning>
+
+### Card badges
+
+| Badge | Meaning |
+|---|---|
+| **Live** | Keys are stored, the network is switched on, and the connector and publisher are installed. Users can connect and publish. |
+| **Not configured** | No ID and secret are stored yet. |
+| **Disabled** | Keys are stored but the network is switched off. |
+| **Driver pending** | This build has no connector or no publisher for the network. |
+| **Sandbox** | The network's test environment is switched on. |
+
+The counter at the top of the page shows how many networks are available to users.
+
+### What Run checks verifies
+
+For the networks that connect through a sign-in page, **Run checks** does not call the network. It checks what MagicPost holds. The WhatsApp and Telegram checks do ask the provider or Telegram, and are described on their pages.
+
+| Check | Passes when |
+|---|---|
+| **Client ID** | An ID is stored. |
+| **Client secret** | A secret is stored. |
+| **Redirect URI** | The redirect URI starts with `https://`. Networks only accept HTTPS callbacks. |
+| **Requested scopes** | The network has a permission list. The list is shown. |
+| **Connect driver** | The connector is installed. |
+| **Publisher** | The publisher is installed. |
+
+When every check passes, the card shows **Last checked** with the time.
+
+## Redirect URIs
+
+Every network that connects through a sign-in page uses the same address pattern. It is built from your site address and has no language prefix, because networks compare it character for character.
+
+```text
+https://your-domain.com/publishing/twitter/callback
+```
+
+| Network | Redirect URI path |
+|---|---|
+| X (Twitter) | `/publishing/twitter/callback` |
+| LinkedIn | `/publishing/linkedin/callback` |
+| Facebook Page | `/publishing/facebook/callback` |
+| Instagram | `/publishing/instagram/callback` |
+| Threads | `/publishing/threads/callback` |
+| TikTok | `/publishing/tiktok/callback` |
+| YouTube | `/publishing/youtube/callback` |
+| Pinterest | `/publishing/pinterest/callback` |
+
+Copy the value from the **Redirect URI** field in the setup panel instead of typing it. WhatsApp and Telegram do not use a redirect URI. They receive webhooks instead, see [WhatsApp channels](/channels/whatsapp/overview) and [Set up Telegram](/channels/telegram/setup). The Telegram address is `/webhooks/telegram`.
+
+<Note>
+Make sure your site address is correct before you register apps. If you move the site to another domain, add the new redirect URI to every app.
+</Note>
+
+## Connect an account
+
+Users connect accounts themselves.
+
+<Steps>
+  <Step title="Open Channels">
+    In the sidebar, under **Publishing**, click **Channels**.
+  </Step>
+  <Step title="Add a channel">
+    In the **Add a channel** card, click the network. You are sent to the network to authorise access. WhatsApp and Telegram open a MagicPost page instead, where you link a number or a Telegram account.
+  </Step>
+  <Step title="Approve access">
+    Sign in on the network and approve the permissions. You return to **Channels** and a message confirms that the account is connected.
+  </Step>
+</Steps>
+
+If one authorisation grants access to more than one account, for example a LinkedIn profile and the Pages the person manages, the **Choose accounts to connect** window opens. Tick the accounts you want and click **Connect**. The list stays available for 15 minutes.
+
+A network is missing from **Add a channel** when its keys are not stored or **Available to users** is off. When no network is available at all, the page shows **No networks are available yet** and asks for an administrator to register the apps.
+
+### Plan limits
+
+Each connected account counts toward the plan's channel limit. The **Connected** tile on the **Channels** page shows the used and allowed numbers.
+
+- When the limit is reached, the message reads **You have connected the maximum of N channels. Upgrade your plan to add more.** The number is your plan's limit.
+- A plan can restrict which networks it includes. A network outside the plan appears as **Not in your plan** and cannot be connected. See [Pricing plans](/saas/plans).
+- Reconnecting a channel that already exists never counts against the limit, so a user at the limit can always recover an expired connection.
+- Reconnecting an account that was disconnected earlier brings back the same channel with its history, but it counts against the limit again.
+
+## Channel states
+
+| Label | Meaning | What to do |
+|---|---|---|
+| **Active** | The channel can publish. | Nothing. |
+| **Paused** | You paused it from the actions menu. Nothing goes out to it. | Choose **Resume** in the actions menu. |
+| **Expired** | The network stopped accepting the authorisation. | Click the **Expired** label or choose **Reconnect**. |
+| **Cooling down** | The network asked MagicPost to hold back for a while. The wait is shown on hover. | Nothing. Posts go out afterwards. |
+
+The **Filters** menu on the **Channels** page filters by **Active**, **Needs reconnect** and **Paused**. The channel actions menu also has **Check connection**, **Open profile** and **Disconnect**.
+
+### Reconnect
+
+Choose **Reconnect** on the channel, or use the link in the banner that appears when a channel needs it. You must sign in with the account you originally linked. Otherwise MagicPost answers **That is a different account. Reconnect using the account you originally linked.**
+
+### Disconnect
+
+**Disconnect** removes the channel from your list. Anything still waiting to go out through it is skipped with the reason **The channel was disconnected.** Posts it already published and their analytics stay in MagicPost and come back if you reconnect the same account.
+
+## Connection checks
+
+Click **Check** (or **Check again**) on a channel, or **Check connection** in its actions menu. MagicPost asks the network whether the channel can still post and stores the answer. The channel then shows one of:
+
+| Badge | Meaning |
+|---|---|
+| **All good** | Every item passed. |
+| **Works, with notes** | The channel can post, but something may get in the way of some posts. |
+| **Needs attention** | Something stops the channel from posting. When a reconnect fixes it, the details window shows a **Reconnect** button. |
+| **Not checked yet** | The channel has never been checked. |
+
+Click the badge to open **Connection check**. It lists each item with its explanation and a **Reconnect** button when one is needed. Each network page lists the items its check produces.
+
+If the network turns the authorisation down, the check marks the channel **Expired**. If the network accepts it again, an expired channel goes back to **Active**.
+
+### What runs automatically
+
+These tasks need the scheduler to run every minute, see [Cron and queue](/installation/cron-and-queue).
+
+- Every hour, MagicPost renews tokens that expire within 24 hours, for connections that can renew themselves.
+- Every hour, at half past, it checks active channels that have a post due within two days and were last checked more than 20 hours ago. It checks up to 25 channels per run.
+- When a channel becomes **Expired**, the owner receives a **Reconnect** notification. In-app and email delivery are on by default, see [Notifications](/account/notifications).
+
+A connection that cannot renew itself shows **Connected until DATE. Reconnect before then to keep posting.** in the check once fewer than 7 days remain.
+
+## When a channel is not ready
+
+A post that is due while its channel cannot publish waits instead of failing at once.
+
+| Situation | What the post shows | After the waiting time |
+|---|---|---|
+| Channel is paused | The channel is paused. It goes out once you resume the channel. | Skipped: This was not sent, because the channel was paused for more than N hours. |
+| Channel is expired | Reconnect the channel to send this. | Failed: This was not sent, because the channel was not reconnected within N hours. |
+| Network asked for a pause | The network asked us to pause the channel. It goes out after that. | Failed: This was not sent, because the network kept the channel on pause for more than N hours. |
+| Network is switched off | Publishing to the network is unavailable right now. It goes out once it is back. | Failed: This was not sent, because publishing to the network was unavailable for more than N hours. |
+
+The waiting time is set in **Admin** → **Publishing** → **Settings**, in the **Retries and waiting** card, under **Wait for a channel for up to**. The default is 24 hours and the allowed range is 1 to 168 hours. The same card has **Tries before a post fails**. See [Publishing settings](/admin/publishing-settings) and [Failed posts](/troubleshooting/publishing-errors).
+
+## Where limits come from
+
+Per-network limits are declared once, in `config/publishing.php`, under `platforms`. The composer, the content checks and the publishers all read from that one place. Each network page lists the limits as the application ships them.
+
+- When a post breaks a rule, the channel shows an issue in the composer. Read the message and fix the post before you schedule it.
+- An image that does not meet a network's format, size, shape or dimension rule is converted automatically. MagicPost re-encodes it to JPEG, PNG or WebP, compresses it, pads it to an accepted shape or shrinks it as needed. The original in the media library is not changed. Animated GIFs are sent as they are on networks that accept GIF.
+- Video is never converted. It is checked against the network's format, size and length, and flagged when it does not fit.
+- Some limits depend on the account. Examples are the longer posts of an X subscriber, the video length a TikTok creator is allowed, the larger videos of a Telegram channel when you run your own Bot API server, and the first comment, which is hidden when the connection lacks the permission for it.
+
+### Upload ceilings
+
+Before any network rule applies, the media library enforces its own ceilings. Set them in **Admin** → **Publishing** → **Settings**, in the **Uploads** card.
+
+| Setting | Default | Allowed range |
+|---|---|---|
+| **Images up to** | 25 MB | 1 to 200 MB |
+| **Videos up to** | 2048 MB | 1 to 10240 MB |
+
+The library accepts these formats:
+
+| Type | Formats |
+|---|---|
+| Images | jpg, jpeg, png, gif, webp |
+| Video | mp4, mov, webm, avi, mkv |
+
+A network can list a format the library does not accept, for example flv for YouTube. Such a file cannot be uploaded to the library in the first place. See [Media library](/user-guide/media-library).
+
+## Analytics
+
+Every network on this page reads engagement and audience figures back into **Analytics**. An administrator can switch the hourly read on or off with **Collect analytics** in **Admin** → **Publishing** → **Settings**. Each network page lists the figures it provides. See [Analytics](/user-guide/analytics).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Channel credentials" href="/admin/publishing-platforms">
+    The admin page where keys are stored.
+  </Card>
+  <Card title="Connect channels" href="/user-guide/connect-channels">
+    The user's view of the Channels page.
+  </Card>
+  <Card title="Composer" href="/user-guide/composer">
+    Where per-channel text, options and first comments are set.
+  </Card>
+  <Card title="Channel connection problems" href="/troubleshooting/channel-connections">
+    Redirect mismatches, expired tokens and missing permissions.
+  </Card>
+</CardGroup>

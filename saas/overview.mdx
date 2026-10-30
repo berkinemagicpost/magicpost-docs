@@ -1,0 +1,117 @@
+---
+title: "SaaS overview"
+description: "Turn on billing in MagicPost, see what it switches on for admins and users, and set up the free tier, plans and payments in the right order."
+---
+
+MagicPost can run as a paid service. Billing ships as the **SaaS Business** plugin. When the plugin is installed and switched on, you can sell subscription plans and prepaid credit packs, take payments through the gateways you configure, issue invoices and run a referral program. When it is off, MagicPost has no plan limits at all.
+
+## What SaaS Business adds
+
+The plugin adds two sections to the admin sidebar and two pages to the user sidebar.
+
+| Where | Menu item | What it is for | Guide |
+|---|---|---|---|
+| Admin, **Finance** | Finance Dashboard | Revenue, orders, subscriptions and gateway results | [Finance dashboard](/saas/finance-dashboard) |
+| Admin, **Finance** | Pricing Plans | Create and edit plans | [Subscription plans](/saas/plans), [Prepaid plans](/saas/prepaid-plans) |
+| Admin, **Finance** | Free tier | Limits for users without a plan | [Free tier](/saas/free-tier) |
+| Admin, **Finance** | Orders | Every payment, bank transfer approvals | [Orders and transactions](/saas/orders) |
+| Admin, **Finance** | Subscriptions | Who is subscribed to what | [Subscriptions](/saas/subscriptions) |
+| Admin, **Finance** | Invoice Settings | Seller details printed on invoices | [Invoices](/saas/invoices) |
+| Admin, **Finance** | Payment Gateways | Stripe, PayPal and the others | [Payment gateways](/gateways/overview) |
+| Admin, **Finance** | Finance Settings | Currency, tax and billing details | [Finance settings](/saas/finance-settings) |
+| Admin, **Affiliates** | Accounts, Earnings, Payouts | The referral program | [Referral program admin](/saas/affiliates) |
+| User, **Plans** | Billing, Referrals | Plan selection, billing history, referral link | [Billing and subscription](/account/billing), [Referrals](/account/referrals) |
+
+The public home page also gets a **Pricing** section that lists your active plans. Credits are covered in [Credits and allowances](/saas/credits).
+
+## Turn on SaaS Business
+
+<Steps>
+  <Step title="Install the plugin">
+    Open **Plugins** in the **Platform** section of the admin sidebar and find **SaaS Business**. If the card does not show **Installed**, click **Install**. Depending on the listing and your license, the button reads **Install**, **Install · Extended** or **Buy Now**. See [Plugins and themes](/admin/plugins-and-themes).
+  </Step>
+  <Step title="Open the plugin settings">
+    Go to **General Settings** in the **Platform** section, open the **Plugins** tab and click the **SaaS Business** card. The card only appears once the plugin is installed.
+  </Step>
+  <Step title="Enable billing">
+    Switch on **Enable SaaS Business** and click **Save**. The switch description reads: when enabled, billing, plans, subscriptions and referral features become available across the platform.
+  </Step>
+  <Step title="Reload the admin panel">
+    The **Finance** and **Affiliates** sections now appear in the sidebar, and users see **Billing** and **Referrals** under **Plans**.
+  </Step>
+</Steps>
+
+<Note>
+  Both conditions must hold. The sidebar sections, the pricing section and the billing pages show only when the plugin is installed and **Enable SaaS Business** is on.
+</Note>
+
+## What changes for your users
+
+When billing is on, MagicPost decides what each person may do from the first rule that matches.
+
+| Who | What applies |
+|---|---|
+| An admin account | No limits, every feature on. |
+| A user with an active Monthly, Yearly or Lifetime subscription | The limits, features and networks of that plan. If a user has more than one active subscription, the most recently started one applies. |
+| Everyone else: no subscription, an expired or cancelled one, or only a prepaid pack | The [free tier](/saas/free-tier). |
+
+Prepaid plans never change limits or features. They only add credits. See [Prepaid plans](/saas/prepaid-plans).
+
+When billing is off, nobody is limited: every limit is unlimited and every feature is on, except **Watermark-free**, which stays off.
+
+<Warning>
+  Switching **Enable SaaS Business** off does not delete plans, orders or subscriptions, but it removes every limit for every user, paying or not. Turn it off only when you really want an unrestricted install.
+</Warning>
+
+## Plan types
+
+| Type | How it is paid | Credits |
+|---|---|---|
+| Monthly | Renews every month | The allowance is renewed each month |
+| Yearly | Renews every year | The allowance is renewed each month |
+| Lifetime | One payment | The allowance is renewed each month |
+| Prepaid | One payment | Added once to a separate balance and kept until used |
+
+## Recommended setup order
+
+<Steps>
+  <Step title="Set the currency and tax">
+    Open **Finance Settings** and choose the default currency, tax rate and whether checkout asks for billing details. See [Finance settings](/saas/finance-settings).
+  </Step>
+  <Step title="Add your company details">
+    Fill in **Invoice Settings** so invoices carry your business name and address. See [Invoices](/saas/invoices).
+  </Step>
+  <Step title="Enable a payment gateway">
+    Configure at least one gateway under **Payment Gateways**. Start with [Payment gateways](/gateways/overview).
+  </Step>
+  <Step title="Set the free tier">
+    Decide what users get before they pay. A new install allows 0 connected channels, so users without a plan cannot connect any account until you raise it. See [Free tier](/saas/free-tier).
+  </Step>
+  <Step title="Create your plans">
+    Add the subscription and prepaid plans you want to sell under **Pricing Plans**. See [Subscription plans](/saas/plans).
+  </Step>
+  <Step title="Set the registration credits and AI costs">
+    Choose how many credits new users receive and what each AI run costs. See [Credits and allowances](/saas/credits).
+  </Step>
+</Steps>
+
+<Tip>
+  Credits, allowance refreshes and expired holds depend on the scheduler. Make sure the cron job from [Cron and queue](/installation/cron-and-queue) is running.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Subscription plans" href="/saas/plans">
+    Every field on the plan form, explained.
+  </Card>
+  <Card title="Free tier" href="/saas/free-tier">
+    What users get without a plan.
+  </Card>
+  <Card title="Credits and allowances" href="/saas/credits">
+    How AI credits are granted, held and spent.
+  </Card>
+  <Card title="Payment gateways" href="/gateways/overview">
+    Connect Stripe, PayPal and other providers.
+  </Card>
+</CardGroup>

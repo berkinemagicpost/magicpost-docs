@@ -1,0 +1,124 @@
+---
+title: 'Installation problems'
+description: 'Fix failed requirement and permission checks, database errors, activation errors and blank pages while installing MagicPost.'
+---
+
+The installer lives at `/install`. After the welcome page (**Start Installation**) it walks through **Server Requirements**, **Permissions**, **Database Configuration**, **License Activation** and **Installation Complete**. This page lists what goes wrong on each one and how to fix it. For the normal flow, see [Web installer](/installation/web-installer).
+
+## Find the real error first
+
+A blank page or a "Something went wrong" page hides the cause. Two places show it:
+
+1. Open `storage/logs/laravel.log` and read the last entry.
+2. If the log is empty, set `APP_DEBUG=true` in `.env`, reload the page, copy the error, then set it back to `false`.
+
+<Warning>
+  Leave `APP_DEBUG` on only while you diagnose. With it on, error pages show code and settings to anyone.
+</Warning>
+
+## Common problems
+
+<AccordionGroup>
+  <Accordion title="The installer redirects to the sign-in page">
+    The installer locks itself once the file `storage/installed` exists. Visiting `/install` then sends you to the sign-in page. This is normal after a finished install. Sign in with your admin account instead.
+  </Accordion>
+
+  <Accordion title="The first installer page shows a database error">
+    A message such as "Unknown database" or "Base table or view not found" for the `sessions` table, before you have entered any database details, usually means `.env` already asks for database-backed sessions. `.env.example` sets `SESSION_DRIVER=database`, and no tables exist yet.
+
+    Set `SESSION_DRIVER=file` in `.env` and reload `/install`. The installer switches the value to `database` itself when it reaches the activation step.
+  </Accordion>
+
+  <Accordion title="Server Requirements shows red marks">
+    The page checks PHP 8.3 or newer, the Apache module `mod_rewrite`, and these PHP extensions: `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`, `gd`, `iconv`, `intl`, `json`, `mbstring`, `mysqli`, `openssl`, `PDO`, `pdo_mysql`, `tokenizer`, `xml` and `zip`.
+
+    A red mark means the PHP version the website uses is missing something. Switch the site to PHP 8.3 or newer and enable the extensions in your host's PHP settings, then reload the page. The **Next** button is always available, but anything left red will fail later.
+
+    - The `mod_rewrite` line only appears when PHP can list Apache's modules. On other setups, such as PHP-FPM, the page cannot check it.
+    - The **Functions** group lists `proc_open`. It is marked **Optional**, and an amber warning only means video features will not work until your host enables it. See [Video processing](/advanced/video-processing).
+    - A **Security** note about `session.upload_progress.enabled` is advice only. Turn it off in `php.ini` or ask your host. It cannot be changed from the app.
+  </Accordion>
+
+  <Accordion title="Permissions shows folders that are not writable">
+    The page checks that PHP can write to the `.env` file and to these folders: `bootstrap/cache`, `public/uploads`, `lang`, `storage`, `storage/framework`, `storage/framework/cache`, `storage/framework/cache/data`, `storage/framework/sessions`, `storage/framework/views` and `storage/logs`.
+
+    Change the permissions in your file manager or over SSH so the user PHP runs as can write to them. On most shared hosts, folders at `755` and `.env` at `644`, owned by your hosting account, are enough. On a VPS, give the web server user ownership of `storage`, `bootstrap/cache`, `public/uploads`, `lang` and `.env`.
+
+    After the install, MagicPost also needs to write to `public/media`. See [File storage](/advanced/storage).
+  </Accordion>
+
+  <Accordion title='"Invalid database credentials" on the Database page'>
+    The installer tests the login with the host, database name, user and password you entered, and shows the database server's own message after "Invalid database credentials."
+
+    - **Access denied** means the user or password is wrong, or the user has no rights on that database. Create the database and the user in your hosting panel first, and give the user all privileges on the database.
+    - **Unknown database** means the name is wrong. Many hosts add a prefix to the name, such as your account name and an underscore.
+    - **Connection refused** or **No such file or directory** means the host is wrong. Try `localhost`, then `127.0.0.1`, or use the database host your hosting panel shows.
+    - "Provided database user credentials do not have access to this database" followed by technical text means the check itself hit an unexpected error. The text after it is the reason.
+  </Accordion>
+
+  <Accordion title="The database uses a port other than 3306">
+    The Port field is required and is saved to `.env`, but the connection test that runs before saving does not use it. It connects on PHP's default MySQL port, so a correct login on another port can still be rejected.
+
+    Either set `mysqli.default_port` in `php.ini` to your port, or fill in the five `DB_*` lines in `.env` yourself and open `/install/activation` directly.
+  </Accordion>
+
+  <Accordion title="The installer accepts the database but the site cannot connect afterwards">
+    The installer saves your answers by finding the existing `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` lines in `.env` and replacing their current values. It matches each line exactly as it reads now, so `DB_HOST=127.0.0.1` is found, while `DB_PASSWORD` must be written with single quotes around its current value, for example `DB_PASSWORD=''` when it is empty. A line that is missing or written differently, such as one with double quotes, is left unchanged, and the site then keeps the values or defaults it had before.
+
+    Open `.env`, make sure all five lines exist without a leading `#`, and type the values yourself. See [Environment variables](/advanced/environment-variables).
+  </Accordion>
+
+  <Accordion title='"Error during migrating your database" or "Failed to migrate the database"'>
+    Opening the activation page creates the tables and loads the starting data. If that fails, you are sent back with the database error appended to the message.
+
+    - The database user must be allowed to create, alter and index tables.
+    - If an earlier attempt stopped half way and left tables behind, use a new, empty database and enter its details instead.
+    - "Failed to seed the database" means the tables exist but the starting data could not be written. The full error is in `storage/logs/laravel.log`.
+  </Accordion>
+
+  <Accordion title='"There was an error while activating your application"'>
+    The license check failed. The installer shows this one message for every cause:
+
+    - The **License Key** or the **Envato Username** is wrong. Both are required. See [License activation](/license/activation).
+    - The server cannot make outbound HTTPS requests. The check uses cURL and waits up to 30 seconds. Ask your host to allow outgoing connections.
+  </Accordion>
+
+  <Accordion title='"Failed to create the default admin" or "Failed to finalize the installation"'>
+    - The first message means the admin account could not be written. The database error follows the message and is repeated in `storage/logs/laravel.log`.
+    - The second message means PHP could not create the file `storage/installed`. Make `storage` writable. The admin account already exists at that point, so check whether `storage/installed` is there before you run the activation again. If the file exists, the install finished and you can sign in with the default admin account.
+  </Accordion>
+
+  <Accordion title="I cannot sign in after the installer finishes">
+    The last page shows the default admin account:
+
+    | Field | Value |
+    |---|---|
+    | Email | `admin@example.com` |
+    | Password | `admin12345` |
+
+    Sign in with these exact values, then change them, as the last installer page asks. In a production environment a new password must be at least 12 characters with upper and lower case letters, a number and a symbol.
+  </Accordion>
+
+  <Accordion title="Every page except the home page shows 404">
+    The web server is not rewriting requests to `index.php`. The `.htaccess` files in the application folder and in `public` do this on Apache.
+
+    - Enable `mod_rewrite` and allow `.htaccess` overrides (`AllowOverride All`) for the site folder.
+    - Point the domain's document root at the `public` folder, or leave it at the application folder so the root `.htaccess` forwards requests to `public`.
+    - On Nginx there is no `.htaccess`. Add the usual Laravel rule that sends unknown paths to `index.php`.
+  </Accordion>
+
+  <Accordion title="A 500 error right after uploading the files">
+    Common causes, in the order to check them:
+
+    1. The `.env` file is missing or `APP_KEY` is empty. Run `php artisan key:generate`.
+    2. The `vendor` folder was not uploaded, or the site runs on PHP older than 8.3.
+    3. `storage` or `bootstrap/cache` is not writable.
+    4. The domain points at the wrong folder.
+
+    The last line of `storage/logs/laravel.log` names the one that applies.
+  </Accordion>
+</AccordionGroup>
+
+## After the installer
+
+Add the cron job straight away, because scheduled posts and video processing depend on it. See [Cron and queue](/installation/cron-and-queue) and the [Post-install checklist](/installation/post-install-checklist). If posts do not go out, continue with [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).

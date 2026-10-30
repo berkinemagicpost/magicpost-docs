@@ -1,0 +1,98 @@
+---
+title: 'Google Gemini'
+description: 'Add a Gemini API key so MagicPost can write captions, create and edit pictures, and make video clips with Google models.'
+---
+
+One Gemini API key covers all three kinds of AI work in MagicPost:
+
+- **Writing models** draft captions, adapt a post for several networks and write alt text.
+- **Picture models** create new pictures and edit pictures from your media library.
+- **Video models** make short clips from a description or from a starting picture.
+
+<Note>
+There is one Google key. The **Google Gemini** field on **Writing Models** and the **Google** field on **Media Models** read and write the same stored key.
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have a Google account that can use [Google AI Studio](https://aistudio.google.com/).
+- Billing is set up on the Google Cloud project that owns the key if the models you want need it. Google bills you directly for every request. This is separate from the credits your users spend in MagicPost.
+
+## Get an API key
+
+<Steps>
+  <Step title="Open the API keys page">
+    Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in. Accept the terms if this is your first visit.
+  </Step>
+  <Step title="Choose the project">
+    New users get a default Google Cloud project. If you already use Google Cloud, AI Studio does not list your projects until you import them. Open **Dashboard → Projects**, click **Import projects**, select the project and import it.
+  </Step>
+  <Step title="Create the key">
+    On the **API Keys** page click **Create API key**, choose the project and create it. Copy the key.
+  </Step>
+</Steps>
+
+<Note>
+Google's [API key guide](https://ai.google.dev/gemini-api/docs/api-key) says the Gemini API rejects unrestricted standard keys, and that new keys created in AI Studio are authorization keys. A new key made in AI Studio works with MagicPost, which sends it in the `x-goog-api-key` header.
+</Note>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open Writing Models">
+    Go to **Admin → Publishing → Writing Models**.
+  </Step>
+  <Step title="Paste the key">
+    In the **Provider keys** box, paste the key into the **Google Gemini** field and click **Save keys**. The toast reads **Keys saved.** and the Google Gemini card shows **Key stored**.
+  </Step>
+  <Step title="Switch on the writing models">
+    Turn on the switch next to each model you want to offer, then click **Test** on one of them. MagicPost sends a one-word request and shows either that the model answered or the error Google returned.
+  </Step>
+  <Step title="Check the picture and video models">
+    Open **Admin → Publishing → Media Models**. The **Google** field already holds the same key and the card shows **Key stored**. Switch on the models you want. Click **Test** on a picture model. MagicPost asks for one small picture, so the test makes a real, billable request. Video models have no **Test** button.
+  </Step>
+</Steps>
+
+## Starting models
+
+The installer loads this list. Identifiers are as shipped and can be corrected later (see [Model identifiers](/integrations/overview#model-identifiers)). Credits are MagicPost credits, not Google prices, and you can change them on the model.
+
+**Writing Models**
+
+| Model | Identifier | Tier | Starting credits per run |
+|---|---|---|---|
+| Gemini 3.1 Pro | `gemini-3.1-pro-preview` | Premium | 3 |
+| Gemini 3.5 Flash | `gemini-3.5-flash` | Standard | 1 |
+| Gemini 3.1 Flash-Lite | `gemini-3.1-flash-lite` | Fast | 1 |
+
+**Media Models**
+
+| Model | Identifier | Does | Starting credits |
+|---|---|---|---|
+| Nano Banana 2 | `gemini-3.1-flash-image` | Pictures and edits, up to 4 per request, shapes 1:1, 4:5, 3:4, 4:3, 16:9, 9:16 | 3 per picture |
+| Nano Banana Pro | `gemini-3-pro-image` | Pictures and edits, up to 2 per request, same shapes | 8 per picture |
+| Veo 3.1 | `veo-3.1-generate-preview` | Clips of 4, 6 or 8 seconds in 16:9 or 9:16, from a description or a starting picture | 8 per second |
+| Veo 3.1 Fast | `veo-3.1-fast-generate-preview` | Same lengths and shapes, quicker and cheaper | 4 per second |
+
+A clip costs its credits per second times its length. For example, an 8 second clip on Veo 3.1 Fast starts at 32 credits.
+
+## How MagicPost calls Google
+
+- Writing, pictures and clips all use the Gemini API at `generativelanguage.googleapis.com`.
+- A request for several pictures from a Gemini picture model is made as several calls, one picture each.
+- Clips are started as a long-running job. A background job asks Google for the result and downloads the clip when it is ready, so cron or a queue worker must be running. See [Cron and queue](/installation/cron-and-queue).
+- Video shapes other than 16:9 and 9:16 are sent as 16:9.
+- If Google rejects `temperature` or a thinking setting by name on a writing model, MagicPost sends the request again without it and remembers that for the model.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| **Keys saved.** but the card still reads **No key** | The field was empty when you saved | Paste the key and click **Save keys** again |
+| **Test** says to add the Google Gemini API key first | No key is stored | Paste the key on **Writing Models** and save |
+| **Test** fails with a permission or API key message from Google | The key is revoked, the wrong type, or unrestricted | Create a new key in AI Studio and save it. See the note under [Get an API key](#get-an-api-key) |
+| **Test** fails with a not found message | Google no longer has that identifier, or your project cannot use the model | Click **Edit** and correct **Model identifier**, or pick a model your project can use |
+| Google returned no picture. It may have been held back by its safety filters. | The prompt was blocked | Change the prompt |
+| Google finished without a video. It may have been held back by its safety filters. | The clip was blocked | Change the prompt or the starting picture |
+| Keys stopped working after moving the site | `APP_KEY` changed, so the stored key cannot be decrypted | Paste the key again and click **Save keys** |

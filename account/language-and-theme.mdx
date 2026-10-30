@@ -1,0 +1,66 @@
+---
+title: 'Language and theme'
+description: 'Switch the interface language and choose between the light, dark and system themes.'
+---
+
+Both switches live in the user menu at the bottom of the sidebar. Click your name to open it.
+
+## Switch the language
+
+<Steps>
+  <Step title="Open the user menu">
+    Click your name at the bottom of the sidebar.
+  </Step>
+  <Step title="Open the language list">
+    Click **Language** in the menu. It shows the language you are using now, for example **Language: English**.
+  </Step>
+  <Step title="Pick a language">
+    Click a language. MagicPost reloads the same page in that language. A check mark shows the current one, and each entry shows its language code.
+  </Step>
+</Steps>
+
+<Note>
+The **Language** entry only appears when the administrator has enabled more than one language. If you do not see it, only one language is available. Administrators add and enable languages under Backend Settings → **Language Manager**. See [Languages and translations](/admin/languages).
+</Note>
+
+### How the language is remembered
+
+The language is part of the page address. The site's default language has no prefix, and every other language adds its code in front of the path. For example, the dashboard is `/app/user/dashboard` in the default language and `/de/app/user/dashboard` in German. MagicPost remembers your choice for your session, so the pages you open next keep the same language.
+
+For Arabic, Hebrew, Persian and Urdu, the dashboard layout switches to right to left automatically.
+
+### What gets translated
+
+MagicPost translates the interface text, such as menus, buttons, messages and notices. Your own content does not change: captions, comments, channel names and the text of your posts stay exactly as you wrote them. If a phrase has no translation in the language you chose, MagicPost shows it in English.
+
+## Choose a theme
+
+MagicPost has three themes:
+
+| Theme | Behaviour |
+|---|---|
+| **Light** | Always light |
+| **Dark** | Always dark |
+| **System** | Follows your device or browser setting |
+
+<Steps>
+  <Step title="Open the user menu">
+    Click your name at the bottom of the sidebar.
+  </Step>
+  <Step title="Pick a theme">
+    In the **Appearance** row, click the sun (light), moon (dark) or computer (system) button. The page changes at once.
+  </Step>
+</Steps>
+
+The same choice is available as a full page at `/app/settings/appearance`, with the buttons labelled **Light**, **Dark** and **System**.
+
+The theme is stored in your browser, so it applies on that browser and device. Use the switch on each device where you want a different theme.
+
+<CardGroup cols={2}>
+  <Card title="Profile and security" icon="user" href="/account/profile-and-security">
+    Time zone, clock and week start live there.
+  </Card>
+  <Card title="Languages and translations" icon="language" href="/admin/languages">
+    For administrators: add languages and edit translations.
+  </Card>
+</CardGroup>

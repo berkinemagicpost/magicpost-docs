@@ -1,0 +1,43 @@
+---
+title: "System status"
+description: "Where to see whether your MagicPost server is healthy, what each System health check means and how to fix a failing one."
+---
+
+MagicPost checks the parts of an installation that stop posts from going out without any visible error: a cron job that never runs, a queue nobody works, mail that is only written to a log. You see the results in two places.
+
+- **Publishing**, **Settings**, **System health** shows every check with its detail line and a link to the fix. See [Publishing settings](/admin/publishing-settings).
+- The **Needs attention** card on the [Admin dashboard](/admin/dashboard) repeats any check that fails or warns. It leaves out **Cron job** and **Last 24 hours**.
+
+Each check is **OK**, a warning or a failure. A failure means posts do not go out, a warning means something should be looked at. Results are sorted with failures first. Select **Check again** after you change something.
+
+<Note>
+  There is also a page called **System Status** at `APP_URL/app/admin/status`. It is not in the sidebar and it does not report server health, so use the checks on this page instead.
+</Note>
+
+## The checks
+
+| Check | Fails or warns when | What to do |
+|---|---|---|
+| **Cron job** | Fails if the scheduler has never run, or last ran more than 5 minutes ago. | Add the cron job shown under **Sending**. See [Cron and queue](/installation/cron-and-queue). |
+| **Queue** | Fails if the queue connection is `null` (jobs are thrown away), if the jobs table is missing, or if jobs have waited over 10 minutes in worker mode with no worker taking them. Warns for the `sync` connection, or for a backlog while the scheduler is stale or too slow. | Set `QUEUE_CONNECTION=database` in `.env`, run `php artisan migrate` if the table is missing, start the queue worker, or let each scheduler pass send for longer. |
+| **Database** | Fails if the database is not set up, or if there are database updates that have not been applied. | Run `php artisan migrate --force` on the server. |
+| **Networks** | Fails when no network is switched on. | Set one up under **Platforms**, see [Channel credentials](/admin/publishing-platforms). |
+| **Channels** | Warns when every channel of a network (two or more) needs reconnecting, which usually means the app's keys or permissions changed. | Check the app under **Platforms**, then ask owners to reconnect. See [Channel connection problems](/troubleshooting/channel-connections). |
+| **Waiting posts** | Warns when due posts wait because publishing to their network is switched off. A post still waiting after the **Wait for a channel for up to** time is not sent. | Switch the network back on under **Platforms**. |
+| **Stalled sends** | Warns when posts have been sending longer than **Pick up a stalled send after**. | Nothing, if it is rare. Stalled sends are checked every 5 minutes and picked up again. |
+| **Last 24 hours** | Warns when at least 3 sends failed and failures outnumber successes. The detail names the most common reason. | See [Failed posts](/troubleshooting/publishing-errors). |
+| **Background jobs** | Warns when queued jobs failed in the last 7 days. This check is shown only when the failed jobs table exists. | Read the log and the `failed_jobs` table for the reason. |
+| **Site address** | Warns when `APP_URL` cannot be reached from the internet, does not use https, or differs from the address you opened the page at. | Fix the **Website URL** in [Global settings](/admin/global-settings). |
+| **Media storage** | Fails when PHP cannot write to the media upload folder. The detail shows the path, by default `public/media`. | Make the folder writable. See [Requirements](/getting-started/requirements). |
+| **Video processing** | Warns when ffmpeg cannot be found. Videos still publish, but their length is not checked first and they get no preview. | See [Video processing](/advanced/video-processing). |
+| **Upload size** | Information only: how much PHP takes per request and the size of the pieces files are sent in. | Adjust the limits under **Uploads** in Publishing settings. |
+| **Email** | Warns when mail is only written to the log. | Set up SMTP, see [Email and SMTP](/admin/smtp). |
+| **Locks** | Warns when the cache store is `array` or `null`, which cannot keep overlapping scheduler passes apart. | Set `CACHE_STORE=database` or `file` in `.env`. See [Cache and optimisation](/advanced/cache). |
+| **Upload progress** | Warns when the PHP setting `session.upload_progress.enabled` is on. Shown only in that case. | Turn it off in `php.ini` or ask your host. It cannot be changed from the app. |
+| **Debug mode** | Warns when `APP_DEBUG` is on outside a local or testing environment. | Set `APP_DEBUG=false` in `.env`. |
+
+<Warning>
+  Fix **Cron job** and **Database** failures first. Without the cron job, scheduled posts do not go out. With database updates missing, parts of publishing fail.
+</Warning>
+
+For step-by-step help with a stuck queue, see [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).

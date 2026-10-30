@@ -1,0 +1,87 @@
+---
+title: 'Introduction'
+description: 'What MagicPost is, who uses it, and where each part of the documentation lives.'
+---
+
+MagicPost is a self-hosted web application for planning, scheduling and publishing social media posts. You install it on your own server and register an app with each social network once. Your users then connect their accounts as channels and publish to all of them from one place.
+
+It is built on Laravel 12 and Livewire. It needs PHP 8.3 or newer, a MySQL database and one cron job, and it is designed to run on ordinary shared hosting that only offers cron.
+
+## Supported networks
+
+Users can publish to X (Twitter), LinkedIn, Facebook Pages, Instagram, TikTok, YouTube, Pinterest, Threads, WhatsApp and Telegram. Each network needs its own developer app, gateway or bot, which you set up once under Admin → Publishing → Platforms. See [Publishing channels](/channels/overview) for how credentials and connections work.
+
+## Who uses MagicPost
+
+<CardGroup cols={2}>
+  <Card title="Admin" icon="user-shield">
+    The site owner. The admin installs the script, registers the network apps, sets publishing limits, adds AI provider keys, manages users and, if needed, turns on billing.
+  </Card>
+  <Card title="Users and teams" icon="users">
+    People who register on your site. They connect channels, write and schedule posts, and can invite teammates with the roles owner, member and approver.
+  </Card>
+</CardGroup>
+
+## How publishing works
+
+<Steps>
+  <Step title="The admin registers the network apps">
+    Each network is switched on under Admin → Publishing → Platforms once its credentials are saved and **Available to users** is ticked.
+  </Step>
+  <Step title="Users connect channels">
+    From **Channels**, a user authorises MagicPost on the network and returns to the site. Every connected account, page or group is a channel.
+  </Step>
+  <Step title="Users compose posts">
+    In the **Composer** a post is written once, adjusted per channel, and sent now, at a chosen time, to the next free queue slot, or on a repeat.
+  </Step>
+  <Step title="The scheduler sends them">
+    Your cron job runs the Laravel scheduler every minute. It picks up posts that are due, queues them and sends each one to its channels. A post can succeed on some channels and fail on others.
+  </Step>
+</Steps>
+
+## What is in the box
+
+<CardGroup cols={2}>
+  <Card title="Composer and scheduling" icon="pen-to-square" href="/user-guide/composer">
+    Per-channel captions and options, first comments, previews, drafts, queue slots, recurring and evergreen posts, and a calendar.
+  </Card>
+  <Card title="Media library and AI" icon="photo-film" href="/user-guide/media-library">
+    Chunked uploads, alt text and crops, an optional watermark, plus AI caption writing, brand voices and an image and video studio.
+  </Card>
+  <Card title="Teams and approvals" icon="users-gear" href="/account/teams">
+    Shared workspaces with owner, member and approver roles, and an approval step before posts go out.
+  </Card>
+  <Card title="Analytics" icon="chart-line" href="/user-guide/analytics">
+    Follower and post figures that MagicPost reads back from the networks every hour while Collect analytics is on.
+  </Card>
+  <Card title="Feeds and bulk import" icon="rss" href="/user-guide/feeds-and-import">
+    Turn new RSS articles into posts, or import many posts from a CSV file.
+  </Card>
+  <Card title="REST API and webhooks" icon="code" href="/account/rest-api">
+    Token-based API under `/api/v1` and webhooks for post events.
+  </Card>
+  <Card title="Admin panel" icon="gauge" href="/admin/overview">
+    Users, channel credentials, publishing settings with a system health check, AI models, website content, languages and more.
+  </Card>
+  <Card title="SaaS and billing" icon="credit-card" href="/saas/overview">
+    Optional. Sell plans, take payments through your gateways, issue invoices and run a referral program.
+  </Card>
+</CardGroup>
+
+<Note>
+SaaS Business is optional. While it is switched off, no plan limits apply and every feature is available to every account. Turning it on makes plans and the free tier decide what each account can do.
+</Note>
+
+## Where to start
+
+<CardGroup cols={3}>
+  <Card title="Check requirements" icon="server" href="/getting-started/requirements">
+    PHP, extensions, database and folders your host needs.
+  </Card>
+  <Card title="Run the installer" icon="download" href="/installation/web-installer">
+    Install from the browser in a few steps.
+  </Card>
+  <Card title="Publish a first post" icon="rocket" href="/getting-started/quickstart">
+    From a fresh install to a live post.
+  </Card>
+</CardGroup>

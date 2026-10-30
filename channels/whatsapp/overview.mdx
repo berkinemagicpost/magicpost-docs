@@ -1,0 +1,91 @@
+---
+title: "WhatsApp channels"
+sidebarTitle: "Overview"
+description: "Choose a WhatsApp provider for your site, turn WhatsApp on, and see what a WhatsApp post can contain."
+---
+
+WhatsApp posts go out from a phone number that a user links to MagicPost. Depending on the provider, the number posts to its groups, to WhatsApp Channels or to its Status. You choose one provider for the whole site, and your users link their own numbers to it.
+
+## Which provider should I choose
+
+| | WAHA | Whapi.Cloud | Official Cloud API |
+|---|---|---|---|
+| Name under **Kind of app** | WAHA (self-hosted) | Whapi.Cloud (hosted) | Official WhatsApp Cloud API (Meta) |
+| Official WhatsApp API | No | No | Yes |
+| What you set up | A WAHA server that you run with Docker | A Whapi.Cloud account, for a test token | A Meta app |
+| What each user brings | A phone to scan a QR code with | Their own Whapi.Cloud channel and its token | A WhatsApp Business number, a system user token and two IDs |
+| Can post to | Groups, WhatsApp Channels, Status | Groups, WhatsApp Channels, Status | Groups created from MagicPost |
+| Who pays | You, for the server | Each user, to Whapi.Cloud | Meta bills messages on the WhatsApp Business Account |
+
+<Warning>
+WAHA and Whapi.Cloud are not official WhatsApp APIs. WhatsApp's terms do not allow automated or bulk messaging, and a number used this way can be restricted or banned. Post to people who expect to hear from you, and keep the volume modest.
+</Warning>
+
+## Turn WhatsApp on
+
+<Steps>
+  <Step title="Open the WhatsApp card">
+    Go to **Admin → Publishing → Platforms** and click **Add credentials** on the **WhatsApp** card.
+  </Step>
+  <Step title="Choose the kind of app">
+    Under **Kind of app**, pick your provider and fill in the fields described on its page.
+  </Step>
+  <Step title="Save and run the checks">
+    Click **Save**, then click **Run checks** on the card and fix anything that fails.
+  </Step>
+  <Step title="Enable it">
+    Tick **Available to users** in the panel, or use the switch on the card. The card then shows **Live**.
+  </Step>
+</Steps>
+
+Only one provider is active at a time. Changing **Kind of app** later means everyone reconnects their WhatsApp channels.
+
+<CardGroup cols={3}>
+  <Card title="WAHA" icon="server" href="/channels/whatsapp/waha">
+    Run your own WAHA server and link numbers with a QR code.
+  </Card>
+  <Card title="Whapi.Cloud" icon="cloud" href="/channels/whatsapp/whapi">
+    Each user brings a hosted Whapi.Cloud channel.
+  </Card>
+  <Card title="Official Cloud API" icon="building" href="/channels/whatsapp/official-cloud-api">
+    Use Meta's WhatsApp Business Platform and post to groups.
+  </Card>
+</CardGroup>
+
+<Note>
+Posts to WhatsApp are sent by the queue, so the scheduler has to be running. See [Cron and queue](/installation/cron-and-queue).
+</Note>
+
+## Post types and limits
+
+WhatsApp has one post type, **Message**.
+
+| | Message | Message to a Status |
+|---|---|---|
+| Text | Up to 4,096 characters | Up to 700 characters |
+| Caption under a picture or video | Up to 1,024 characters | Up to 700 characters |
+| Images | Up to 10 (jpg, jpeg, png), 5 MB each | Same |
+| Video | 1 (mp4, 3gp), up to 16 MB | 1, up to 16 MB and 60 seconds |
+| Pictures and video together | No | No |
+| First comment | No | No |
+
+WhatsApp plays MP4 video encoded as H.264 with AAC audio. It takes one picture or video per message, so a post with three images goes out as three messages, with the caption on the first.
+
+## Pacing
+
+A number that sends messages back to back is what WhatsApp restricts, so MagicPost waits a random time between the messages of each number. The defaults are 5 to 15 seconds. To change them, open **Admin → Publishing → Platforms**, click **Edit credentials** on the WhatsApp card and set **Shortest gap** (1 to 300 seconds) and **Longest gap** (at least the shortest, up to 600 seconds).
+
+## Reconnecting a number
+
+WhatsApp can sign a number out. With WAHA and Whapi.Cloud this happens after about 14 days offline (the server for WAHA, the phone for Whapi.Cloud). With the official API it happens when Meta stops accepting the token. The number's channels then show **Needs reconnect**.
+
+<Steps>
+  <Step title="Open the channel menu">
+    Go to **Publishing → Channels** and open the actions menu of an affected channel.
+  </Step>
+  <Step title="Reconnect">
+    Click **Reconnect** and link the number again. With WAHA and Whapi.Cloud it must be the same number. All channels of the number come back together.
+  </Step>
+</Steps>
+
+To remove a number, use **Disconnect** on one channel, or **Disconnect this number** to remove all of its channels. Published posts and their analytics are kept.

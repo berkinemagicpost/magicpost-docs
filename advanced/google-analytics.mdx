@@ -1,0 +1,91 @@
+---
+title: 'Google Analytics'
+description: 'Track visitors on your public website and show Google Analytics figures on the MagicPost admin dashboard.'
+---
+
+MagicPost connects to Google Analytics in two separate ways. You can use either one or both.
+
+| Feature | What it does | What you need |
+|---|---|---|
+| Google Analytics for Homepage | Adds the Google tag to your public website pages so Google Analytics records visits. | A GA4 Measurement ID that starts with `G-`. |
+| Google Analytics for Admin Dashboard | Shows visitors, sessions and top sources on **Admin → Dashboard**. | A Property ID, a Google Cloud service account and its JSON key file. |
+
+Both are configured on **Admin → Backend Settings → Global Settings**. See [Global settings](/admin/global-settings) for the other fields on that page.
+
+## Track visitors on your website
+
+<Steps>
+  <Step title="Get your Measurement ID">
+    In Google Analytics, create a GA4 property and a web data stream for your site address. Copy the **Measurement ID** from the stream details. Google explains where to find it in [Measurement ID](https://support.google.com/analytics/answer/12270356).
+  </Step>
+  <Step title="Open Global Settings">
+    In MagicPost, go to **Admin → Backend Settings → Global Settings** and find the **Google Analytics for Homepage** block.
+  </Step>
+  <Step title="Turn it on">
+    Switch on **Enable Google Analytics for Homepage**.
+  </Step>
+  <Step title="Paste the ID">
+    Paste the Measurement ID into **Google Analytics Tracking ID**. The field is required while the switch is on.
+  </Step>
+  <Step title="Save">
+    Select **Save**.
+  </Step>
+</Steps>
+
+MagicPost adds the Google tag only when the switch is on and an ID is saved. It appears on the public website pages: the landing page, the blog, and the contact, privacy and terms pages. It is not added to the signed-in app or the admin panel.
+
+## Show Google Analytics on the admin dashboard
+
+This uses Google's Analytics Data API with a service account, so MagicPost can read your reports without a person signing in.
+
+<Steps>
+  <Step title="Enable the Data API">
+    In the [Google Cloud console](https://console.cloud.google.com/), select or create a project and enable the **Google Analytics Data API**. Google's [Data API quickstart](https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart-client-libraries) walks through it.
+  </Step>
+  <Step title="Create a service account and a key">
+    In the same project, create a service account. Open it, add a key of type **JSON**, and download the file. Keep the file private: it contains a private key.
+  </Step>
+  <Step title="Give the service account access to Analytics">
+    In Google Analytics, open the property's access management and add the service account's email address as a user. You find that address in the JSON file as `client_email`. The **Viewer** role is enough.
+  </Step>
+  <Step title="Copy the Property ID">
+    In the property settings, copy the numeric **Property ID**. This is not the Measurement ID that starts with `G-`.
+  </Step>
+  <Step title="Upload the key file">
+    Upload the JSON file to your server in `storage/app/analytics/`. Create the folder if it does not exist. Do not put the file in a public folder.
+  </Step>
+  <Step title="Fill in Global Settings">
+    Go to **Admin → Backend Settings → Global Settings** and find **Google Analytics for Admin Dashboard**. Switch on **Enable Google Analytics for Admin Dashboard**, enter the **Google Analytics Property ID**, and enter the file name in **Google Service Account Credentials**. Use the file name only, for example `analytics.json`, not a path. Select **Save**.
+  </Step>
+  <Step title="Check the dashboard">
+    Open **Admin → Dashboard** and scroll to **Website traffic**.
+  </Step>
+</Steps>
+
+<Note>
+  Both fields are required while the switch is on. Saving does not check that the file exists. The dashboard card tells you when it is missing.
+</Note>
+
+### What the dashboard shows
+
+The **Website traffic** card, labelled "From Google Analytics", shows:
+
+- **Sessions**, **Average session**, **Bounce rate** and **Pages per session**.
+- A bar chart of users and sessions per day for the last 30 days.
+- **Where visitors come from**, the top six sources over the last 180 days.
+- **Top countries**, the top eight over the last 180 days.
+
+MagicPost keeps the figures for 15 minutes before asking Google again.
+
+## Fix problems
+
+| What you see | Cause and fix |
+|---|---|
+| "Connect Google Analytics to see website visitors here." | The switch is off. Turn on **Enable Google Analytics for Admin Dashboard** and save. |
+| "Google Analytics is switched on, but the property ID or the credentials file is missing." | The Property ID is empty, or no file with that name exists in `storage/app/analytics/`. Check the spelling, including the `.json` ending. |
+| "Google Analytics did not answer, so the figures could not be loaded." with a **Try again** button | Google refused the request or could not be reached. Check that the Data API is enabled for the project, that the service account email has access to the property, and that you used the Property ID, not the Measurement ID. The error is written to the application log, `storage/logs/laravel.log` by default. |
+| Nothing is recorded on the website | The switch is off, the Tracking ID is empty, or the ID is wrong. Open a public page, view its source and look for `googletagmanager.com/gtag/js?id=`. |
+
+<Tip>
+  After changing the credentials file, wait up to 15 minutes or clear the cache to see fresh figures. See [Cache and optimisation](/advanced/cache).
+</Tip>

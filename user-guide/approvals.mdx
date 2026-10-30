@@ -1,0 +1,116 @@
+---
+title: 'Approval workflow'
+description: 'Require sign-off on team posts: who submits, who reviews, how to approve, request changes or reject, and what the plan must include.'
+---
+
+The approval workflow lets a team owner see every post before it goes out. Members write and schedule as usual. Their posts wait for the owner, or for a member the owner trusts as an approver, to sign them off.
+
+Open **Publishing → Approvals** in the sidebar. A number badge on the item counts posts waiting for you.
+
+## Who does what
+
+| Role | What they can do |
+|---|---|
+| **Owner** | Turns sign-off on or off for the team, chooses approvers, and reviews posts. Owner posts are never held. |
+| **Approver** | Reviews posts from other team members. An approver's own posts are reviewed like a member's, and nobody approves their own post. |
+| **Member** | Writes and submits posts. Their posts are held while sign-off is on. |
+
+Teams, invitations and roles are covered in [Teams](/account/teams).
+
+<Note>
+Review needs the **Approval workflow** feature on the team owner's plan. A member uses the owner's plan for this, so members need nothing extra. When billing is not turned on for the site, the feature is available to everyone. Where the plan lacks it, the sidebar item shows a lock, unless posts are already waiting for you, and posts from your team are never held. See [Subscription plans](/saas/plans).
+</Note>
+
+## Turn on sign-off (owner)
+
+<Steps>
+  <Step title="Open Approvals">
+    Go to **Publishing → Approvals**. Scroll to **Who reviews**.
+  </Step>
+  <Step title="Turn it on">
+    Select **Turn on** next to **Team posts go out without review**. It changes to **Team posts need sign-off**, with the note that anything a member schedules or publishes waits until it is approved.
+  </Step>
+  <Step title="Choose approvers">
+    Under the toggle, each member has a role menu with **Member** and **Approver**. Set **Approver** for people who may sign off posts. The change takes effect straight away.
+  </Step>
+</Steps>
+
+You always sign off as the owner. Select **Turn off** to let posts from your team go out without review again. Posts already waiting stay in the queue until someone signs them off, even if the plan later loses the feature.
+
+If nobody else is on your team yet, the page says so. Once people join you can let them approve posts here.
+
+## Submit a post (member)
+
+When sign-off applies to you, the composer changes:
+
+- **Schedule** reads **Send for approval**. The post goes out at the chosen time once it is approved.
+- **Publish now** reads **Publish after approval**. It goes out as soon as it is approved.
+- A line at the bottom reads **Your team signs posts off before they go out.**
+
+The post gets the status **Awaiting approval**. You see it in Posts, on the Calendar when it has a time, and in Home under **Pipeline**. If it is the next post due, the **Going out next** card on Home says **A reviewer has to approve this before it can go out.** Reviewers hear about it in their notifications. See [Notifications](/account/notifications).
+
+Editing a post that is already waiting does not notify the reviewers a second time. A sign-off never carries over to new wording: a post you send again goes through review again.
+
+Your **Approvals** page lists **Your submissions** with the outcome of each: **Awaiting approval**, **Changes requested**, **Rejected** or **Approved**. A reviewer's note appears under the post.
+
+## Review posts
+
+The **Approvals** page for a reviewer has a **Waiting for you** list on the left and the post on the right.
+
+<Steps>
+  <Step title="Pick a post">
+    Select a post in the list. The right side shows **How it will look**: each network as it receives the post, with the caption, first comment, media and crop that channel will use. A green **Passes checks** or the problems the network would refuse are shown under each channel.
+  </Step>
+  <Step title="Check timing">
+    The line under the post says what approval will do: **Goes out** at the scheduled time **once approved**, **Goes out the moment you approve it**, or **No time set. Approving returns it to the author as a draft.** A repeating series is marked **Repeating series**.
+  </Step>
+  <Step title="Decide">
+    Choose **Approve**, **Request changes** or **Reject**.
+  </Step>
+</Steps>
+
+### Approve
+
+**Approve** signs the post off. What happens next:
+
+| The post had | Result |
+|---|---|
+| A scheduled time | **Approved. It is queued to go out as scheduled.** The status becomes **Scheduled**. |
+| **Publish after approval** | **Approved and on its way out now.** It is published straight away. |
+| A repeating series | **Approved. The series is back on its schedule.** |
+| No time and no publish request | **Approved. It is back with the author as a draft.** Approval never invents a schedule. |
+
+To approve several posts at once, tick them in the list, or use **Select all**, then use the **Approve** button that appears. Use **Clear** to undo the selection.
+
+### Request changes
+
+Choose **Request changes**, write what needs changing under **What needs changing?** and select **Send back**. A note is required. The author keeps the post as a draft, sees your note, edits it and sends it back to you.
+
+### Reject
+
+Choose **Reject**, write the reason under **Why is it rejected?** and select **Reject post**. A reason is required. The author keeps the post as a draft and sees your reason, in case they want it later.
+
+Notes can be up to 500 characters.
+
+<Warning>
+You cannot approve a post you wrote yourself. You see **You wrote this one, so someone else on the team signs it off.** If you are the only reviewer, ask the owner to make another member an approver.
+</Warning>
+
+## Discussion
+
+Each post under review has a **Discussion** thread. The author, the post's owner and your team's reviewers can see it. Nobody else can read it. Write under **Add a comment** and select **Comment**, or press Ctrl+Enter. Comments are up to 2,000 characters.
+
+The **Review history** shows each step in order: **sent it for review**, **approved it**, **asked for changes** and **rejected it**, with the people involved.
+
+You can reply on a post even when nothing else is waiting. The thread is also on the post page.
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Teams" icon="users" href="/account/teams">
+    Create a team, invite people and set seat limits.
+  </Card>
+  <Card title="Posts and statuses" icon="list" href="/user-guide/posts-and-statuses">
+    What each post status means.
+  </Card>
+</CardGroup>

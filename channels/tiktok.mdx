@@ -1,0 +1,188 @@
+---
+title: 'TikTok'
+description: 'Register a TikTok app with Login Kit and Direct Post, connect creators, and publish videos and photo posts with privacy, disclosure and cover options.'
+---
+
+MagicPost posts to TikTok with the Content Posting API in Direct Post mode. You register one app in TikTok for Developers, and each creator connects their own TikTok account through it.
+
+## What you need
+
+- A TikTok for Developers account.
+- Your site served over HTTPS.
+- For photo posts, a site that TikTok can reach from the internet, and a verified domain (see below).
+- Access to **Admin** → **Publishing** → **Platforms**.
+
+## Register the app on TikTok
+
+<Steps>
+  <Step title="Create the app">
+    Create an app in [TikTok for Developers](https://developers.tiktok.com/apps) and fill in its details, including links to your terms and privacy policy.
+  </Step>
+  <Step title="Get the redirect URI from MagicPost">
+    In MagicPost, go to **Admin** → **Publishing** → **Platforms** and click **Add credentials** on the **TikTok** card. Under **What to register**, copy the **Redirect URI**:
+
+    ```text
+    https://your-domain.com/publishing/tiktok/callback
+    ```
+  </Step>
+  <Step title="Add Login Kit">
+    In the TikTok app, add **Login Kit** and register the redirect URI for the web.
+  </Step>
+  <Step title="Add the Content Posting API">
+    Add the **Content Posting API**, switch on **Direct Post**, and add each scope listed in the table below.
+  </Step>
+  <Step title="Verify your site address">
+    TikTok downloads photo posts from your site. Verify the site's address under **URL properties** in the app.
+  </Step>
+  <Step title="Submit the app for review">
+    Submit the app for review, then copy the **Client key** and the **Client secret**.
+  </Step>
+  <Step title="Store them in MagicPost">
+    Paste the key into **Client ID** and the secret into **Client secret**. The hint under the field reminds you that TikTok calls it **Client key**. Tick **Available to users**, click **Save**, then **Run checks**.
+  </Step>
+</Steps>
+
+### Permissions MagicPost asks for
+
+| Scope | Used for |
+|---|---|
+| `user.info.basic` | The account's display name and picture. |
+| `user.info.stats` | Follower, following, like and video counts for analytics. |
+| `video.publish` | Direct posting. |
+| `video.upload` | Uploading the video file. |
+| `video.list` | Reading a published video's figures for analytics. |
+
+<Warning>
+Until TikTok audits the app, everything it posts is visible only to the account that posted it, and at most 5 accounts a day can post through it. Apply for the audit before your users rely on TikTok.
+</Warning>
+
+## Connect a TikTok account
+
+<Steps>
+  <Step title="Open Channels">
+    Under **Publishing** in the sidebar, click **Channels**.
+  </Step>
+  <Step title="Add the account">
+    In **Add a channel**, click **TikTok**. Sign in on TikTok and approve access.
+  </Step>
+  <Step title="Confirm">
+    You return to **Channels** with one **Profile** channel. Its handle comes from TikTok.
+  </Step>
+</Steps>
+
+At connection time MagicPost asks TikTok what the creator may currently do: which audiences are allowed, whether comments, Duet and Stitch are switched off, and the longest video allowed. The composer offers only those choices. TikTok answers again before every post and on every connection check, and MagicPost keeps the latest answer.
+
+## What you can publish
+
+TikTok has two post types: **Video** and **Photo**.
+
+| Setting | Video | Photo |
+|---|---|---|
+| Media required | Yes | Yes |
+| Text | 2,200 characters, used as the title. | 4,000 characters, used as the description. |
+| Images | None. | 1 to 35. jpg, jpeg or webp. Up to 20 MB each. Larger pictures are resized to fit 1920 by 1080. |
+| Video | 1. mp4, mov or webm. Up to 4,096 MB. 3 to 600 seconds. | None. |
+| Mixed media | Not allowed. | Not allowed. |
+| First comment | No. | No. |
+
+The video length is also capped by the creator's own limit from TikTok. The connection check shows it as **Videos up to N minutes long.**
+
+Both post types show this notice in the composer, linked to TikTok's page: **By posting, you agree to TikTok's Music Usage Confirmation.**
+
+### Video options
+
+Set these under **Settings for** the channel in the composer.
+
+| Option | Required | What it does |
+|---|---|---|
+| **Who can view** | Yes | **Everyone**, **Friends**, **Followers** or **Only me**. Only the audiences TikTok allows for the account are offered. |
+| **Turn off comments** | No | Hides comments. Locked on when comments are already off in the account's TikTok settings. |
+| **Cover frame** | No | Pick the frame TikTok shows before the video plays. **Let the network pick** clears the choice. |
+| **Turn off Duet** | No | Locked on when Duet is already off in the account's settings. |
+| **Turn off Stitch** | No | Locked on when Stitch is already off in the account's settings. |
+| **Promotes your own business** | No | Labelled **Promotional content** on TikTok. |
+| **Paid partnership** | No | Labelled **Paid partnership** on TikTok and covered by TikTok's Branded Content Policy. Not allowed with **Only me**. |
+| **Made with AI** | No | TikTok adds an AI-generated label. |
+
+### Photo options
+
+| Option | Required | What it does |
+|---|---|---|
+| **Title** | No | Up to 90 characters. |
+| **Who can view** | Yes | Same choices as for video. |
+| **Turn off comments** | No | Same as for video. |
+| **Add recommended music** | No | Lets TikTok add music to the photo post. |
+| **Promotes your own business** | No | Labelled **Promotional content**. |
+| **Paid partnership** | No | Not allowed with **Only me**. |
+| **Made with AI** | No | TikTok adds an AI-generated label. |
+
+<Note>
+MagicPost switches **Made with AI** on by itself when any attached media was created with MagicPost's AI image or video tools.
+</Note>
+
+### How media is delivered
+
+- A video is uploaded as bytes in chunks of up to 10 MB. Your site does not need to be reachable from the internet for this, and an upload that is cut short carries on from the last chunk TikTok confirmed.
+- A photo post is different. TikTok downloads the pictures itself from a web address, so the address must be reachable from the internet and on a domain verified in the TikTok app. When it is not, the post fails with a message that names the address.
+
+## Connection check
+
+| Item | Result |
+|---|---|
+| **Account** | **Posting as @handle.** |
+| **Video length** | **Videos up to N minutes long.** Shown when TikTok reports a limit. |
+
+TikTok's own check answers for the account as it stands right now, daily caps included.
+
+## Reconnecting
+
+TikTok access tokens renew with a refresh token. If TikTok reports that access was removed, the channel becomes **Expired** and the owner is notified. Reconnect it from **Channels**. See [Channel states](/channels/overview#channel-states).
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes, comments, shares and views. |
+| Channel | Followers, following, number of videos and total likes. |
+
+See [Analytics](/user-guide/analytics).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="TikTok has not audited this app yet, so it can only post for Only me">
+    The app is unaudited. Choose **Only me** under **Who can view**, or complete TikTok's app audit.
+  </Accordion>
+  <Accordion title="TikTok limits how many people can post through this app each day">
+    Until the audit passes, only a few accounts a day can post. The post is tried again later.
+  </Accordion>
+  <Accordion title="This account has reached TikTok's daily posting limit">
+    The post is retried about an hour later and goes out once there is room again.
+  </Accordion>
+  <Accordion title="TikTok only pulls photos from a domain verified for this app">
+    Verify the site under **URL properties** in the TikTok developer portal.
+  </Accordion>
+  <Accordion title="TikTok fetches photos over the internet, and the address cannot be reached">
+    The site runs on an address only your own machine can reach, such as localhost. Photo posts need a public address.
+  </Accordion>
+  <Accordion title="This TikTok account cannot post for that audience">
+    TikTok no longer allows the chosen audience for this account. Pick another under **Who can view**.
+  </Accordion>
+  <Accordion title="TikTok does not allow branded content to be visible to Only me">
+    **Paid partnership** needs a wider audience than **Only me**.
+  </Accordion>
+  <Accordion title="This TikTok account can post videos up to a length, and this one is longer">
+    The creator's own limit is shorter than the general 10 minutes. Trim the video.
+  </Accordion>
+  <Accordion title="TikTok could not read the file">
+    Use an MP4 or MOV with H.264 video. TikTok takes videos between 23 and 60 frames per second, and pictures between 360 and 4096 pixels on each side.
+  </Accordion>
+  <Accordion title="TikTok flagged the caption">
+    Edit the caption and try again.
+  </Accordion>
+  <Accordion title="TikTok access was removed for this app">
+    TikTok no longer accepts the connection. Reconnect the channel from **Channels**.
+  </Accordion>
+</AccordionGroup>
+
+Server errors and rate limits are retried automatically. See [Failed posts](/troubleshooting/publishing-errors).

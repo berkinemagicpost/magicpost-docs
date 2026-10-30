@@ -1,0 +1,60 @@
+---
+title: "Finance dashboard"
+description: "Read the revenue, subscription, order and gateway figures on Finance, Finance Dashboard, and learn exactly what each tile and chart counts."
+---
+
+**Finance** → **Finance Dashboard** summarizes your billing in one page. The date under the heading is today's date. All figures are live, and there are no filters or date pickers.
+
+<Note>
+  The charts are drawn with ApexCharts, which the page loads from `cdn.jsdelivr.net`. If your server's visitors cannot reach that host, the tiles and tables still show but the charts stay empty.
+</Note>
+
+## Headline tiles
+
+| Tile | What it counts |
+|---|---|
+| Total Lifetime Revenue | The prices of all completed orders. The badge compares this month's revenue with last month's. A small chart shows the last six months. |
+| Monthly Recurring Revenue | The amount due on every active subscription added together, with the yearly figure (monthly times 12) shown as **ARR**. |
+| Active Subscriptions | Subscriptions that are active and not expired. Under it are the number of new subscriptions this month and the churn rate. |
+
+## Summary strip
+
+| Tile | What it counts |
+|---|---|
+| Revenue This Month | Completed order prices for the current calendar month, with the change against last month. |
+| Orders This Month | Orders of any status created this month, with the change against last month. |
+| Conversion Rate | Completed orders divided by the number of users, as a percentage. The line under it shows both numbers. |
+| Pending Payouts | The total of referral payout requests whose status is Pending, marked as awaiting approval. See [Referral program admin](/saas/affiliates). |
+
+## Charts
+
+| Chart | What it shows |
+|---|---|
+| Revenue Overview | Twelve months. The area is completed revenue. The columns, labelled **Cost** in the legend, plot the number of orders created that month, whatever their status. |
+| Revenue by Gateway | A donut of completed revenue per gateway, with a total in the middle and a label for each gateway. |
+| Order Status | The share of each order status across all time, with counts for Completed, Pending, Failed, Cancelled and Declined underneath. |
+| Active Plan Distribution | A pie of active subscriptions per plan. |
+| Revenue by Plan | Completed revenue per plan, highest first. |
+
+## Tables
+
+| Table | What it shows |
+|---|---|
+| Recent Orders | The seven latest orders with customer, plan, amount, gateway, status and date. **View All** opens [Orders](/saas/orders). |
+| Top Customers | The seven customers who spent the most on completed orders, with their order count. |
+| Top Plans | Every plan ranked by completed revenue, with its price and subscriber count. **Manage** opens [Pricing Plans](/saas/plans). |
+| Gateway Performance | For each gateway: completed revenue, share of orders that completed, total orders and successful orders. **Configure** opens [Payment gateways](/gateways/overview). |
+
+The success rate bar is green from 80% up, amber from 50% and red below that.
+
+## How the numbers are worked out
+
+- **Revenue** adds up the stored price of completed orders. Orders created by **Assign Subscription** count at the plan's full price, and free plan activations count as 0. See [Subscriptions](/saas/subscriptions).
+- **Active subscriptions** are subscriptions with the status Active and a renewal date in the future. Lifetime plans stay active for 50 years.
+- **MRR** is not normalized. A Yearly or Lifetime subscription adds its full price to the figure, and **ARR** is that figure multiplied by 12.
+- **Churn** is the number of subscriptions that are not active and were updated this month, divided by all subscriptions ever created, as a percentage.
+- **Conversion Rate** counts completed orders, not paying users, so a user who pays several times raises it each time.
+
+<Warning>
+  Revenue figures add order prices as stored, with no currency conversion, and print them with the symbol of your **Default Currency** from [Finance settings](/saas/finance-settings). The **Recent Orders** table prints a dollar sign for every order. Keep one currency across plans if you rely on these totals.
+</Warning>

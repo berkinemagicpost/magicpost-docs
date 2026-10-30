@@ -1,0 +1,174 @@
+---
+title: "Facebook Pages"
+sidebarTitle: "Facebook Pages"
+description: "Register a Meta app, connect Facebook Pages and publish feed posts, Reels and Stories with first comments."
+---
+
+MagicPost publishes to Facebook **Pages**. Personal profiles and Facebook groups cannot be connected. Each Page you connect is one channel and counts against your plan's channel limit.
+
+For the parts every network shares (credentials, callback URLs, channel health), see [Publishing channels](/channels/overview).
+
+## What you need
+
+- A Meta for Developers account and a Meta app (you create it below).
+- Your MagicPost site served over HTTPS. The **Run checks** test on the Platforms page fails the redirect URI check for any address that does not start with `https://`.
+- For each person who connects a Page: a role on that Page that includes the `CREATE_CONTENT` task. Pages where the person lacks it are not offered during connection.
+
+## Set up the Meta app
+
+You do this once, as the administrator. The same Meta app can serve Facebook, [Instagram](/channels/meta/instagram) and the [official WhatsApp API](/channels/whatsapp/official-cloud-api).
+
+<Steps>
+  <Step title="Open the Facebook Page setup panel in MagicPost">
+    Go to **Admin → Publishing → Platforms** and click **Add credentials** on the **Facebook Page** card (the button reads **Edit credentials** once keys are saved). The panel shows the **Redirect URI** and the **Permissions asked for**, each with a copy button.
+
+    The redirect URI has this form:
+
+    ```text
+    https://your-domain.com/publishing/facebook/callback
+    ```
+
+    Copy the exact value from the panel. Networks compare it character for character.
+  </Step>
+  <Step title="Create the app">
+    In [Meta for Developers](https://developers.facebook.com/apps), create an app with the use case for managing a Page, and connect it to your business portfolio.
+  </Step>
+  <Step title="Add Facebook Login">
+    Add **Facebook Login** to the app and paste the redirect URI under **Valid OAuth Redirect URIs**. If the same app also serves Instagram, add the Instagram redirect URI there as well (`https://your-domain.com/publishing/instagram/callback`).
+  </Step>
+  <Step title="Request permissions">
+    In **App Review**, request advanced access to each permission listed below.
+  </Step>
+  <Step title="Copy the keys">
+    Open **App settings → Basic** and copy the **App ID** and **App Secret**.
+  </Step>
+  <Step title="Save them in MagicPost">
+    Back in the setup panel, paste the App ID into **Client ID** and the App Secret into **Client secret**. Leave **Custom redirect URI** empty unless your site must be reached at a different address. Tick **Available to users** and click **Save**.
+  </Step>
+  <Step title="Run the checks">
+    Click **Run checks** on the card. The **Configuration checks** window confirms the client ID, client secret, redirect URI, requested scopes, connect driver and publisher. Every row should pass.
+  </Step>
+</Steps>
+
+### Permissions MagicPost requests
+
+The connect dialog asks for these six permissions together:
+
+`pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `pages_manage_engagement`, `business_management`, `read_insights`
+
+`pages_manage_engagement` is what allows first comments. `read_insights` feeds the Page figures in [Analytics](/user-guide/analytics).
+
+<Warning>
+Until App Review approves the permissions, only people who have a role on the Meta app can connect a Page. Meta also asks for a verified business before the app can be published for everyone else.
+</Warning>
+
+<Note>
+MagicPost calls Graph API version `v23.0`.
+</Note>
+
+## Connect a Page
+
+<Steps>
+  <Step title="Open Channels">
+    In the sidebar, under **Publishing**, click **Channels**.
+  </Step>
+  <Step title="Start the connection">
+    In the **Add a channel** card, click **Facebook Page**. If the tile is dashed and marked **Not in your plan**, your plan does not include Facebook. See [Plans](/saas/plans).
+  </Step>
+  <Step title="Authorise in Facebook">
+    Sign in to Facebook, choose the Pages to share and accept every permission. If you decline `pages_manage_engagement`, the first comment field is not offered for that channel.
+  </Step>
+  <Step title="Choose Pages">
+    If you shared one Page, MagicPost connects it right away and confirms with a message ending in "is connected." If you shared several, the **Choose accounts to connect** window opens with every Page ticked. Untick the ones you do not want and click **Connect**.
+  </Step>
+</Steps>
+
+When you pick several Pages and your plan's channel limit is reached, the remaining ones are skipped and MagicPost says how many.
+
+If a connection fails, MagicPost returns you to Channels with a message. The ones specific to Facebook:
+
+| Message | Meaning |
+|---|---|
+| This account does not administer any Facebook pages. | The Facebook account has no Pages. |
+| You administer pages but none of them granted permission to publish. | The account has Pages, but none where it holds the `CREATE_CONTENT` task. |
+| Meta did not issue a long-lived token, so the connection would stop working within the hour. Try connecting again. | The token swap failed. Nothing was saved. |
+
+## Post types and limits
+
+Choose the type with **Post type** in the **Settings for** panel of the channel in the composer. The limits below are set in `config/publishing.php`, and the composer checks them before a post is queued.
+
+| | Feed post | Reel | Story |
+|---|---|---|---|
+| Caption | Up to 63,206 characters | Up to 2,200 characters | No caption |
+| Media required | No | Yes, one video | Yes, one image or one video |
+| Images | 1 to 10 (jpg, jpeg, png, gif, webp), 10 MB each | Not accepted | 1 (jpg, jpeg, png), 10 MB |
+| Video | 1 (mp4, mov), up to 1,024 MB, at least 1 second, no maximum length set | 1 (mp4, mov), up to 1,024 MB, 3 to 90 seconds | 1 (mp4, mov), up to 100 MB, 3 to 60 seconds |
+| Images and video together | No | Not applicable | No |
+| Options | **Link** (a URL of up to 2,048 characters) | None | None |
+| First comment | Yes | Yes | No |
+
+### How a post goes out
+
+- **Feed post.** One image is published as a photo. Several images are uploaded unpublished and attached to a single post. A video is handed to Facebook by link when the file's address can be reached from the internet, and uploaded from your server otherwise. A text post can carry a link, taken from the **Link** option or from the shared **Link** field in the **First comment and link** card.
+- **Reel.** The video is uploaded through Facebook's resumable upload session, then published. Each step is recorded, so a run that is cut short continues with the same upload.
+- **Story.** An image or a video is published as a Page Story.
+- **Alt text.** The alt text saved with an image in the Media library is sent with each photo, up to 1,000 characters.
+
+Your server uploads the files itself, so Facebook publishing does not need your media to be reachable from the internet, unlike [Instagram](/channels/meta/instagram) and [Threads](/channels/meta/threads).
+
+## First comments
+
+Feed posts and Reels can carry a first comment, posted as a comment on the post right after it goes live. Write it in the **First comment** field of the **First comment and link** card, or per channel in the **First comment for** field of the channel's settings. A per-channel comment overrides the shared one.
+
+A failed comment does not fail the post. The post stays published and the network's answer is written to the application log under "First comment failed".
+
+## Check the connection
+
+On the Channels page, open the channel's actions menu (the three dots) and click **Check connection**. The **Connection check** window lists:
+
+- **Authorisation**: whether the connection expires and whether it renews itself.
+- **Page**: confirms the connection to the Page by name.
+- **Visibility**: a warning if the Page is unpublished, because then only its admins see what is posted to it.
+
+The window also offers **Send a private test**. For Facebook this creates an unpublished post that only Page admins can see, then deletes it. If the deletion fails, the message says where to remove the post by hand.
+
+## Analytics
+
+Facebook reports these figures to [Analytics](/user-guide/analytics):
+
+| Level | Figures |
+|---|---|
+| Post | Likes, comments, shares, clicks, impressions, reach |
+| Page | Followers, impressions, reach, engagements |
+
+A Page without the insights permission still reports its follower count.
+
+## Tokens and reconnecting
+
+MagicPost keeps the Page token Meta issues from a long-lived user token. That token has no expiry date of its own and is not renewed on a timer. It stops working when the person revokes the app, loses their role on the Page, or Meta ends the app's data access after a long period without use.
+
+When that happens the channel shows **Needs reconnect**. Open the actions menu and click **Reconnect**. If you pick a different Page than the one you originally linked, MagicPost refuses with "That is a different account. Reconnect using the account you originally linked."
+
+MagicPost also runs the connection check in the background, at most about once a day, for channels that have posts due in the next two days. A revoked token is therefore usually flagged before a scheduled post fails. This needs the scheduler to be running; see [Cron and queue](/installation/cron-and-queue).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Facebook says the redirect URI is not allowed">
+    The address in **Valid OAuth Redirect URIs** must match the redirect URI shown in MagicPost exactly, including `https://` and the `/publishing/facebook/callback` path.
+  </Accordion>
+  <Accordion title="I can connect, but a colleague cannot">
+    The app is not yet approved for the permissions. Until App Review passes, only people with a role on the Meta app can connect a Page.
+  </Accordion>
+  <Accordion title="The first comment never appears">
+    Check that the connecting person granted `pages_manage_engagement`. Without it the field is not offered. If it was offered and the comment is still missing, look for "First comment failed" in the application log.
+  </Accordion>
+  <Accordion title="The channel shows Needs reconnect">
+    Meta rejected the token (error codes 102, 190, 463 or 467). Reconnect the channel from the actions menu.
+  </Accordion>
+  <Accordion title="A post failed with a rate limit message">
+    Meta throttled the app or the Page. MagicPost retries these automatically on its backoff schedule. See [Failed posts](/troubleshooting/publishing-errors).
+  </Accordion>
+</AccordionGroup>
+
+More on connection problems: [Channel connection problems](/troubleshooting/channel-connections).

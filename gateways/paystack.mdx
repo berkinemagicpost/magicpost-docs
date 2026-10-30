@@ -1,0 +1,125 @@
+---
+title: 'Paystack'
+description: 'Connect Paystack to MagicPost to take payments for one-time and recurring plans through the hosted Paystack checkout.'
+---
+
+Paystack supports every MagicPost plan type. Customers pay on a Paystack page and are sent back to MagicPost, which verifies the transaction with Paystack before it grants the plan.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Paystack** |
+| Name at checkout | Paystack |
+| Test mode | **Mode → Sandbox**, with your Paystack test keys |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/paystack` |
+| Webhook events | `charge.success`, `subscription.create`, `invoice.payment_succeeded`, `subscription.disable`, `subscription.not_renew` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/paystack`, set by MagicPost on each payment |
+| Cancel URL | None is sent. A customer who returns without a successful payment lands on `https://YOUR_DOMAIN/app/user/billing` |
+| Currency | The currency of the plan |
+
+## Get your keys from Paystack
+
+<Steps>
+  <Step title="Sign in">
+    Open your Paystack Dashboard.
+  </Step>
+  <Step title="Pick test or live">
+    Paystack gives you a separate pair of keys for test and live use. Test keys start with `pk_test_` and `sk_test_`, live keys with `pk_live_` and `sk_live_`.
+  </Step>
+  <Step title="Copy the keys">
+    Go to **Settings**, then **API Keys & Webhooks**. Copy the **Public Key** and the **Secret Key**.
+  </Step>
+</Steps>
+
+<Warning>
+Keep the Secret Key private. MagicPost also uses it to check that webhook events really come from Paystack.
+</Warning>
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Paystack card">
+    Go to **Admin → Finance → Payment Gateways** and click **Paystack**. The page is titled **Paystack Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Paystack Public Key**
+    - **Live Paystack Secret Key**
+    - **Sandbox Paystack Public Key**
+    - **Sandbox Paystack Secret Key**
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Paystack settings saved successfully."
+  </Step>
+</Steps>
+
+## Add the webhook in Paystack
+
+<Steps>
+  <Step title="Open the webhook settings">
+    In the Paystack Dashboard, go back to **Settings**, then **API Keys & Webhooks**.
+  </Step>
+  <Step title="Enter the URL">
+    Paste the **Webhook URL** from the MagicPost Paystack page into the webhook URL field. It looks like this:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/paystack
+    ```
+  </Step>
+  <Step title="Save">
+    Save the settings in Paystack. There is no signing secret to copy back, because MagicPost verifies each event with your Secret Key.
+  </Step>
+</Steps>
+
+Paystack keeps separate webhook URLs for test and live mode. Set the URL in both if you use both.
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost starts a Paystack transaction for the plan price and redirects the customer to the Paystack payment page. When the customer returns, MagicPost looks up the transaction by its reference, and only records the order if Paystack reports it as successful.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates a Paystack plan that bills monthly or annually. The customer pays the first charge on Paystack, and Paystack creates the subscription. MagicPost then looks up the subscription code for that customer and plan and stores it on the subscriber.
+
+**Renewals and cancellation.**
+
+- `subscription.create` and `invoice.payment_succeeded` extend the subscriber's period and renew the credit allowance.
+- `subscription.disable` and `subscription.not_renew` mark the subscription as cancelled.
+- `charge.success` records a payment that has not been recorded yet, provided the charge carries the user and plan details MagicPost sent when it started the payment.
+- Cancelling a subscriber in MagicPost does not cancel it at Paystack. Also disable the subscription in your Paystack Dashboard.
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost deactivates the old Paystack plan and creates a new one at the next purchase.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price multiplied by 100, for every currency. Your Paystack account must be able to charge the plan's currency.
+
+## Test mode
+
+Fill in the two **Sandbox** key fields, select **Sandbox** under **Mode** and save. Pay with one of Paystack's test cards while your Paystack Dashboard is in test mode. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Paystack. Turn it on and save.
+  </Accordion>
+  <Accordion title="Paystack could not start the payment. Please try again. / Paystack could not start the subscription. Please try again.">
+    The request to Paystack failed, usually because the Secret Key for the active Mode is missing or wrong. The reason is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Paystack returned an unexpected response.">
+    Paystack answered but did not accept the transaction, for example because the currency is not enabled on your account.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Paystack billing. Please contact support.">
+    The Paystack plan could not be created. The log line begins with "Paystack plan create failed" and includes Paystack's message.
+  </Accordion>
+  <Accordion title="Missing Paystack reference. / Paystack verification failed. / Payment was not completed.">
+    The customer came back without a transaction reference, Paystack could not confirm it, or the transaction was not successful.
+  </Accordion>
+  <Accordion title="Paystack shows the webhook failing with status 400">
+    The body is `invalid signature`: the Secret Key saved for the active Mode is not the one that signed the event. A body of `webhook secret missing` means no Secret Key is saved for that Mode.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

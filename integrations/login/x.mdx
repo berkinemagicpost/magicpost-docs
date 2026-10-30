@@ -1,0 +1,101 @@
+---
+title: 'X login'
+description: 'Let people sign in and register with their X account. Create an OAuth 2.0 app in the X Developer Console and paste its Client ID and Client Secret into Auth Settings.'
+---
+
+With X login on, the login and registration pages show a button for X. In Auth Settings and on the buttons it is still named **Twitter**. You create an app in the X Developer Console with OAuth 2.0, then paste its Client ID and Client Secret into **Auth Settings**. No `.env` changes are needed.
+
+MagicPost always uses X's OAuth 2.0 flow for this login. It asks for the `users.read`, `users.email` and `tweet.read` scopes. X must return an email address, otherwise the sign-in is refused.
+
+<Warning>
+X returns an email address only when your app is allowed to request it and the person's X account has a confirmed email. If either is missing, sign-in fails with "Your social account did not share an email address". Turn on the email permission in Step 2 and test with an account that has a confirmed email before you announce X login.
+</Warning>
+
+<Note>
+This is sign-in for your own users. To publish to an X profile you use the credentials under **Admin → Publishing → Platforms**. See [X (Twitter)](/channels/x). You can use one X app for both if you register both redirect addresses in it, but each page stores its own copy of the credentials.
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have an X account with access to the X Developer Console at [console.x.com](https://console.x.com/).
+- Your site runs on its public `https` address.
+
+## Step 1. Copy the Callback URL
+
+<Steps>
+  <Step title="Open Auth Settings">
+    Go to **Admin → Backend Settings → Auth Settings** and scroll to the **Twitter** section.
+  </Step>
+  <Step title="Copy the Callback URL">
+    Copy the value of the read-only **Callback URL** field. It looks like `https://your-domain.com/auth/twitter/callback`. You paste it into X next.
+  </Step>
+</Steps>
+
+## Step 2. Create the app in the X Developer Console
+
+<Steps>
+  <Step title="Create or open an app">
+    Open the [X Developer Console](https://console.x.com/) and create an app, or open an existing one. Apps are the containers that hold your credentials and settings.
+  </Step>
+  <Step title="Set up OAuth 2.0">
+    In the app's authentication settings, turn on **OAuth 2.0**. Choose **Web App** as the app type. It is a confidential client, which means X gives you a Client Secret.
+  </Step>
+  <Step title="Add the callback address">
+    Add the Callback URL from Step 1 to the app's callback URLs. X compares it character for character, including any trailing slash, and allows up to 10 callback URLs per app.
+  </Step>
+  <Step title="Allow the email address">
+    Turn on the permission that lets the app request users' email addresses (**Request email from users**). Save the settings.
+  </Step>
+  <Step title="Copy the credentials">
+    Open the app's keys and tokens. Copy the **Client ID** and the **Client Secret** from the OAuth 2.0 section.
+
+    <Warning>
+    Use the OAuth 2.0 **Client ID** and **Client Secret**. The **API Key** and **API Secret** are OAuth 1.0a credentials and will not work here. Copy the secret when it is shown, because you may not be able to see it again.
+    </Warning>
+  </Step>
+</Steps>
+
+## Step 3. Configure MagicPost
+
+<Steps>
+  <Step title="Turn on the master switch">
+    On **Admin → Backend Settings → Auth Settings**, switch on **Login via Social (oAuth)**. It saves as soon as you toggle it.
+  </Step>
+  <Step title="Enable Twitter and fill in the credentials">
+    In the **Twitter** section, switch on **Enable Twitter Login** and fill in:
+
+    - **Twitter API Key**: the OAuth 2.0 Client ID.
+    - **Twitter API Secret Key**: the OAuth 2.0 Client Secret.
+    - **Twitter Redirect URL**: the same address as **Callback URL**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The toast reads **Settings were saved successfully**.
+  </Step>
+</Steps>
+
+| MagicPost field | X value |
+|---|---|
+| **Twitter API Key** | OAuth 2.0 Client ID |
+| **Twitter API Secret Key** | OAuth 2.0 Client Secret |
+| **Twitter Redirect URL** | Callback URL registered in the app. Must match exactly |
+| **Callback URL** | Read-only. The value to register as the callback URL |
+
+## Test it
+
+1. Open your site's login page in a private browser window.
+2. Click **Twitter** under **or continue with**.
+3. Authorize the app on X.
+4. You land on the dashboard. The registration page offers the same button under **or sign up with**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Your social account did not share an email address, so we cannot sign you in. | The app is not allowed to request email, or the X account has no confirmed email | Turn on **Request email from users** for the app. Confirm the email on the X account |
+| X reports that the callback URL is not approved | The address differs from the one in the app | Make the app's callback URL, **Twitter Redirect URL** and **Callback URL** identical, including `https` and any trailing slash |
+| We could not complete the social login. Please try again. | Wrong secret, API Key and API Secret used instead of the OAuth 2.0 pair, or the sign-in started and ended on different site addresses | Paste the OAuth 2.0 Client ID and Client Secret, and use one site address |
+| No **Twitter** button on the login page | Master switch off, **Enable Twitter Login** off, or the key or secret is empty | Check all three, then save |
+| That social login option is not available. | Same as above, reached by a direct link | Same fix |
+| Registration is currently closed, so a new account could not be created. | **User Registration** is off and no account has that email | Turn on **User Registration** under **Admin → Backend Settings → Registration Settings**, or create the user first |
+| Your account is not active. Please contact support. | The matching account is banned or suspended | Reactivate the account in the admin panel |

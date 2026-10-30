@@ -1,0 +1,140 @@
+---
+title: 'AI writing and media'
+description: 'Write captions, adapt them for each network, suggest alt text, and create or edit pictures and clips with AI, with credit cost and plan rules.'
+---
+
+MagicPost has two sets of AI tools. Both are optional. Writing, saving, scheduling and publishing all work without them.
+
+| Tool | Where | Plan feature |
+|---|---|---|
+| **Write with AI**: captions, rewrites, translations, hashtags and alt text | Composer | **AI writing** |
+| **Create with AI** / **Edit with AI**: pictures and video clips | Media library and Composer | **AI media** |
+
+## Before you start
+
+Three things must be in place:
+
+1. **A model.** Your administrator adds a provider API key and switches a model on under **Publishing → Writing Models** for text, and **Publishing → Media Models** for pictures and video. Until then you see **An administrator needs to add a provider API key and switch a model on before this can be used.** See [AI models](/admin/ai-models).
+2. **Your plan.** When billing is turned on for the site, your plan must include **AI writing** and **AI media**. Where it does not, the tool shows **AI writing is not included in your plan** (or **AI media**) with an **Upgrade** link, and the sidebar marks **Brand voices** as locked. See [Billing and subscription](/account/billing).
+3. **Credits.** Each run costs credits. Your balance shows in the assistant and in the sidebar plan card. See [Credits](/account/credits).
+
+<Note>
+When billing is not turned on for the site, every AI feature is available and nothing is metered by plan. Admin accounts always have access.
+</Note>
+
+## Write with AI
+
+Open the assistant from the composer's caption toolbar with **Write with AI**, or press Ctrl J. The window header shows what a run costs, for example **Costs 2 credits a run**, and your **Balance**. With an unlimited balance it reads **Runs are covered by your unlimited credits.**
+
+<Steps>
+  <Step title="Pick what you want">
+    Choose one of the eight modes at the top of the window. Each has a one-line hint under it.
+
+    | Mode | What it does |
+    |---|---|
+    | **Write** | Fresh posts from a short brief. |
+    | **Rewrite** | The same message, said differently. |
+    | **Shorten** | The same message in fewer words. |
+    | **Hook** | A stronger opening line. The rest stays word for word. |
+    | **Per network** | One version for each selected network, written to its length and habits. |
+    | **From a link** | Posts that share an article or page, using only what it says. |
+    | **Translate** | Natural translations that keep hashtags, mentions and links as they are. |
+    | **Hashtags** | Hashtag sets to append to the caption. |
+  </Step>
+  <Step title="Describe the post">
+    For **Write**, the box is labelled **What is the post about?** A short brief works best: what you are announcing, who it is for, and what you want people to do. The other modes use a box labelled **The post to work from**. For modes that rework text (Rewrite, Shorten, Hook, Per network and Translate) it is filled with your current caption when you switch to the mode. For **From a link**, paste a public page address under **Link to the page** and, if you like, add **What to bring out (optional)**. The link is added to your post when you use an option, if the post has none yet.
+  </Step>
+  <Step title="Set the options">
+    - **Voice** applies one of your [brand voices](/user-guide/captions-and-brand-voice). **Set one up** and **Manage** open the Brand voices page. Your default voice is preselected.
+    - **Language** is the language of the result, or **Translate into** for Translate. The list has 28 languages from English to Vietnamese. A voice with a language sets it for you.
+    - **Tone** is **Friendly**, **Professional**, **Playful**, **Bold** or **Informative**. It is hidden for Translate and Hashtags.
+    - **Options** is how many versions to write, from 1 to 5. It is hidden for Per network.
+    - **Add hashtags** and **Add emoji** add them to the text. They are hidden for Hashtags, Translate and Hook.
+    - **Look at the attached picture** lets the model read up to four attached images when the chosen model can see pictures. Otherwise you see **This model cannot look at the attached pictures.**
+    - **Writing model** appears when your administrator switched on more than one model.
+  </Step>
+  <Step title="Generate">
+    Select **Generate**. The button reads **Writing…** while it works, then **Try again** once there are results.
+  </Step>
+  <Step title="Use a result">
+    Each option shows its length with **Use this**, which replaces the caption you are editing (the shared caption or the open channel's own caption), and **Save**, which keeps it in your Captions library without changing the post. For Hashtags the button is **Append**.
+  </Step>
+</Steps>
+
+If you open the assistant on a caption you already wrote, the brief is pre-filled with it and the mode starts on **Rewrite**.
+
+### Per network versions
+
+With **Per network**, pick your channels first. MagicPost writes one version per selected network, kept under that network's character limit. It still counts as a single run at the usual price. Select **Use on N channels** under a network's version to put it on every selected channel of that network, or **Use every version** to apply all of them. A version over the limit is flagged **Over the limit. Trim it after using it, or run again.**
+
+### Length
+
+In every other mode, results are kept under the character limit of the tightest channel selected, as the line under the brief tells you.
+
+### Earlier runs
+
+Switch to the **Earlier runs** tab to see your last ten runs. Every run you pay for is kept there, so an option you passed over can be used later for free. Select **Use** or **Append** next to an option. Nothing is charged again.
+
+## How credits are charged
+
+- Each run costs the model's credit price, whatever you asked it to do. Adapting a post for five networks is one run.
+- The price is held before the model is called and charged only once a usable answer comes back. If the provider fails, the hold is released and you pay nothing.
+- A run is limited to 20 for each person in any 10 minutes.
+- If your balance is too low, the window shows how many credits the run needs against what you have, and the run is refused until you add credits or your allowance refreshes.
+
+Alt text suggestions are separate runs at the same model price, and show the cost when they finish.
+
+## Alt text suggestions
+
+In the composer, open **Alt text and crop** on an attached picture and select **Suggest alt text**. The model looks at the picture and your caption and returns a description of up to 250 characters. Read it, correct it if needed and select **Save alt text**. It works for pictures only. See [Composer](/user-guide/composer).
+
+## Create and edit pictures and clips
+
+The media studio makes new pictures, changes an existing picture, or turns a picture into a short clip. What you make is saved to your media library, in the **Made with AI** folder.
+
+### Open the studio
+
+- In **Library → Media**, select **Create with AI**.
+- In the composer's **Assets** panel, select the sparkles button, **Create a picture with AI**. Results can then be attached to the post straight away with **Add to post**.
+- In the composer, open an attached picture's **Alt text and crop** panel and choose **Edit with AI**.
+- On a finished run, choose **Edit this picture** or **Bring this picture to life**.
+
+The window title changes with what you are doing: **Create with AI**, **Edit with AI** or **Bring a picture to life**.
+
+### Make a picture
+
+<Steps>
+  <Step title="Choose Picture">
+    The **Picture** and **Video** switch appears when a video model is switched on.
+  </Step>
+  <Step title="Describe it">
+    Under **What should it show?**, describe the picture. For example: `A ceramic mug on a linen tablecloth, morning light, soft shadows, no text.` The description can be up to 4,000 characters. To edit, the box asks **What should change?** and you can say `Swap the background for a sunny kitchen and keep the mug exactly as it is.` The original stays in your library as it is.
+  </Step>
+  <Step title="Pick model, shape and number">
+    Choose the **Model**, the **Shape** the model offers, and **How many** pictures to make, up to the model's maximum.
+  </Step>
+  <Step title="Create">
+    Select **Create** (**Make the change** when editing). The run appears under **Recent** and shows **Starting…**, **Making it…** and finally the pictures.
+  </Step>
+</Steps>
+
+### Make a clip
+
+Choose **Video**. Describe the clip, or, when you started from a picture, how it should move (**How should it move?**). Pick a **Model** that supports it, a **Shape** and a **Length** in seconds from the model's options, then select **Make the clip**. A clip takes a few minutes. You can close the window and come back, and the clip shows as **Rendering…** in the meantime. Only models that can start from a picture are offered when you began from one.
+
+### Cost
+
+- A picture run costs the model's price for each picture. The credits are held while it is made and charged only for pictures that arrive.
+- A clip costs the model's price for each second of length. It is held while the clip is made and charged only if it arrives.
+- **Stop** appears next to a run that is still **Starting…**. It cancels the run and returns the held credits.
+- You can start up to 12 picture runs and 6 clip runs in any 10 minutes.
+
+If a run fails the window shows **Failed** with the reason, and a **Stopped** label for runs you stopped.
+
+### Marking and publishing
+
+Files made here show a **Made with AI** badge in the composer. When you attach one to a post, the composer notes that TikTok and YouTube are told the content is AI-made and label it for viewers.
+
+<Tip>
+Say what must stay as well as what should change. The studio's own example for editing is `Swap the background for a sunny kitchen and keep the mug exactly as it is.`
+</Tip>

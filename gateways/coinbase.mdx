@@ -1,0 +1,121 @@
+---
+title: 'Coinbase Commerce'
+description: 'Accept crypto payments for one-time MagicPost plans through Coinbase Commerce, and check whether your account can still create charges.'
+---
+
+Coinbase Commerce accepts crypto payments for **Prepaid** and **Lifetime** plans only. It has no recurring billing, so it cannot pay for a Monthly or Yearly plan. Customers pay on a page hosted by Coinbase.
+
+<Warning>
+Coinbase has announced that Coinbase Commerce is being unified with Coinbase Business. Its [transition notice](https://help.coinbase.com/en/transitioning-from-coinbase-commerce-to-coinbase-business) says the Commerce portal becomes permanently inaccessible after March 31, 2026, and that you can no longer create charges after that date. MagicPost uses the Commerce Charges API and does not support the Coinbase Business APIs. Before you enable this gateway, confirm that your Commerce account can still create charges. If it cannot, leave Coinbase switched off and use another gateway.
+</Warning>
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Coinbase** |
+| Name at checkout | Coinbase |
+| Plan types | Prepaid, Lifetime |
+| Test mode | None. The page has no **Mode** setting |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/coinbase` |
+| Webhook events | `charge:confirmed`, `charge:resolved` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/coinbase`, set by MagicPost on each charge |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, set by MagicPost on each charge |
+| Currency | The currency of the plan |
+
+## Get your API key from Coinbase Commerce
+
+<Steps>
+  <Step title="Sign in">
+    Open your Coinbase Commerce account.
+  </Step>
+  <Step title="Create an API key">
+    In **Settings**, create an API key and copy it.
+  </Step>
+</Steps>
+
+## Create the webhook in Coinbase Commerce
+
+<Steps>
+  <Step title="Open the webhook subscriptions">
+    In **Settings**, open **Webhook subscriptions** and add an endpoint.
+  </Step>
+  <Step title="Enter the URL">
+    Use the **Webhook URL** from the MagicPost Coinbase page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/coinbase
+    ```
+  </Step>
+  <Step title="Copy the shared secret">
+    Select **Show shared secret** and copy it.
+  </Step>
+</Steps>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open the Coinbase card">
+    Go to **Admin → Finance → Payment Gateways** and click **Coinbase**. The page is titled **Coinbase Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**. The description reads "When enabled, users can use Coinbase for payments".
+  </Step>
+  <Step title="Paste the API key">
+    Under **Keys**, paste the key into **Coinbase Commerce API Key**.
+  </Step>
+  <Step title="Paste the shared secret">
+    Under **Webhooks**, paste the secret into **Webhook Shared Secret**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Coinbase settings saved successfully."
+  </Step>
+</Steps>
+
+<Warning>
+When **Webhook Shared Secret** is empty, MagicPost accepts webhook requests without checking the `X-CC-Webhook-Signature` header. Fill it in on a live site.
+</Warning>
+
+## How payments work
+
+MagicPost creates a fixed-price Coinbase charge for the plan price and redirects the customer to the hosted page Coinbase returns. When the customer comes back, MagicPost looks up the charge and checks the latest status in its timeline:
+
+- `COMPLETED`, `CONFIRMED` or `RESOLVED` records the order. For Lifetime plans MagicPost also creates the subscription.
+- `PENDING` or `NEW` shows "Your crypto payment is being confirmed by the network. You will be notified once it settles." and sends the customer to the Billing page.
+- Anything else shows "Payment was not completed."
+
+Crypto payments can take time to confirm on the network, so the customer often leaves before it is final. The `charge:confirmed` and `charge:resolved` webhooks record the order when the charge settles. The webhook needs the user and plan details MagicPost attached to the charge, and an order is recorded only once.
+
+If the customer returns without their session, for example in another browser, they see "Your crypto payment is being confirmed. You will be notified once the network confirms it." and the webhook finishes the job.
+
+## Subscription plans
+
+If a customer chooses Coinbase for a Monthly or Yearly plan, MagicPost does not start a payment. It shows "Coinbase Commerce does not support recurring subscriptions. Please choose a different payment method." and returns to checkout. There is no per-plan setting to hide Coinbase on recurring plans.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price with two decimals as a fixed price. Coinbase works out the crypto amount.
+
+## Test mode
+
+MagicPost has no sandbox for Coinbase. The API key you enter is used for every charge, so test with a small plan before you announce it.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Coinbase. Turn it on and save.
+  </Accordion>
+  <Accordion title="Coinbase Commerce could not start the payment. Please try again.">
+    The request to Coinbase failed. The API key is missing or wrong, or the Commerce account can no longer create charges. The reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Coinbase Commerce returned an unexpected response. / Coinbase Commerce did not return a hosted URL.">
+    Coinbase did not create a charge. Check the API key and the log.
+  </Accordion>
+  <Accordion title="Coinbase Commerce charge lookup failed.">
+    MagicPost could not read the charge back from Coinbase after the customer returned.
+  </Accordion>
+  <Accordion title="Coinbase shows the webhook failing with status 400">
+    The body is `invalid signature`: **Webhook Shared Secret** does not match the secret of the endpoint that sent the event.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

@@ -1,0 +1,86 @@
+---
+title: 'Notifications'
+description: 'Read your notification inbox and choose which publishing and review events reach you in the app and by email.'
+---
+
+MagicPost tells you when a post goes out, when something needs a look, and when a review is waiting on you. Notices land in your inbox inside the app, and you can also receive some of them by email.
+
+## The inbox
+
+Click **Notifications** in the sidebar, just under **Home**. A badge on the bell shows how many notices are unread (it shows 99+ above 99).
+
+The inbox lists notices newest first, grouped under **Today**, **Yesterday**, **This week** and **Earlier**, 30 to a page.
+
+- **All** and **Unread** switch the list. The **Unread** tab shows your unread count.
+- Click a notice to mark it as read and open the page it points to, such as the post, the channel list or the review queue.
+- **Mark all as read** clears every unread notice at once.
+- **Settings** opens your notification preferences.
+
+Hover over the time on a notice to see the full date and time.
+
+### What appears in the inbox
+
+| Notice | What it tells you |
+|---|---|
+| Your post went out | A post is live on every channel it was meant for. Action: **View post**. |
+| Your post only partly went out | The post reached some channels but not others. Action: **See what happened**. |
+| Your post did not go out | The post could not be sent. Action: **See what happened**. |
+| Check whether your post went out | A channel did not confirm the result, so MagicPost cannot tell whether the post is live. Check the channel yourself. |
+| Reconnect (channel name) | A network stopped accepting posts from that channel. Scheduled posts for it wait until you reconnect. Action: **Reconnect**. |
+| (Name) asked you to review a post | Someone on your team sent a post for sign-off. Action: **Review**. |
+| Your post was approved | A reviewer approved your post. |
+| Your post was not approved | A reviewer turned your post down, with their note when they left one. |
+| Your post needs changes | A reviewer sent the post back to you. Action: **Edit post**. |
+| (Name) commented on a post | A reply on a post under review. Action: **Reply**. |
+| Team invitation | You were invited to join a team. See [Teams](/account/teams). |
+| Credits received | A team owner shared credits with you. |
+
+You never get a notice about your own approval decision or your own comment.
+
+## Notification settings
+
+<Steps>
+  <Step title="Open the settings">
+    Click your name at the bottom of the sidebar, then click **Notifications**. You can also click **Settings** in the inbox.
+  </Step>
+  <Step title="Pick where each event goes">
+    Each row has two switches: **In app** and **Email**. Turn them on or off as you like.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**.
+  </Step>
+</Steps>
+
+| Group | Event | In app | Email |
+|---|---|---|---|
+| Publishing | A post fails or only partly goes out. This includes any post MagicPost could not confirm. | On | On |
+| Publishing | A channel needs reconnecting | On | On |
+| Publishing | A post goes out | On | Off |
+| Reviews | Someone asks you to review a post (only if you sign off posts for a team) | On | On |
+| Reviews | Your post is approved or sent back | On | On |
+| Reviews | Someone comments on a post under review | On | Off |
+
+The table shows the defaults before you change anything.
+
+Team invitations and shared credits are not on this page. They always reach your inbox, and invitations are also sent by email.
+
+### Email limits
+
+When a lot happens at once, MagicPost sends up to 6 emails of the same kind per hour and keeps the rest in your inbox. A channel that breaks can fail many posts in a minute, and this keeps your mailbox usable.
+
+<Note>
+Email notices are sent through the queue using the site's mail settings. If you do not receive them, ask your administrator to check [Email and SMTP](/admin/smtp) and that the [cron job and queue](/installation/cron-and-queue) are running.
+</Note>
+
+## How long notices are kept
+
+The administrator can delete read publishing notices after a set number of days. The setting is Admin → Publishing → Settings → **Keep read notifications**, with the choices **For good** or a number of days. Unread notices are always kept. See [Publishing settings](/admin/publishing-settings).
+
+<CardGroup cols={2}>
+  <Card title="Approval workflow" icon="badge-check" href="/user-guide/approvals">
+    How reviews work for teams.
+  </Card>
+  <Card title="Webhooks" icon="signal" href="/account/webhooks">
+    Send the same events to your own systems.
+  </Card>
+</CardGroup>

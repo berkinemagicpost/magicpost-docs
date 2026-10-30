@@ -1,0 +1,139 @@
+---
+title: 'RSS feeds and CSV import'
+description: 'Turn new blog articles into posts automatically with RSS feeds, and bring in many posts at once from a CSV spreadsheet.'
+---
+
+Two features create posts in bulk. **Feeds** follow a blog or news site and turn each new article into a post. **Import** reads a CSV spreadsheet and creates one post per row. Both need a plan feature when billing is turned on for the site: **RSS feeds** and **Bulk CSV import**. See [Billing and subscription](/account/billing).
+
+## RSS feeds
+
+Open **Publishing → Feeds** in the sidebar. The page reads **Follow a blog or news site, and each new article becomes a post: a draft to look over, or straight into the queue.**
+
+When your plan does not include RSS feeds, the sidebar item shows a lock and leads to the upgrade page. Feeds you already have are kept and can be deleted, but none is checked until your plan includes the feature again.
+
+### Add a feed
+
+<Steps>
+  <Step title="Start a feed">
+    Select **Add a feed**. The page shows the number of feeds you have, for example **3 of 20 feeds**. You can follow up to 20.
+  </Step>
+  <Step title="Enter the address">
+    Under **Address**, paste the address of a blog, a newsletter archive or a news site, then select **Find the feed**. A site's address is enough. MagicPost looks for the feed the page advertises. It reads RSS 2.0, RSS 1.0 and Atom. If nothing is found you see a hint to try the blog's address or the feed link itself, which often ends in `/feed` or `/rss`.
+  </Step>
+  <Step title="Check the sample">
+    MagicPost shows the feed's title and its latest articles. Change the **Name** if you like. It is used as the `{site}` placeholder in the post text.
+  </Step>
+  <Step title="Choose channels">
+    Under **Post to**, tick the channels. Only channels that are ready to publish are listed. If you have none, you see **Connect a channel first.**
+  </Step>
+  <Step title="Choose what happens to each article">
+    Under **Each new article**, choose one of two options:
+
+    - **Becomes a draft**: each article is saved as a draft for you to look over.
+    - **Goes into the queue**: each article takes the next free posting slot of the chosen channels. When no slot is free, the article waits as a draft.
+  </Step>
+  <Step title="Write the post text">
+    **Post text** is a template. Select a placeholder under **Insert** to add it, or type it. A preview under **With the latest article** shows the result.
+
+    | Placeholder | Replaced with |
+    |---|---|
+    | `{title}` | The article title. |
+    | `{link}` | The article link. |
+    | `{summary}` | The article summary. |
+    | `{site}` | The feed's **Name**. |
+
+    The default text is the title, a blank line, then the link.
+  </Step>
+  <Step title="Choose the image">
+    Keep **Attach the article's image when it has one** ticked to download the article's picture into your media library, in a folder called **Feeds**, and attach it to the post. Only JPEG, PNG and GIF pictures are used.
+  </Step>
+  <Step title="Save">
+    Select **Add feed**.
+  </Step>
+</Steps>
+
+### How a feed works
+
+- **The first look only takes notes.** Articles already in the feed when you add it are listed but not posted, so a new feed never floods your channels with its back catalogue. Only what is published from now on becomes a post on its own. Use **Make a post** next to an older article to post it by hand.
+- **MagicPost checks each feed every half hour.** Up to five new articles become posts per check. If more arrived at once, the rest are listed so you can make posts from them by hand.
+- Each article is turned into a post once, no matter how often it appears.
+- If a feed cannot be read, MagicPost tries again later with growing gaps, up to once a day. The feed shows **Could not be read** until a check succeeds.
+- Posts go through the composer's normal checks. A post that fails one, for example a caption that is too long for a network or a plan limit, is skipped and the reason is shown on the article, with a **Try again** button.
+- If your team requires sign-off, posts made from a feed are sent for approval like any other. See [Approval workflow](/user-guide/approvals).
+
+### The feed list
+
+Each feed shows a tag: **Following**, **On hold** (paused) or **Could not be read**. A second tag shows **Drafts to review** or **Into the queue**, and the time of the last check. Its five latest articles show what happened:
+
+| Button | Meaning |
+|---|---|
+| **Make a post** | The article was listed but not posted. |
+| **Open the draft** or **View the post** | A post was made. |
+| **Post removed** | The post was made, then removed. |
+| **Try again** | The article was skipped. The reason shows beside it. |
+
+The feed menu (**Feed actions**) has:
+
+- **Check now** reads the feed immediately and reports **N new articles became posts**, or **Nothing new since the last check.**
+- **Edit** changes the name, channels, mode, text and image option. Changes apply to the next articles. Posts already made stay as they are.
+- **Pause** and **Resume** stop and restart checks. A paused feed posts nothing until you resume it.
+- **Delete** stops the feed. Posts it already made stay as they are.
+
+## CSV import
+
+Open **Publishing → Posts** and select **Import**. The page is titled **Import posts**: bring in a spreadsheet of posts at once, with every row checked the way the composer checks a post before anything is saved.
+
+When your plan does not include **Bulk CSV import**, the page shows a lock instead of the file chooser. Exporting your posts still works.
+
+### Prepare the file
+
+Select **Download the template** to get `posts-template.csv`. The columns are:
+
+| Column | What it holds |
+|---|---|
+| `content` | The post text. This is the only required column. |
+| `scheduled_at` | When to publish, as `YYYY-MM-DD HH:MM` in your time zone. Leave blank for the queue or a draft. |
+| `channels` | Channels to post to, separated by semicolons, commas or bars. Leave blank to use the channels you pick on the page. |
+| `link` | A link for the post. |
+| `first_comment` | A first comment. |
+| `labels` | Labels, separated by semicolons, commas or bars. |
+| `image_url` | The web address of a picture to attach. |
+
+Column headings are not case sensitive, and many common names work. For example `text`, `caption`, `message` or `body` can stand in for `content`, and `publish_at`, `datetime` or `when` for `scheduled_at`. A date and a time can also sit in separate `date` and `time` columns. Comma, semicolon and tab separated files all work, and a byte order mark is fine.
+
+In `channels`, name a channel by its name, its handle (with or without `@`), its id, or its network, such as `linkedin` or `LinkedIn`. A network name picks every channel you have on that network. A name that matches nothing is reported on its row.
+
+<Tip>
+Rows can be picture-only. Leave `content` blank and fill `image_url`. The row is labelled **Image only**.
+</Tip>
+
+### Import the file
+
+<Steps>
+  <Step title="Choose the file">
+    Select **Choose a CSV file**. The file can be up to 2 MB and must end in `.csv` or `.txt`. MagicPost reads up to 200 rows. If the file has more, the rest are not read and the page tells you so.
+  </Step>
+  <Step title="Set the defaults">
+    Under **Rows that name no channel go to**, tick the channels for rows whose `channels` cell is empty. Under **Rows without a time**, choose **Queue** or **Drafts**. **Queue** hands out the channels' posting times in row order. When no slot is free, a row becomes a draft.
+  </Step>
+  <Step title="Review the rows">
+    The table lists every row with its **Post**, **When**, **Channels** and **Check**. The header reads, for example, **18 ready · 2 need a look**. Rows show **Ready**, **Draft** or **next queue slot**, or the problems found, such as an unknown channel, a time that has already passed, an invalid link, a caption over a network's limit, or missing text.
+  </Step>
+  <Step title="Import">
+    Select **Import N posts**, where N is the number of ready rows. The button is disabled when no row is ready. Rows with problems are skipped. Each ready row is saved on its own, so one that fails at the last moment does not stop the others.
+  </Step>
+  <Step title="Read the result">
+    The result says **N posts imported** and **Every ready row went in.** If some could not be saved, it says **N rows could not be saved.** and lists each one as **Row** and its line number, with the reason. Choose **See the posts** or **Import another file**.
+  </Step>
+</Steps>
+
+The line number shown for a row counts the heading line, so the first data row is line 2.
+
+### What to know
+
+- Every row goes through the composer's rules, including the plan limits for posts per month and posts scheduled ahead, and the character limits of each network.
+- A picture is downloaded when you import. Only JPEG, PNG and GIF pictures are fetched. It is stored in your media library in a folder called **Imported**, and counts against your media storage. If the picture cannot be fetched, the row fails with **The image could not be fetched.** Rows with a picture are not content-checked in the preview, but are checked when saved.
+- If your team requires sign-off, imported posts are sent for approval.
+- A leading apostrophe in front of `=`, `+`, `-` or `@` in a cell is removed, so text written by a spreadsheet export reads as you typed it.
+
+Your posts can be exported as a CSV file at any time. See [Posts and statuses](/user-guide/posts-and-statuses).

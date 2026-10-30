@@ -1,0 +1,224 @@
+---
+title: 'Composer'
+description: 'Write one post, adapt it for each channel, attach media, check it against every network rule and then save, schedule or publish it.'
+---
+
+The composer is where every post starts. You write once, adjust the caption and options per channel where you need to, see a preview for each network, and choose when it goes out.
+
+Open **Publishing → Composer** in the sidebar, or select **New post** on Home, Posts, Calendar or Queue. Opening a post with **Edit** loads it into the same screen with the title **Edit post**.
+
+<Note>
+The sidebar starts minimised while you are in the composer so the screen has room. If you have no channel that is ready to publish, the composer shows **No channels ready yet** and a **Connect a channel** button. See [Connect channels](/user-guide/connect-channels).
+</Note>
+
+## The screen
+
+The composer has three areas:
+
+| Area | What it holds |
+|---|---|
+| **Assets** (left) | Your media library with search, a file-type switch (**All**, **Images**, **Video**), a folder filter, **Upload**, and buttons to create a picture with AI and to browse the full library. |
+| Write (centre) | The channel picker, the caption, per-channel settings, **First comment and link** and **Labels**. |
+| Right panel | Three tabs: **Preview**, **When** and **Checks**. |
+
+On a narrow screen these become three tabs at the top: **Write**, **Assets** and **Preview**.
+
+The header shows **Unsaved changes**, **Draft saved automatically at** a time, or **Saved** with a time. A ring in the header counts four steps that must be satisfied before a post is ready: **Channels**, **Content**, **Limits** and **Rules**.
+
+## Write a post
+
+<Steps>
+  <Step title="Choose channels">
+    In the **Publish to** card, select **Choose channels** (it reads **Change channels** once some are selected). Search by channel or network name, narrow the list with **All** or **Selected**, then tick channels. Under **Sets** you can select a whole channel group, or every channel of one network with an entry such as **Every LinkedIn channel**. Use **Select all** and **Deselect all** for bulk changes, and **Done** to close.
+
+    Only channels that are active, on a network your administrator has switched on, and included in your plan can be picked.
+  </Step>
+  <Step title="Write the caption">
+    Type in the main caption box under the **All channels** tab. This text goes to every channel unless you give a channel its own caption. A counter under the box shows **Words**, **Characters**, **Mentions** and **Links**, and the number of characters against the shortest limit among the selected channels.
+  </Step>
+  <Step title="Adjust per channel">
+    Select a channel's tab above the caption box to see **Caption for** that channel and its settings. See [Customise each channel](#customise-each-channel).
+  </Step>
+  <Step title="Attach media">
+    Pick files from the **Assets** panel, drop files into the composer, or choose **Upload**. See [Attach media](#attach-media).
+  </Step>
+  <Step title="Add a first comment, link and labels">
+    Fill in **First comment and link** and **Labels** as needed. See [First comment, link and labels](#first-comment-link-and-labels).
+  </Step>
+  <Step title="Choose when it goes out">
+    Open the **When** tab. See [Scheduling](/user-guide/scheduling).
+  </Step>
+  <Step title="Check and send">
+    Open **Checks**, fix any issue, then use **Save draft**, **Schedule** or **Publish now** at the bottom of the screen.
+  </Step>
+</Steps>
+
+### Caption tools
+
+The toolbar of the caption box offers:
+
+- **Insert emoji**, with a search box.
+- **Saved**, a panel of your **Captions** and **Hashtags** from the library. A saved caption is inserted at the cursor. A hashtag group is added to the end of the caption. Select **Manage library** to open the library. See [Saved captions and brand voice](/user-guide/captions-and-brand-voice).
+- **Write with AI**, which opens the writing assistant. See [AI writing and media](/user-guide/ai-tools).
+
+A warning appears when a caption has more than 30 hashtags, because that reads as spam on most networks.
+
+### How length is counted
+
+Each network counts characters its own way, and the counter follows it. X counts every link as 23 characters whatever its length, and counts an emoji as 2. Threads counts one per character, except that an emoji costs its UTF-8 byte length, so a single heart can use four of the 500. Other networks count characters. A network that accepts a shorter caption under media than text alone, such as WhatsApp and Telegram, applies the shorter limit once media is attached.
+
+For X, an account whose subscription allows long posts, detected when you connect it, can write up to 25,000 characters. Otherwise the limit is 280.
+
+### Caption limits by network
+
+These are the limits MagicPost enforces. They are the same limits the **Checks** tab uses.
+
+| Network and post type | Caption limit | First comment |
+|---|---|---|
+| X | 280 characters | Yes |
+| LinkedIn | 3,000 characters | Yes |
+| Facebook Page, feed post | 63,206 characters | Yes |
+| Facebook Page, Reel | 2,200 characters | Yes |
+| Facebook Page, Story | No caption | No |
+| Instagram, feed post and Reel | 2,200 characters, up to 30 hashtags | Yes |
+| Instagram, Story | No caption | No |
+| TikTok, video | 2,200 characters | No |
+| TikTok, photo | 4,000 characters | No |
+| YouTube, video | 5,000 characters | Yes |
+| YouTube, Short | 5,000 characters | Yes |
+| Pinterest, Pin | 800 characters | No |
+| Threads | 500 characters | Yes |
+| WhatsApp | 4,096 characters, or 1,024 under media. Status posts allow 700 | No |
+| Telegram | 4,096 characters, or 1,024 under media | Yes, in groups and in channels that have a discussion group with the bot as admin |
+
+A first comment on LinkedIn, Facebook, Instagram, YouTube and Threads also needs the commenting permission on the connection. If a connection never received it, the composer treats the network as not supporting first comments for that channel. Reconnect the channel to grant it. A Telegram channel has no permission to grant. It takes a first comment once the bot is an admin of the channel's discussion group, see [Telegram channels](/channels/telegram/overview#first-comment).
+
+Media limits, formats and post-type options are on each network's page. See [Publishing channels](/channels/overview).
+
+## Customise each channel
+
+Select a channel's tab above the caption box. A dot on the tab shows that the channel has its own caption. A warning icon with **Needs a fix** shows a problem.
+
+- **Start from the shared caption** copies the main caption into this channel's box. **Copy shared** and **Use shared** do the same from the toolbar.
+- Leave the box empty to use the shared caption. The placeholder reads **Leave blank to use the shared caption.**
+- A **Settings for** card appears when the network has options for the post. It can include a **Post type** selector (for example **Feed post**, **Reel** or **Story** on Facebook), network-specific options marked with `*` when required, and notes about the network. An option shows only where it applies, such as **Forum topic** for a Telegram group that has topics.
+- A **First comment for** box lets one channel have its own first comment.
+
+Required options must be filled before the post can be saved. Options that load from the network, such as Pinterest boards, show **Nothing to pick from yet** until the list is available. If the list is empty, reconnect the channel so MagicPost can load it again.
+
+<Note>
+When a network's developer app is still in sandbox mode, the settings card says what goes out there is visible only to the account that posted it.
+</Note>
+
+## Attach media
+
+Click a file in the **Assets** panel to attach it. A numbered badge shows its position. Click again to detach. You can also:
+
+- Select **Upload**, or drag files from your computer onto the composer. Dropped files are added to your library and attached when they are ready.
+- Use the **Create a picture with AI** button to make one. See [AI writing and media](/user-guide/ai-tools).
+- Use **Browse the full library** to open the full picker.
+- Filter the panel by file type or folder, or search by file name.
+
+Videos show **Processing** until they finish. They cannot be attached until then. Accepted formats and sizes are listed under the panel. The largest size comes from your administrator. See [Media library](/user-guide/media-library).
+
+Attached files appear under **Attached media**. Drag a file to reorder it, or focus it and press Alt with the left or right arrow. Use **Remove** on a file to detach it.
+
+If a selected channel cannot take a file, the file shows **A channel cannot take this file**, and the **Checks** tab says why, for example that the format, size, length or number of files is not supported.
+
+### Alt text and crop
+
+Choose **Alt text and crop** on an attached file to open its panel.
+
+- **Alt text** describes the picture for people who cannot see it. It saves with the file, so every later post that uses the file gets the same words. The limit is 1,000 characters. Select **Save alt text**. For pictures, **Suggest alt text** asks the AI writing model for a suggestion. See [AI writing and media](/user-guide/ai-tools).
+- Under **How each channel gets it**, choose a **Shape for** each channel that takes images. **Original** sends the file as it is, padded only where a network would refuse its shape. The other shapes are crops the network accepts, from 1:1, 4:5, 2:3, 9:16, 16:9 and 1.91:1.
+- Click the part of the picture that matters to set the focal point. Every crop keeps that part in frame.
+- **Edit with AI** opens the media studio with this picture as the source.
+
+If the administrator turned the watermark on, the preview shows it on images. See [Media library](/user-guide/media-library).
+
+Files made with AI show a **Made with AI** badge. A note on the composer reminds you that TikTok and YouTube are told so when the post goes out and label it for viewers.
+
+For videos, networks that support it add a cover or thumbnail frame option to the channel's **Settings for** card. Attach a video, then move the slider to a frame, or choose **Let the network pick** to clear it.
+
+## First comment, link and labels
+
+- **First comment** is posted as a reply right after the post goes out. A channel shows **first comment** in the Checks tab when its network, post type and connection allow it. Where they do not, no comment is attempted. A connection that was never granted the commenting permission cannot post one, so reconnect it. On YouTube, no comment is posted when **Made for kids** is on.
+- **Link** is shown as a link card where the network supports one. On LinkedIn the card is read from the page when the post goes out. Telegram does not use this field, so put the address in the text.
+- **Labels** are short tags for finding posts later in the Posts list and the Calendar. Type a label and press Enter or comma. You can add up to 10 labels of up to 30 characters. A leading `#` is removed and repeated labels are ignored.
+
+## Preview, When and Checks
+
+The right panel has three tabs.
+
+<Tabs>
+  <Tab title="Preview">
+    Shows how the post will look on a channel. **One** shows the selected channel, and **All** shows every selected channel. The preview updates as you type. Pick a channel first, or you see **Pick a channel to see how the post will look.**
+  </Tab>
+  <Tab title="When">
+    Choose **At a time**, **Queue** or **Repeat**, a date and a time, a time zone, and quick picks. See [Scheduling](/user-guide/scheduling).
+  </Tab>
+  <Tab title="Checks">
+    Lists each selected channel with its rules: caption length meter, number of images and videos against the limit, **media required**, **first comment** and any problems found. A green tick means **Ready**. A red number is the count of issues. Select it to jump to the channel tab that needs a fix.
+  </Tab>
+</Tabs>
+
+The same rules run again when you save, so the Checks tab shows what a save would reject. Typical messages include a caption over the network's limit, too many hashtags, mentions or links, a missing caption or image where the network requires one, an unsupported file format, or a file that is too large.
+
+## Save, schedule or publish
+
+The bar at the bottom shows **Delivery**, which summarises the chosen timing, the number of selected channels and files, and the issue count.
+
+| Button | What it does |
+|---|---|
+| **Save draft** | Saves the post as a draft. Nothing is sent. |
+| **Schedule** | Puts the post on the schedule for the chosen time, queue slot or repeat. |
+| **Publish now** | Asks you to confirm, then sends the post to every selected channel straight away. |
+| **Save changes** | Replaces **Schedule** when you are editing a post that is already lined up. It keeps the post on the schedule. |
+| **Move to drafts** | Replaces **Save draft** on a lined-up post. It takes the post off the schedule and keeps it as a draft. |
+
+**Publish now** opens a **Publish now?** window that lists the channels. A published post cannot be unpublished from here, so choose **Publish now** only when you are ready, or **Not yet** to go back.
+
+<Warning>
+You cannot edit a post that has been published. Open it from Posts and use **Duplicate** to start a new post from it.
+</Warning>
+
+A post can be edited while it is a draft, awaiting approval, scheduled, paused or failed.
+
+### Team approval
+
+If you are a member of a team whose owner turned on sign-off, and the team's plan includes the approval workflow, the button labels change and nothing goes out until a reviewer approves:
+
+- **Schedule** becomes **Send for approval**.
+- **Publish now** becomes **Publish after approval**, and the confirmation reads **Send for approval and publish?**
+
+See [Approval workflow](/user-guide/approvals).
+
+### Drafts and autosave
+
+While a draft has unsaved changes and at least one channel is selected, the composer saves it automatically every 30 seconds. Autosave only touches new posts and drafts. It never puts a post on the schedule or takes one off. The header then reads **Draft saved automatically at** the time. Leaving the page with unsaved changes asks you to confirm.
+
+**New post** in the header clears the composer. **Start a new post? Changes that are not saved will be lost.** confirms it first.
+
+## Limits that can stop a save
+
+- Your plan sets how many posts you can create each month. When it is used up, you see **Your plan covers N posts a month and you have used them all. Upgrade to keep posting.** Editing a post that already counted is still possible.
+- Your plan also sets how many posts can wait on the schedule. When it is full, you see **Your plan holds N posts in the schedule at a time. Publish or remove one to make room.**
+- A time in the past is refused with **That time has already passed. Pick a time in the future.**
+- A post that selects a channel on a network your plan excludes is refused as a whole.
+
+When billing is not turned on for the site, plan limits do not apply. See [Billing and subscription](/account/billing).
+
+## Keyboard shortcuts
+
+Press `?` in the composer to see the list.
+
+| Shortcut | Action |
+|---|---|
+| Ctrl S | **Save draft**, or **Save changes** on a lined-up post |
+| Ctrl Enter | **Schedule**, or **Save changes** on a lined-up post |
+| Ctrl Shift Enter | **Publish now**, after you confirm |
+| Ctrl K | Channel picker |
+| Ctrl M | Media library |
+| Ctrl J | **Write with AI** |
+| Alt Left or Right | Move the focused file earlier or later |
+| ? | Show the list |

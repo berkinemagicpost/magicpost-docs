@@ -1,0 +1,79 @@
+---
+title: "Free tier"
+description: "Set the limits, features and networks that apply to users without a plan while SaaS Business is on, under Finance, Free tier."
+---
+
+The free tier is what a user gets when no plan applies to them. That covers new sign-ups, people whose subscription expired or was cancelled, and people who only bought a prepaid credit pack. You set it under **Finance** → **Free tier**. The page subtitle describes it as the limits and features that apply to users without a plan while billing is on.
+
+<Note>
+  The free tier only matters while [SaaS Business is switched on](/saas/overview). With billing off, nobody is limited. Admin accounts are never limited either.
+</Note>
+
+## Free tier or free plan
+
+| | Free tier | Free plan |
+|---|---|---|
+| What it is | The default for users without a plan | A plan with **Free plan** switched on |
+| Chosen by the user | No, it applies automatically | Yes, from the **Billing** page |
+| AI credits | None from the tier. See below. | The credits set on the plan |
+| Where you set it | **Finance** → **Free tier** | **Finance** → **Pricing Plans**, see [Subscription plans](/saas/plans) |
+
+## Defaults
+
+A new install starts with these values. Open the page to confirm what your install holds.
+
+| Setting | Default |
+|---|---|
+| Connected channels | 0 |
+| Posts per month | Unlimited |
+| Posts scheduled ahead | Unlimited |
+| Media storage | 0 |
+| Team seats | 0 |
+| AI writing | Off |
+| AI media | Off |
+| Analytics | Off |
+| Approval workflow | Off |
+| API and webhooks | On |
+| RSS feeds | On |
+| Bulk CSV import | On |
+| Recurring and evergreen posts | On |
+| Watermark-free | Off |
+| Allowed networks | None ticked, which means every enabled network |
+
+<Warning>
+  With 0 connected channels, users without a plan cannot connect a social account. Raise **Connected channels** here if you want people to try MagicPost before they pay.
+</Warning>
+
+## Edit the free tier
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Finance** → **Free tier**. You can also reach it from the **General** tab of **General Settings**, which links to it when billing is on.
+  </Step>
+  <Step title="Set the AI features">
+    Switch **AI writing** and **AI media** on or off for users without a plan.
+  </Step>
+  <Step title="Set the publishing limits">
+    Fill in **Connected channels**, **Posts per month**, **Posts scheduled ahead** and **Media storage**. Each has an **Unlimited** switch, and media storage takes **MB** or **GB**. A value of 0 shows as **Not included**.
+  </Step>
+  <Step title="Set team options">
+    **Team seats** is how many members a user without a plan can add to their team, not counting themselves. **Approval workflow** makes posts by those team members wait for the owner's approval before they are scheduled.
+  </Step>
+  <Step title="Choose the networks">
+    Under **Networks**, tick the networks users without a plan can use. Leave all unticked to allow every network enabled on the **Platforms** page. See [Channel credentials](/admin/publishing-platforms).
+  </Step>
+  <Step title="Set feature access">
+    Switch **Analytics**, **API and webhooks**, **RSS feeds**, **Bulk CSV import**, **Recurring and evergreen posts** and **Watermark-free** as you need.
+  </Step>
+  <Step title="Save">
+    Click **Save free tier**. The message **Free tier updated successfully** confirms it.
+  </Step>
+</Steps>
+
+The limits, switches and network picker work exactly as they do on the plan form. Their meanings, maximum values and what each limit counts are listed in [Subscription plans](/saas/plans). The **Watermark-free** switch only takes effect once a watermark is set in [Publishing settings](/admin/publishing-settings).
+
+## Credits for users without a plan
+
+The free tier has no credit setting. New accounts created through the registration form receive the number you set as **Default Registration Credits** in **General Settings**. A user who signs up with a social login starts with 0 credits. See [Credits and allowances](/saas/credits).
+
+Users without a plan can use AI writing and AI media only when the matching free tier switch is on. Each run also needs enough credits whenever the model's cost per run is above 0.

@@ -1,0 +1,87 @@
+---
+title: "Languages and translations"
+description: "Add a language, translate the interface, switch languages on for your users, set the default and rebuild the language files with the Language Manager."
+---
+
+MagicPost keeps one JSON file per language in the `lang` folder at the root of your install, for example `lang/en.json` and `lang/de.json`. Each file maps an English phrase to its translation. The **Language Manager** loads those files into a database table so you can edit them in the browser, and writes them back to the files when you save.
+
+The install ships with language files for Arabic, Danish, German, Greek, English, Spanish, French, Indonesian, Italian, Kazakh, Dutch, Brazilian Portuguese, Swedish and Thai. English is the source language and is always complete. Several of the other files have empty values for phrases that have not been translated yet.
+
+Open **Platform**, **Backend Settings**, **Language Manager**. The page offers these tools:
+
+- **Default Language** and **Add New Language** at the top.
+- **Installed Languages** with one row per language.
+- **Reinstall Language Files** and **Publish All JSON Files** buttons.
+
+## Add a language
+
+<Steps>
+  <Step title="Pick the language">
+    In **Add New Language**, choose a language from **Select language to add** and click **Add**. The list contains every supported language that is not installed yet. When none is left it reads "All supported locales are already installed."
+  </Step>
+  <Step title="Translate it">
+    You land on the editing page for the new language. Its column starts empty.
+  </Step>
+</Steps>
+
+Adding a language creates a column for it in the translations table. It does not create the JSON file yet. Follow [Translate the interface](#translate-the-interface) and then generate the file.
+
+## Translate the interface
+
+<Steps>
+  <Step title="Open the strings">
+    In **Installed Languages**, open the menu at the end of the language's row and choose **Edit Strings**.
+  </Step>
+  <Step title="Find a phrase">
+    The page is titled **Editing Language**. Use **Filter strings...** to narrow the list. **Source string (en)** is the English phrase and **Translation** is where you type.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The message "Strings saved successfully" confirms it. Saving updates the database and rewrites that language's JSON file in `lang/` in the same step.
+  </Step>
+</Steps>
+
+Keep placeholders such as `:name` or `:count` exactly as they are in the English phrase. They are replaced with real values when the text is shown.
+
+### Translate with an online tool
+
+For a full translation it is faster to translate a whole file.
+
+1. In the row menu choose **Generate JSON File**. This writes `lang/CODE.json` for that language.
+2. Download the file and translate it with the tool of your choice. Keep the English keys on the left unchanged.
+3. Upload the translated file to the `lang` folder, replacing the original.
+4. Click **Reinstall Language Files** so the Language Manager picks it up.
+
+## Make a language available
+
+The checkbox on each row in **Installed Languages** controls whether that language is offered to people. It saves as soon as you change it ("Saved successfully"). The checkbox of the language you are currently viewing the page in is disabled.
+
+People see the language switcher only when more than one language is switched on. It appears in the footer and menu of the public site and in the user menu inside the dashboard.
+
+## Set the default language
+
+In **Default Language**, choose a language and click **Set**. The default loads for new visitors. The list shows only languages whose checkbox is on, so switch a language on first and refresh the page if it is missing. The confirmation reads "Default language successfully set". Only admins can change it, and it applies to everyone.
+
+The default language has no prefix in the address. Other languages appear in the address with their language code at the start of the path.
+
+## Publish all language files
+
+**Publish All JSON Files** writes `lang/CODE.json` for every language except English from the database in one go, including languages you just added. To write the file for one language only, use **Generate JSON File** in its row menu.
+
+## Reinstall language files
+
+**Reinstall Language Files** rebuilds the translations table from the JSON files in `lang/`. Use it:
+
+- after you upload or replace a language file, and
+- after an update adds new phrases to `lang/en.json`.
+
+<Warning>
+  Reinstalling drops and recreates the translations table, then imports every `lang/*.json` file. Before it does, MagicPost tries to back up the database with `mysqldump` into `storage/backups/` and keeps the latest 3 backups. If `mysqldump` is not available on your server, no backup is written. Keep your own backup, and make sure your edits are saved to the JSON files first.
+</Warning>
+
+If a language file contains a language MagicPost has no column for, the column is created during reinstall.
+
+After an update, check the changelog for a note about new phrases, see [Changelog](/updates/changelog), and reinstall so they appear in your language files.
+
+## Changing the language yourself
+
+Each person chooses their own language from the user menu when more than one is switched on. See [Language and theme](/account/language-and-theme).

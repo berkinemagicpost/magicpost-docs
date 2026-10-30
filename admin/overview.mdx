@@ -1,0 +1,68 @@
+---
+title: "Admin panel overview"
+description: "A map of the MagicPost admin sidebar: what each section controls and which page of this documentation explains it."
+---
+
+The admin panel is the part of MagicPost that only accounts in the **Admin** group can open. Every admin screen lives under `APP_URL/app/admin/`, and the first one you land on is the [Admin dashboard](/admin/dashboard).
+
+Admin accounts see one sidebar with two menus. The personal menu at the top (Home, Notifications, Publishing, Library, Workspace, Help) is the same product your customers use, so you can publish with your own account. The admin items follow below it.
+
+<Note>
+  Items under **Finance**, **Affiliates** and the **Plans** group of the personal menu only appear after SaaS Business is switched on. See [SaaS overview](/saas/overview).
+</Note>
+
+## Sidebar map
+
+| Sidebar section | Items | What you do there | Read |
+|---|---|---|---|
+| Dashboard | Dashboard | See what needs attention, key numbers and recent activity. | [Admin dashboard](/admin/dashboard) |
+| Finance | Finance Dashboard, Pricing Plans, Free tier, Orders, Subscriptions, Invoice Settings, Payment Gateways, Finance Settings | Sell plans and collect payments. | [Finance dashboard](/saas/finance-dashboard), [Plans](/saas/plans), [Free tier](/saas/free-tier), [Orders](/saas/orders), [Subscriptions](/saas/subscriptions), [Invoices](/saas/invoices), [Payment gateways](/gateways/overview), [Finance settings](/saas/finance-settings) |
+| Affiliates | Accounts, Earnings, Payouts | Run the referral program. | [Referral program admin](/saas/affiliates) |
+| Accounts | Dashboard, Users, Activity Monitoring | Manage customer accounts and see who is online. | [Users](/admin/users) |
+| Publishing | Platforms, Settings, Writing Models, Media Models | Register network apps, tune how posts are sent, connect AI providers. | [Channel credentials](/admin/publishing-platforms), [Publishing settings](/admin/publishing-settings), [AI models](/admin/ai-models) |
+| Support | Tickets | Answer customer tickets. | [Support tickets](/admin/support-tickets) |
+| Notifications | System Notification | Read the notifications sent to your admin account. | [System notifications](/admin/system-notifications) |
+| Platform | Plugins, Themes | Install marketplace plugins and themes. | [Plugins and themes](/admin/plugins-and-themes) |
+| Platform | General Settings | Default registration credits, default storage, plugin settings. | [General settings](/admin/general-settings) |
+| Platform, Backend Settings | Global Settings | Site name, URL, time zone, Google tools. | [Global settings](/admin/global-settings) |
+| Platform, Backend Settings | Auth Settings, Registration Settings | Social login, sign-up and email verification. | [Registration and login](/admin/registration-and-login) |
+| Platform, Backend Settings | SMTP Settings | Outgoing email. | [Email and SMTP](/admin/smtp) |
+| Platform, Backend Settings | GDPR Settings | Cookie consent banner. | [Privacy and cookies](/admin/privacy-gdpr) |
+| Platform, Backend Settings | Language Manager | Translations and available languages. | [Languages and translations](/admin/languages) |
+| Platform, Frontend Settings | Frontend Settings, SEO Manager, Logos, Pages, FAQs Manager, Testimonials, Google Adsense | Public landing page, branding and legal pages. | [Website content](/admin/website-content) |
+| Platform, Frontend Settings | Blogs Manager | Blog posts and comment moderation. | [Blog](/admin/blog) |
+| Platform | Activation | Activate your license. | [License activation](/license/activation) |
+| Platform | Update | Update the script. | [Update instructions](/updates/update-instructions) |
+
+The **Backend Settings** and **Frontend Settings** entries are collapsed groups. Click the group name to open it.
+
+## Where to find a setting
+
+| You want to | Go to |
+|---|---|
+| Let customers connect X, LinkedIn, Facebook and the other networks | Publishing, **Platforms** |
+| Make sure scheduled posts leave on time | Publishing, **Settings** (System health and Sending) |
+| Add an OpenAI, Gemini, Anthropic or xAI key for captions | Publishing, **Writing Models** |
+| Add keys for AI pictures and video | Publishing, **Media Models** |
+| Give new sign-ups starting credits | **General Settings**, Default Registration Credits |
+| Change the site name, site URL or time zone | Backend Settings, **Global Settings** |
+| Close registration or require email verification | Backend Settings, **Registration Settings** |
+| Add Google, Facebook, X or LinkedIn sign-in | Backend Settings, **Auth Settings** |
+| Send real emails | Backend Settings, **SMTP Settings** |
+| Replace the logo or favicon | Frontend Settings, **Logos** |
+| Edit the Privacy Policy and Terms of Service | Frontend Settings, **Pages** |
+
+<Note>
+  A System Status page exists at `APP_URL/app/admin/status`, but it is not in the sidebar and it does not report server health. Use the checks described in [System status](/admin/system-status).
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Post-install checklist" icon="list-check" href="/installation/post-install-checklist">
+    The first-day tasks in the order to do them.
+  </Card>
+  <Card title="Admin dashboard" icon="gauge" href="/admin/dashboard">
+    What the tiles and the Needs attention list mean.
+  </Card>
+</CardGroup>

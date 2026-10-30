@@ -1,0 +1,161 @@
+---
+title: 'fal.ai'
+description: 'Add a fal.ai key to offer hosted picture and video models, and add any fal.ai endpoint by its id.'
+---
+
+fal.ai hosts many picture and video models behind a single key. MagicPost ships four starting models and lets you add any other fal.ai endpoint from the **Media Models** page. fal.ai has no writing models in MagicPost.
+
+The key is entered on **Media Models** only. **Writing Models** has no fal.ai section.
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have a fal.ai account with billing or credits set up. fal.ai bills you directly for every request. This is separate from the credits your users spend in MagicPost.
+
+## Get an API key
+
+<Steps>
+  <Step title="Open the keys page">
+    Go to [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys) and sign in. If you work in a team, select the team in the top-left corner of the dashboard first. A key belongs to the personal account or team that created it.
+  </Step>
+  <Step title="Create the key">
+    Create a new key and choose the **API** preset. fal.ai describes it as the preset that covers calls to any model, which is all MagicPost needs.
+
+    <Warning>
+    Copy the key as soon as it is shown. If you lose it, create a new key.
+    </Warning>
+  </Step>
+</Steps>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open Media Models">
+    Go to **Admin → Publishing → Media Models**.
+  </Step>
+  <Step title="Paste the key">
+    In the **Provider keys** box, paste the key into the **fal.ai** field and click **Save keys**. The toast reads **Keys saved.** and the fal.ai card shows **Key stored**.
+  </Step>
+  <Step title="Switch on the models">
+    Turn on the switch next to each fal.ai model you want to offer. Click **Test** on a picture model that creates new pictures. MagicPost asks for one small picture, so the test makes a real, billable request.
+  </Step>
+</Steps>
+
+**Test** appears only on picture models that do not need a source picture, so the video models and **FLUX.2 Edit** have no **Test** button.
+
+## Starting models
+
+The installer loads this list. Identifiers are as shipped. Credits are MagicPost credits, not fal.ai prices, and you can change them on the model.
+
+| Model | Endpoint id | Does | Starting credits |
+|---|---|---|---|
+| FLUX.2 | `fal-ai/flux-2` | New pictures, up to 4 per request, shapes 1:1, 4:3, 3:4, 16:9, 9:16 | 1 per picture |
+| FLUX.2 Edit | `fal-ai/flux-2/edit` | Changes a picture from the user's library. Needs a picture. Up to 2 per request, shape 1:1 | 2 per picture |
+| Kling 3.0 | `fal-ai/kling-video/v3/standard/text-to-video` | Clips of 5, 8, 10 or 15 seconds in 16:9, 9:16 or 1:1, from a description, with sound | 4 per second |
+| Kling 3.0 from a picture | `fal-ai/kling-video/v3/standard/image-to-video` | Brings a picture from the user's library to life, with sound. Needs a picture | 4 per second |
+
+A clip costs its credits per second times its length. For example, a 5 second clip on Kling 3.0 starts at 20 credits.
+
+## Add another fal.ai endpoint
+
+fal.ai serves far more models than any fixed list, so you can add an endpoint by its id.
+
+<Steps>
+  <Step title="Find the endpoint id">
+    Open the model's page on fal.ai and copy its endpoint id, for example `fal-ai/flux-2`. Use it exactly as fal.ai shows it. MagicPost rejects ids that are not in that form.
+  </Step>
+  <Step title="Fill in the form">
+    At the bottom of **Media Models**, in **Add a fal.ai endpoint**, enter the **Endpoint id** and the **Display name** that users will see. Under **Makes**, choose **Pictures** or **Video**. Then set the price in MagicPost credits: **Credits per picture** for pictures, **Credits per second** for video.
+  </Step>
+  <Step title="Add it">
+    Click **Add endpoint**. The model is added switched off, and its edit form opens so you can check the request mapping.
+  </Step>
+  <Step title="Check the request mapping">
+    Compare the field names in **Request mapping** with the endpoint's API page on fal.ai. Fix any that differ, then click **Save**.
+  </Step>
+  <Step title="Switch it on">
+    Turn on the model's switch. Users now see it.
+  </Step>
+</Steps>
+
+### Request mapping
+
+Every fal.ai endpoint names its inputs and outputs in its own way, so each fal.ai model carries a mapping written as a JSON object. The mapping must be a JSON object and must contain `inputs.prompt`. The default for a picture model is:
+
+```json
+{
+  "inputs": {
+    "prompt": "prompt",
+    "shape": "image_size",
+    "count": "num_images",
+    "image": "image_url"
+  },
+  "shape_values": {
+    "1:1": "square_hd",
+    "4:3": "landscape_4_3",
+    "3:4": "portrait_4_3",
+    "16:9": "landscape_16_9",
+    "9:16": "portrait_16_9"
+  },
+  "preset": {
+    "enable_safety_checker": true
+  },
+  "output": "images"
+}
+```
+
+The default for a video model is:
+
+```json
+{
+  "inputs": {
+    "prompt": "prompt",
+    "shape": "aspect_ratio",
+    "seconds": "duration",
+    "image": "image_url"
+  },
+  "seconds_as": "string",
+  "preset": [],
+  "output": "video"
+}
+```
+
+| Key | Meaning |
+|---|---|
+| `inputs` | The endpoint's own field names for the prompt, shape, picture count, clip length in seconds and source picture. Leave out a key the endpoint does not take. End a field name with `[]` to send the value as a list, for example `image_urls[]` |
+| `shape_values` | Renames shapes to the words the endpoint expects |
+| `seconds_as` | Sends the clip length as a `string` or a `number` |
+| `preset` | Fixed settings sent with every request |
+| `output` | Where the files are in the answer: `images`, `image` or `video` |
+
+On the edit form, **Only works from a picture** marks an endpoint that cannot run without a source picture. Users see it only after they pick a picture to edit or bring to life.
+
+### Remove an endpoint
+
+fal.ai rows have a trash button. Removing a model keeps the pictures and clips already made with it. MagicPost refuses to remove a model while something is still being made with it.
+
+## How MagicPost calls fal.ai
+
+- Requests are submitted to fal.ai's queue at `queue.fal.run` with your key in the `Authorization` header.
+- A picture request is waited on while the job runs. If fal.ai has not finished after about 150 seconds, MagicPost cancels it.
+- A clip request is checked again by a background job until it finishes, so cron or a queue worker must be running. See [Cron and queue](/installation/cron-and-queue).
+- Finished files are downloaded straight away, because fal.ai keeps them only for a while. The key is never sent with the download.
+- Pictures that fal.ai flags in its answer are dropped.
+
+For every field you can edit on a model, see [AI models](/admin/ai-models).
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| **Keys saved.** but the card still reads **No key** | The fal.ai field was empty when you saved | Paste the key and click **Save keys** again |
+| **Test** says to add the fal.ai API key first | No key is stored | Paste the key on **Media Models** and save |
+| Use the endpoint id exactly as fal.ai shows it, such as fal-ai/flux-2. | The id is not in the form owner/model, made of letters, digits, dots, dashes and underscores separated by slashes | Copy the id from the model's page |
+| That endpoint is already on the list. | A fal.ai row with that endpoint id exists | Edit the existing row instead |
+| The mapping needs inputs.prompt: the field that takes the description. | The mapping has no prompt field | Add `inputs.prompt` with the endpoint's prompt field name |
+| fal.ai is busy right now | fal.ai returned a rate limit or server error | Try again later |
+| fal.ai took too long, so the request was stopped. | The picture was not ready in about 150 seconds | Try again, or use a faster endpoint |
+| fal.ai returned no picture. It may have been held back by moderation. | The prompt was blocked, or the answer held no picture in the place `output` points to | Change the prompt, and check `output` in the mapping |
+| fal.ai returns a validation message about a field | A field name in `inputs` does not match the endpoint | Compare the mapping with the endpoint's API page |
+| Something is still being made with the model | A removal was attempted during a run | Try again once the run has finished |
+| Keys stopped working after moving the site | `APP_KEY` changed, so the stored key cannot be decrypted | Paste the key again and click **Save keys** |

@@ -1,0 +1,94 @@
+---
+title: 'Facebook login'
+description: 'Let people sign in and register with their Facebook account. Create an app in Meta for Developers and paste its App ID and App secret into Auth Settings.'
+---
+
+With Facebook login on, the login and registration pages show a **Facebook** button. You create an app in Meta for Developers, turn on Facebook Login for it, then paste the App ID and App secret into **Auth Settings**. No `.env` changes are needed.
+
+MagicPost asks Facebook for the `email` permission along with the basic profile. Facebook must return an email address, otherwise the sign-in is refused. A person whose Facebook account has no email, or who declines the email permission, cannot sign in.
+
+<Note>
+This is sign-in for your own users. To publish to a Facebook Page you use a Meta app connected under **Admin → Publishing → Platforms**. See [Facebook Pages](/channels/meta/facebook).
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have a Facebook account that can use [Meta for Developers](https://developers.facebook.com/).
+- Your site runs on its public `https` address.
+
+## Step 1. Copy the Callback URL
+
+<Steps>
+  <Step title="Open Auth Settings">
+    Go to **Admin → Backend Settings → Auth Settings** and scroll to the **Facebook** section.
+  </Step>
+  <Step title="Copy the Callback URL">
+    Copy the value of the read-only **Callback URL** field. It looks like `https://your-domain.com/auth/facebook/callback`. You paste it into Meta next.
+  </Step>
+</Steps>
+
+## Step 2. Create the Facebook app
+
+<Steps>
+  <Step title="Create the app">
+    Go to [developers.facebook.com](https://developers.facebook.com/), open **My Apps** and click **Create app**. Enter an app name and a contact email. When asked what you want to do, choose the use case **Authenticate and request data from users with Facebook Login**. If Meta asks for a business portfolio, select one or continue without it, then create the app.
+  </Step>
+  <Step title="Add the email permission">
+    In the app dashboard open **Use cases**, then click **Customize** on the Facebook Login use case. Confirm that `public_profile` is present and add `email`.
+  </Step>
+  <Step title="Add the redirect address">
+    Open **Use cases → Facebook Login → Settings**. Under **Valid OAuth Redirect URIs**, paste the Callback URL from Step 1 and save.
+  </Step>
+  <Step title="Copy the credentials">
+    Open **App settings → Basic**. Copy the **App ID**. Next to **App secret**, click **Show** and copy it.
+  </Step>
+  <Step title="Switch the app to Live">
+    While the app is in Development mode, only people who have a role on the app can sign in. Switch it to **Live** with the mode toggle in the dashboard header so everyone can. Meta may ask you to complete further details first.
+  </Step>
+</Steps>
+
+## Step 3. Configure MagicPost
+
+<Steps>
+  <Step title="Turn on the master switch">
+    On **Admin → Backend Settings → Auth Settings**, switch on **Login via Social (oAuth)**. It saves as soon as you toggle it.
+  </Step>
+  <Step title="Enable Facebook and fill in the credentials">
+    In the **Facebook** section, switch on **Enable Facebook Login** and fill in:
+
+    - **Facebook API Key**: the App ID.
+    - **Facebook API Secret Key**: the App secret.
+    - **Facebook Redirect URL**: the same address as **Callback URL**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The toast reads **Settings were saved successfully**.
+  </Step>
+</Steps>
+
+| MagicPost field | Facebook value |
+|---|---|
+| **Facebook API Key** | App ID |
+| **Facebook API Secret Key** | App secret |
+| **Facebook Redirect URL** | Valid OAuth Redirect URI. Must match exactly |
+| **Callback URL** | Read-only. The value to register as the valid redirect URI |
+
+## Test it
+
+1. Open your site's login page in a private browser window.
+2. Click **Facebook** under **or continue with**.
+3. Approve the Facebook dialog and allow the email permission.
+4. You land on the dashboard. The registration page offers the same button under **or sign up with**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Facebook says the redirect URI is not whitelisted | The address is missing from **Valid OAuth Redirect URIs**, or differs from the one MagicPost sends | Make **Valid OAuth Redirect URIs**, **Facebook Redirect URL** and **Callback URL** identical, including `https` and any language segment |
+| Only you and your testers can sign in | The app is still in Development mode | Switch the app to **Live** |
+| No **Facebook** button on the login page | Master switch off, **Enable Facebook Login** off, or the App ID or secret is empty | Check all three, then save |
+| That social login option is not available. | Same as above, reached by a direct link | Same fix |
+| We could not complete the social login. Please try again. | Wrong App secret, redirect address mismatch, or the sign-in started and ended on different site addresses | Re-copy the secret, check the redirect address, and use one site address |
+| Your social account did not share an email address, so we cannot sign you in. | The person declined the email permission, or the account has no email | Make sure `email` is added under **Use cases → Customize**, and ask the person to allow it |
+| Registration is currently closed, so a new account could not be created. | **User Registration** is off and no account has that email | Turn on **User Registration** under **Admin → Backend Settings → Registration Settings**, or create the user first |
+| Your account is not active. Please contact support. | The matching account is banned or suspended | Reactivate the account in the admin panel |

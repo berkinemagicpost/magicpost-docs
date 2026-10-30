@@ -1,0 +1,123 @@
+---
+title: 'Failed posts'
+description: 'Read why a post failed or is only partly published, how retries and waiting work, and what to do about each error code.'
+---
+
+A post is sent to each channel separately. Every channel has its own status, its own number of attempts and its own error message, so one post can succeed on LinkedIn and fail on X. This page shows where to read the reason and how to act on it. For status meanings in general, see [Posts and statuses](/user-guide/posts-and-statuses).
+
+## Find the reason
+
+<Steps>
+  <Step title="Open the post">
+    Go to **Posts** and select the post. A notification titled "Your post did not go out", "Your post only partly went out" or "Check whether your post went out" links straight to it.
+  </Step>
+  <Step title="Look at the Channels card">
+    Each channel shows a status, how many attempts it has used ("2 of 3 attempts used"), and a red box with the message. The message ends with a code in brackets, for example `(rate_limited)`.
+  </Step>
+  <Step title="Read the history">
+    A channel that was tried more than once lists each run: **Failed, tried again**, **Failed, will try again**, **Held**, **Interrupted**, **Processing**, **Unconfirmed**, **Found live** or **Marked as sent**.
+  </Step>
+</Steps>
+
+If the message is not enough, the exact error from the network or from PHP is in `storage/logs/laravel.log`.
+
+## Channel statuses
+
+| Status on the Channels card | Meaning |
+|---|---|
+| **Scheduled** | Waiting for its time or for its next attempt. "Next attempt" shows when. |
+| **Publishing** | Being sent now. Large videos take several minutes. |
+| **Published** | Live. **Open** links to it. |
+| **Failed** | Out of attempts, or failed for a reason retrying cannot fix. **Try again** and **Skip** appear. |
+| **Unconfirmed** | MagicPost sent it but never heard back, and cannot tell if it went out. See [Unconfirmed posts](#unconfirmed-posts). |
+| **On hold** | The channel is paused, needs reconnecting, or its network is switched off. No attempt is used while it waits. |
+| **Skipped** | Dropped by hand with **Skip**, because the channel was disconnected, or because a paused channel stayed paused past the waiting time. |
+
+The post as a whole becomes **Partly published** when at least one channel is live and nothing is still in flight. Either some channels failed, or the rest are on hold. Skipped channels are not counted. It becomes **Failed** when no channel went out.
+
+## How retries and waiting work
+
+- **Tries.** **Admin → Publishing → Settings → Retries and waiting → Tries before a post fails** sets the number of attempts. The default is 3 and you can set 1 to 10.
+- **Only errors that can pass are retried.** Network problems, server errors and rate limits are tried again. Rejected content, missing permissions and refused media are not, because trying again gives the same answer.
+- **Waits between tries.** After the first failed attempt MagicPost waits 2 minutes, after the second 10 minutes, and after later ones 30 minutes. When a network asks for a longer wait, that wait is used instead, for up to 24 hours.
+- **Too long to wait.** If the wait would push the post past **Wait for a channel for up to** after its scheduled time, MagicPost stops and says "... asked us to wait ... before sending again, which is longer than posts are allowed to wait. It was not sent."
+- **Rate limits pause the channel.** While a network has asked MagicPost to slow down, other posts for that channel wait too. The post page says how long.
+- **Waiting costs no attempt.** A paused or expired channel, or a switched-off network, puts the post **On hold**. It goes out when the problem is fixed, or is closed after **Wait for a channel for up to** hours (24 by default).
+- **Processing costs no attempt.** When a network is still working on a video, MagicPost checks again later. After an hour it stops with "... was still processing this after an hour, so it was stopped. Try again, or use a shorter file."
+
+The number of tries and the waiting time for a channel are set on **Admin → Publishing → Settings**. The waits between tries (2, 10 and 30 minutes) and the one-hour processing limit are built in. See [Publishing settings](/admin/publishing-settings).
+
+## Error codes
+
+| Code | What it means | Retried | What to do |
+|---|---|---|---|
+| `rate_limited` | The network asked MagicPost to slow down, or the account used up its allowance. | Yes, after the network's wait. Not when the X developer account has used up its allowance. | Wait. For X, top up the developer account. |
+| `unauthorized` | The channel's authorisation expired or was revoked. | No. The post waits on hold. | Select **Reconnect** on the post or on **Channels**. See [Channel connection problems](/troubleshooting/channel-connections). |
+| `forbidden` | The network refuses this account or app, a permission is missing, or the plan does not include the network ("Your plan does not include :platform, so this was not sent."). | No | Reconnect to grant the permissions, check the app's access on the developer console, or change plan. |
+| `invalid_content` | The network rejected the post, for example a Reel without a video or a Pin without a board. | No | Fix the post, then select **Try again**. |
+| `media_failed` | An image or video could not be uploaded, was refused, or was not processed in time. | Sometimes, when the upload can resume. | Check the file against the network's limits, then try again. |
+| `server_error` | The network had a problem on its side. | Yes | Wait. Use **Try again** if all attempts are used. |
+| `network_error` | The connection to the network failed or timed out. | Yes | Check that your server can reach the internet. |
+| `not_configured` | The network is switched off, its app keys are missing, or the channel lacks an account reference. | No. A switched-off network puts the post on hold instead. | Check **Admin → Publishing → Platforms**, or reconnect the channel. |
+| `unconfirmed` | Sent, but the answer never arrived. | No | See [Unconfirmed posts](#unconfirmed-posts). |
+| `unknown` | Any other failure, including "Publishing was interrupted and did not finish." | Sometimes | Read the message and the log. |
+
+## Messages you may see
+
+<AccordionGroup>
+  <Accordion title="Media the network cannot fetch">
+    Some networks, such as Instagram and Threads, fetch media from your site's public address instead of receiving the file, so the network must be able to open your site. If **Admin → Publishing → Settings → System health** shows a **Site address** warning, fix `APP_URL` first. Pinterest video pins also need a cover image the network can fetch: "Pinterest refused the video pin. It needs a cover image it can fetch, so check that the video has a preview and that this site can be reached from the internet." A video without a preview usually means ffmpeg is missing. See [Video processing](/advanced/video-processing).
+  </Accordion>
+
+  <Accordion title="X">
+    "The X developer account behind this app has used up its API allowance. Posting resumes once it is topped up or the billing period renews." Waiting does not clear this. The admin has to top up or wait for the billing period. See [X](/channels/x).
+  </Accordion>
+
+  <Accordion title="Instagram and Threads">
+    "This account has reached Instagram's limit on posts in 24 hours. It goes out once there is room again." The post is retried by itself. "A Reel needs a video." and "An Instagram post needs an image or a video." mean the content type does not match the media. See [Instagram](/channels/meta/instagram) and [Threads](/channels/meta/threads).
+  </Accordion>
+
+  <Accordion title="TikTok">
+    "This TikTok account can post videos up to ... long, and this one is ..." means the video is longer than TikTok allows this account. "This TikTok account cannot post for ... right now. It allows ..., so pick one of those in the composer." means the **Who can view** choice is not allowed for the account. See [TikTok](/channels/tiktok).
+  </Accordion>
+
+  <Accordion title="YouTube">
+    YouTube names why it refused a video: a duplicate of one already on the channel, a length over what the account may upload ("Verify the account to upload videos over 15 minutes."), a copyright claim, a Community Guidelines or Terms of Service refusal, a suspended account, or a file it could not process ("Export it as an H.264 MP4 and try again."). See [YouTube](/channels/youtube).
+  </Accordion>
+
+  <Accordion title="Pinterest">
+    "Pinterest could not find that board. Pick another board, or check it still exists." and "Choose the board this pin should go to." both mean the **Board** option needs fixing. See [Pinterest](/channels/pinterest).
+  </Accordion>
+
+  <Accordion title="LinkedIn">
+    "LinkedIn does not let apps read back a member's posts, so check the profile to see whether it went out." appears in the run history of an unconfirmed profile post, because LinkedIn cannot be asked. See [LinkedIn](/channels/linkedin).
+  </Accordion>
+
+  <Accordion title="Telegram">
+    "Waiting N seconds for Telegram to take the next message in this chat." is MagicPost spacing out its messages to one chat. It costs no attempt. "Telegram asked to slow down in this chat." is retried after the wait Telegram names, and other posts to that chat wait too.
+
+    "Telegram no longer lets the bot post here:" followed by a reason, "The bot was removed from this chat" and "Add the bot to this chat again as an admin, then reconnect it." mean the bot lost its place or its rights in the chat. The channel becomes **Expired** and the post is held. "The site's Telegram bot stopped working. The site admin has to check it before posts can go out." affects every Telegram channel, and the administrator has to save a working token.
+
+    "That forum topic does not exist in this group." means the **Forum topic** option is wrong. "Telegram did not take this post:" followed by a reason is Telegram refusing the content, and a refused picture or video shows Telegram's own reason with the code `media_failed`. "Add a message, a picture or a video to send." means the post had no content. A post whose answer never arrived is **Unconfirmed**, because Telegram cannot be asked whether it is there. See [Telegram channels](/channels/telegram/overview).
+  </Accordion>
+</AccordionGroup>
+
+## Unconfirmed posts
+
+MagicPost records that it is about to create a post just before it asks the network to do so. If the process stops before the answer arrives, it cannot tell whether the post exists. Sending it again blindly could post it twice, so MagicPost first asks the network when the network allows it. When that is not possible, the channel shows **Unconfirmed** with this message: "We could not confirm whether this went out on ... Check ..., then mark it as sent or send it again."
+
+<Steps>
+  <Step title="Look on the network">
+    Select **Open** followed by the channel's name, and look for the post on the network.
+  </Step>
+  <Step title="If it is there">
+    Select **It went out**. The channel becomes **Published**, and the history shows **Marked as sent**.
+  </Step>
+  <Step title="If it is not there">
+    Select **Send it again**. MagicPost warns "If it already went out, it will appear twice."
+  </Step>
+</Steps>
+
+## Spot a wider problem
+
+On **Admin → Publishing → Settings**, the **Last 24 hours** line of **System health** counts posts sent and failed. When at least three failed and more failed than were sent, it also shows the most common error. A cause that appears across many users, such as one network app losing permissions, usually shows up here first. Also check [Scheduler and queue problems](/troubleshooting/scheduler-and-queue) if posts are late rather than failed.

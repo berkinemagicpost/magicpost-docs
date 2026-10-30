@@ -1,0 +1,103 @@
+---
+title: 'File storage'
+description: 'Where MagicPost keeps uploaded media and other files, which disks exist, how upload limits are decided and what to back up.'
+---
+
+MagicPost stores files on the server it runs on. This page lists the folders, explains the **Default Storage** setting and the `s3` disk, and shows how upload limits are worked out.
+
+## Where files go
+
+| Files | Location on the server | Public web address |
+|---|---|---|
+| Media library uploads, their previews, per-network image versions, and AI Image Studio and Video Studio results | `public/media` | `{APP_URL}/media/...` |
+| Watermark image | `public/media/watermarks` | `{APP_URL}/media/watermarks/...` |
+| Logos, blog covers, testimonial photos, profile photos and support ticket attachments | `public/uploads` | `{APP_URL}/uploads/...` |
+| Bank transfer proofs of payment | `storage/app/private/payment-proofs` | none. They are streamed to the customer and to admins after a permission check. |
+| Pieces of a large upload in progress | `storage/app/chunked-uploads` | none |
+| Google Analytics service account file | `storage/app/analytics` | none |
+
+Media files are named `{user id}/{year}/{month}/{random id}.{extension}` inside `public/media`. They are served straight from the web root, so no `storage:link` step is needed.
+
+<Warning>
+  Because `public/media` and `public/uploads` are inside the public folder, anyone who knows a file address can open it. Do not put anything private in them.
+</Warning>
+
+## Make the folders writable
+
+PHP must be able to write to `public/media`. If the folder does not exist yet, PHP needs write access to `public`, so it can create it on the first upload. The installer's permission check lists `public/uploads`, `storage` and its subfolders, `bootstrap/cache`, `lang` and `.env`.
+
+To confirm, open **Admin → Publishing → Settings** and look at **System health**. The **Media storage** line reads "Uploads are saved in public/media." when all is well, and "Uploads cannot be saved, because PHP cannot write to public/media." when it is not. See [Publishing settings](/admin/publishing-settings).
+
+## Default Storage
+
+<Steps>
+  <Step title="Open General Settings">
+    Go to **Admin → General Settings**. The **General** tab is open by default.
+  </Step>
+  <Step title="Read the Default Storage list">
+    **Default Storage** controls where new Image Studio and Video Studio results are stored. The list always contains **Local server (this machine)**.
+  </Step>
+  <Step title="Add more choices with a plugin">
+    Other entries appear only when a cloud storage plugin is installed and enabled. The **Plugins** tab lists installed plugins and says "No plugins installed yet." when there are none.
+  </Step>
+</Steps>
+
+MagicPost does not include a storage plugin. On a standard install the list has one entry, and the page tells you "No cloud storage plugins are enabled yet." If you save a choice that is no longer available, MagicPost falls back to **Local server (this machine)**.
+
+## The `s3` disk and the `AWS_*` keys
+
+`config/filesystems.php` defines an `s3` disk that reads these keys from `.env`: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`, `AWS_URL`, `AWS_ENDPOINT` and `AWS_USE_PATH_STYLE_ENDPOINT`. The Amazon S3 client library is installed with the application.
+
+No MagicPost feature writes to that disk. The media library, the watermark, logos, attachments and AI results each name their own disk (`media`, `public` or `local`). Filling in the `AWS_*` keys does not move any files to a bucket, and setting `FILESYSTEM_DISK=s3` does not either.
+
+<Warning>
+  Leave `FILESYSTEM_DISK` at `local`. Livewire uses the default disk for temporary uploads, and the rest of the application does not need another one.
+</Warning>
+
+The same `AWS_*` keys are also read by the optional SQS queue and DynamoDB cache drivers, if you choose them. All keys are listed in [Environment variables](/advanced/environment-variables).
+
+## Upload limits
+
+Several limits apply to a file, and the smallest one wins.
+
+| Limit | Where it is set | Default |
+|---|---|---|
+| **Images up to** | **Admin → Publishing → Settings → Uploads** | 25 MB (allowed range 1 to 200 MB) |
+| **Videos up to** | **Admin → Publishing → Settings → Uploads** | 2048 MB (allowed range 1 to 10240 MB) |
+| Media storage per account | The plan's media storage allowance, or the Free tier | set per plan |
+| Each network's own limits | Built into MagicPost, for example 5 MB per image on X | per network |
+
+Accepted formats are `jpg`, `jpeg`, `png`, `gif` and `webp` for images, and `mp4`, `mov`, `webm`, `avi` and `mkv` for video. SVG files are refused. A file whose content does not match its extension is also refused.
+
+### Large files and PHP limits
+
+The media library does not send a big file in one request. The browser cuts it into pieces that fit under PHP's `upload_max_filesize` and `post_max_size`, between 256 KB and 8 MB each, and sends them one by one. That is how a large video can upload on a host that caps PHP at a few megabytes. **Admin → Publishing → Settings → Uploads** shows the size PHP accepts per request and the piece size in use.
+
+PHP's limits still apply to uploads that are not in the media library, such as logos and profile photos.
+
+### Messages people may see
+
+| Message | Meaning |
+|---|---|
+| `:name is larger than the :limit upload limit.` | The file is over **Images up to** or **Videos up to**. |
+| `Your :limit MB media library is full. Delete something or upgrade your plan.` | The account has used its media storage allowance. |
+| `Uploading media is not included in your plan.` | The plan's media storage allowance is 0. |
+| `:name does not look like an image or a video. It may be damaged, or renamed from another format.` | The content does not match the extension. |
+| `:name is attached to a post and cannot be deleted.` | A file used by a post cannot be removed. |
+
+## Processing after upload
+
+Images are read and given a preview up to 640 px wide immediately. Videos are processed in the background on the `media` queue, so a video stays in processing until the scheduler or queue worker runs. If ffmpeg is missing, the video is still usable, but its length is not checked and it has no preview. See [Video processing](/advanced/video-processing) and [Cron and queue](/installation/cron-and-queue).
+
+## What to back up
+
+Back up these together, so a restore is consistent:
+
+- The database.
+- `.env`.
+- `public/media`.
+- `public/uploads`.
+- `storage/app/private`, which holds bank transfer proofs.
+- `storage/app/analytics`, if you use Google Analytics in the admin dashboard.
+
+For the member-facing side of media, see [Media library](/user-guide/media-library).

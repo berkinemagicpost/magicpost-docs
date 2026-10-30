@@ -1,0 +1,109 @@
+---
+title: "Official WhatsApp Cloud API"
+sidebarTitle: "Official Cloud API"
+description: "Set up a Meta app for the WhatsApp Cloud API, connect a WhatsApp Business number, create groups and choose fallback templates."
+---
+
+This provider uses Meta's own WhatsApp Business Platform, so it is the only official one. MagicPost posts to **groups that it creates** for a WhatsApp Business number. It cannot post to existing groups, WhatsApp Channels or Status.
+
+## What you need
+
+- A Meta business portfolio and a Meta app. You can reuse the app you already use for [Facebook](/channels/meta/facebook) or [Instagram](/channels/meta/instagram).
+- A WhatsApp Business Account with a number registered on the Cloud API. Groups need an Official Business Account (the green tick), and they do not work for a number that also runs in the WhatsApp Business app.
+- A group holds at most 8 people, including the business. People join through an invite link.
+- Meta bills the messages, and a group message counts once per member it reaches. See Meta's [pricing](https://business.whatsapp.com/products/platform-pricing).
+
+## Part 1: Admin setup
+
+Follow the steps in this order. Meta can confirm your webhook only after MagicPost has stored the app's keys.
+
+<Steps>
+  <Step title="Create the app in Meta">
+    In [Meta for Developers](https://developers.facebook.com/apps), create a **Business** type app connected to your business portfolio and add the **WhatsApp** product. Meta's [get started guide](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started) walks through it.
+  </Step>
+  <Step title="Copy the app keys">
+    In the app, open **App settings → Basic** and copy the **App ID** and the **App secret**.
+  </Step>
+  <Step title="Open the setup panel">
+    Go to **Admin → Publishing → Platforms**, click **Add credentials** on the **WhatsApp** card and choose **Official WhatsApp Cloud API (Meta)** under **Kind of app**.
+  </Step>
+  <Step title="Fill in the fields">
+    - **App ID**: digits only. It is filled in from your Facebook or Instagram app when one is saved.
+    - **App secret**: paste it, or leave it blank to reuse the secret of the app the ID was filled in from.
+    - **Verify token**: MagicPost pre-fills a random one. Keep it, or use your own with 16 to 100 letters, digits, `.`, `_` or `-`.
+    - **Shortest gap** and **Longest gap**: keep 5 and 15 seconds, see [Pacing](/channels/whatsapp/overview#pacing).
+
+    Click **Save**. You do not have to enable it yet.
+  </Step>
+  <Step title="Register the callback in Meta">
+    Under **What to register**, the panel shows the **Callback URL** and the **Verify token**, each with a **Copy** button:
+
+    ```text
+    https://your-domain.com/webhooks/whatsapp/official
+    ```
+
+    In the Meta app, go to **WhatsApp → Configuration**, paste both, and choose **Verify and save**. See Meta's [webhook guide](https://developers.facebook.com/docs/whatsapp/cloud-api/guides/set-up-webhooks/).
+  </Step>
+  <Step title="Subscribe to the webhook fields">
+    Subscribe to `messages`, `group_lifecycle_update`, `group_participants_update` and `group_settings_update`.
+  </Step>
+  <Step title="Get advanced access and go live">
+    In **App Review**, request advanced access to `whatsapp_business_messaging` and `whatsapp_business_management`, and switch the app to **Live**.
+  </Step>
+  <Step title="Run the checks and enable it">
+    Click **Run checks** on the card and fix anything that fails. Then tick **Available to users**, or use the switch on the card.
+  </Step>
+</Steps>
+
+## Part 2: Connect a number
+
+Every user does this for their own number, and so does the admin for theirs.
+
+<Steps>
+  <Step title="Make a system user token in Meta">
+    In Meta [Business settings](https://business.facebook.com/settings/system-users), add a system user and give it full control of your WhatsApp Business Account and of the app. The connect page shows the app's ID. Generate a token for the system user that never expires, with `whatsapp_business_messaging` and `whatsapp_business_management`. See Meta's notes on [system user tokens](https://developers.facebook.com/docs/whatsapp/business-management-api/get-started/).
+  </Step>
+  <Step title="Copy two IDs">
+    In WhatsApp Manager, copy the **phone number ID** and the **WhatsApp Business Account ID**.
+  </Step>
+  <Step title="Connect the number">
+    Go to **Publishing → Channels** and click **WhatsApp** in the **Add a channel** card. Paste the **Access token**, the **Phone number ID** and the **WhatsApp Business Account ID**, then click **Connect number**. MagicPost shows "Waiting for Meta to finish setting up this number" until Meta reports it as working.
+  </Step>
+  <Step title="Create a group">
+    A number with no groups opens the **WhatsApp groups** page. Click **Create group**, enter a **Group name** and an optional **Description**, and turn on **Ask before people join** if you want to approve each person. WhatsApp makes the group in a moment, and MagicPost adds it as a channel. That counts against your plan limit. If the number already has groups made from MagicPost, you see **Choose where to post** instead. Tick the groups you want and click **Connect**.
+  </Step>
+  <Step title="Invite people">
+    Click **Invite link** next to the group, then **Copy** and share the link. If you asked before people join, click **Join requests** and **Approve** or **Reject** each number.
+  </Step>
+</Steps>
+
+To come back to the groups later, open a channel's actions menu in **Publishing → Channels** and click **WhatsApp groups**.
+
+## Fallback template for a closed window
+
+A group takes a normal post only while someone in it has written in the last day. The group shows **Window open until** a time, or **Window closed**. When it is closed, the post goes out as the group's **Fallback template**, or fails if the group has none.
+
+<Steps>
+  <Step title="Get a template approved">
+    Create a message template in WhatsApp Manager and wait for Meta to approve it.
+  </Step>
+  <Step title="Choose it for the group">
+    On the **WhatsApp groups** page, open **Fallback template** on the group and pick the template. Pick **None** to remove it. A template can take a few minutes to show up after Meta approves it.
+  </Step>
+</Steps>
+
+The post's caption fills the template's one variable. MagicPost lists only approved templates with at most one variable in the body, outside the Authentication category. A template with a picture or video header needs the post to have one. Only the first message of a post uses the template, so later pictures of a multi-picture post are skipped.
+
+## Check it works
+
+As admin, **Run checks** shows **Meta app** ("Meta knows this app as ...") and **Webhook**. The **Webhook** row passes when Meta sends the app's WhatsApp webhooks to your callback URL with all four fields.
+
+As a user, open a channel's actions menu and click **Check connection**. The rows are **Session**, **Quality**, **Membership** and **Messaging window**.
+
+## If something goes wrong
+
+- **"Meta did not accept that access token"**: generate a new token for your system user and paste it again. If the message says the token was made for another Meta app, generate it for the app whose ID the page shows.
+- **The Webhook row fails** ("This app has no WhatsApp webhook yet", or "Subscribe the WhatsApp webhook to" followed by field names): register the callback URL and verify token under **WhatsApp → Configuration** in Meta, and subscribe to all four fields.
+- **"WhatsApp 24-hour window is closed for this group"**: choose a fallback template for the group, or post again once a member writes.
+- **"That number is not on the WhatsApp Cloud API"**: register the number for the Cloud API in WhatsApp Manager first, then connect it.
+- **Channels show Needs reconnect**: Meta no longer accepts the token, or the number was disconnected, banned or restricted. Check the number in WhatsApp Manager, then use **Reconnect** and paste a new token.

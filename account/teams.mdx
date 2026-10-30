@@ -1,0 +1,181 @@
+---
+title: 'Teams'
+description: 'Create a team, invite people, assign approvers, share credits and follow what your team does.'
+---
+
+A team lets you bring people in to post alongside you, share credits with them and sign off their posts before they go out. Open it from **Workspace → Teams** in the sidebar.
+
+## How teams work
+
+- A person belongs to one team at a time, either as its owner or as a member.
+- Every member connects and publishes through their own channels.
+- How many people you can add depends on the owner's plan. See [Seat limits](#seat-limits).
+- Invitations expire after 14 days.
+- Owners cannot leave their own team. They disband it instead.
+
+### Roles
+
+| Role | What the person can do |
+|---|---|
+| **Owner** | Creates the team, invites and removes people, renames or disbands the team, shares credits and signs off posts. |
+| **Approver** | A member the owner trusts to sign off posts. Approvers review posts from other people but never their own. They take a seat like any member. |
+| **Member** | Posts through their own channels. When the team requires sign-off, their scheduled posts wait for an owner or approver. |
+
+Approvers and the sign-off switch are managed on the Approvals page. See [Approval workflow](/user-guide/approvals).
+
+## Create a team
+
+<Steps>
+  <Step title="Open Teams">
+    Click **Teams** in the sidebar.
+  </Step>
+  <Step title="Name the team">
+    Under **Create a team**, enter a **Team name** (2 to 120 characters).
+  </Step>
+  <Step title="Create it">
+    Click **Create team**.
+  </Step>
+</Steps>
+
+If **Create a team** does not appear and you see a locked panel that says **Upgrade to a plan with team seats to invite people and review their posts together**, your plan has no team seats. See [Seat limits](#seat-limits).
+
+You can only create a team if you do not already belong to one.
+
+## Invite people
+
+<Steps>
+  <Step title="Click Invite">
+    On the Teams page, click **Invite**.
+  </Step>
+  <Step title="Enter an email address">
+    In **Invite a teammate**, enter the person's **Email address**.
+  </Step>
+  <Step title="Send">
+    Click **Send invitation**.
+  </Step>
+</Steps>
+
+MagicPost emails the invitation. If the person already has an account, the invitation also appears in their notifications. It stays open for 14 days, and you can see it under **Pending invitations**, where **Revoke** cancels it.
+
+A pending invitation takes a seat until it is accepted, revoked or expired. The **Invite** window shows how many seats are used, and tells you when none are left.
+
+### Accept an invitation
+
+<Steps>
+  <Step title="Sign in with the invited address">
+    The invitation only works for an account that uses the email address it was sent to. If you have no account yet, register with that address first.
+  </Step>
+  <Step title="Open Teams">
+    Click **Teams** in the sidebar, or use the **View invitation** button in the email.
+  </Step>
+  <Step title="Accept or decline">
+    Under **Your invitations**, click **Accept** or **Decline**.
+  </Step>
+</Steps>
+
+You cannot accept while you belong to another team. Leave that team first.
+
+## The Teams page
+
+Once you are in a team, the page shows:
+
+- **Seats**, **Members** (including the owner), **Credits used** (since each member joined) and, for owners, **Your credits**.
+- **Members**, with each person's role. Owners also see each member's **Balance** and **Used** credits.
+- **Pending invitations** (owners only).
+- **Activity**, a log of joins, departures, removals, role changes, invitations, shared credits and post reviews.
+
+### Share credits with a member
+
+Owners can move credits from their own balance to a member.
+
+<Steps>
+  <Step title="Pick the member">
+    On the member's row, click **Share credits**.
+  </Step>
+  <Step title="Enter an amount">
+    In the **Share credits** window, enter an **Amount** between 1 and the **Available to share** figure.
+  </Step>
+  <Step title="Share">
+    Click **Share**.
+  </Step>
+</Steps>
+
+The credits leave your balance and reach the member as credit packs, so they do not expire and a plan renewal does not wipe them. The member gets a **Credits received** notice. If your plan gives you unlimited credits, you cannot share them, and the **Share credits** button is hidden.
+
+See [Credits and usage](/account/credits).
+
+### Follow the activity
+
+Use the filters above the log to narrow it:
+
+- The first drop-down filters by type: **All activity**, **Member joined**, **Member left**, **Member removed**, **Role changed**, **Invitation sent**, **Invitation revoked**, **Credits shared** or **Post review**.
+- The second filters by member, with **Everyone** as the default.
+
+Click **Export CSV** to download the log. The file has the columns Date, Member, Type, Description and Credits, and holds up to the 5,000 most recent entries.
+
+## Manage the team
+
+### Rename or disband (owners)
+
+<Steps>
+  <Step title="Open the settings">
+    Click **Settings** at the top of the Teams page.
+  </Step>
+  <Step title="Rename">
+    Change the **Team name** and click **Save name**.
+  </Step>
+  <Step title="Or disband">
+    Click **Disband team** and confirm. Everyone is removed and pending invitations are cancelled.
+  </Step>
+</Steps>
+
+<Warning>
+Disbanding a team cannot be undone.
+</Warning>
+
+### Remove a member (owners)
+
+Click **Remove** on the member's row and confirm. The owner cannot be removed.
+
+### Leave a team (members)
+
+Click **Leave team** at the top of the page and confirm. You stop seeing the team's members and activity.
+
+## Seat limits
+
+The number of members you can add comes from your plan. The plan limit is called **Team seats**, and it counts the people you add, not yourself. Approvers count as members. Pending invitations count too.
+
+- With a plan that sets the limit to 0, teams are not included.
+- With an unlimited limit, you can invite without a cap.
+- Users without a plan get the limit set on the free tier.
+- If the site runs without SaaS billing, there is no seat limit.
+
+Administrators set the limit in Admin → Finance → Pricing Plans (**Workspace and team**) and Admin → Finance → Free tier. See [Subscription plans](/saas/plans) and [Free tier](/saas/free-tier).
+
+The approval workflow is a plan feature too. It follows the owner's plan: a member's posts are held for review only when the owner's plan includes it and the owner turned sign-off on.
+
+## Common messages
+
+<AccordionGroup>
+  <Accordion title="Teams are not included in your plan.">
+    Your plan has no team seats. Upgrade to a plan that includes them, or ask your administrator to raise the limit.
+  </Accordion>
+  <Accordion title="You already belong to a team. Leave it before creating a new one.">
+    A person can be in one team at a time. Leave the current team before creating another.
+  </Accordion>
+  <Accordion title="That user already belongs to a team.">
+    The person you invited is already a member of another team, so they cannot be invited.
+  </Accordion>
+  <Accordion title="An invitation has already been sent to this email.">
+    A pending invitation exists for that address. Wait for the answer or revoke it before sending another.
+  </Accordion>
+  <Accordion title="That team is full right now. Please contact the owner.">
+    The owner's plan no longer has a free seat. The owner has to free a seat or upgrade the plan.
+  </Accordion>
+  <Accordion title="This invitation was sent to a different email address.">
+    You are signed in with an account whose email differs from the one invited. Sign in with the invited address.
+  </Accordion>
+  <Accordion title="You do not have enough credits to share that amount.">
+    Enter an amount no larger than **Available to share**. Credits on hold for running work are not available.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,62 @@
+---
+title: "Privacy and cookies"
+description: "Turn on the cookie consent banner for your public site and choose its layout, position, lifetime and dark mode."
+---
+
+MagicPost can show a cookie consent banner to visitors of your public site. You configure it under **Platform**, **Backend Settings**, **GDPR Settings**. The page is titled **GDPR Settings**: control your GDPR compliance settings.
+
+The banner appears on the public pages only: the landing page, blog, contact page, Privacy Policy and Terms of Service. It does not appear inside the signed-in dashboard.
+
+## Turn it on
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Platform**, **Backend Settings**, **GDPR Settings**.
+  </Step>
+  <Step title="Enable the banner">
+    Switch on **Enable GDPR Cookies**. The banner is off by default.
+  </Step>
+  <Step title="Choose how it behaves and looks">
+    Set the options described below.
+  </Step>
+  <Step title="Save">
+    Click **Save**. Open your landing page in a private window to see the banner.
+  </Step>
+</Steps>
+
+## Options
+
+| Option | What it does | Default |
+|---|---|---|
+| **Enable GDPR Cookies** | Shows the banner on public pages. | Off |
+| **Disable Page Interaction** | Blocks the page until the visitor makes a choice. | Off |
+| **Hide from Bots** | Does not show the banner to search engine crawlers and other bots. | On |
+| **Enable Dark Mode** | Uses the dark banner theme. | Off |
+| **Cookie Valid Days** | How long the visitor's choice is remembered, from 1 to 365 days. | 7 |
+| **Cookie Consent Modal Layout** | The first banner: box, box inline, box wide, cloud, cloud inline, bar or bar inline. | box |
+| **Cookie Consent Modal Position** | Where the first banner sits: top, middle or bottom, combined with left, center or right. | bottom right |
+| **Preferences Modal Layout** | The settings window: box, bar or bar wide. | box |
+| **Preferences Modal Position** | Which side the settings window opens on: left or right. | right |
+
+## What visitors see
+
+The first banner is titled **We use cookies**. Visitors can choose **Accept all**, **Reject all** or **Manage preferences**. The preferences window, **Consent Preferences Center**, groups cookies into four categories:
+
+- **Strictly Necessary Cookies**, always on.
+- **Functionality Cookies**.
+- **Analytics Cookies**.
+- **Advertisement Cookies**.
+
+Visitors tick the categories they allow and click **Save preferences**. The banner works in opt-in mode, so the optional categories stay off until the visitor accepts them. The choice is stored in a cookie named `cc_cookie` for the number of days you set. The banner text is translated with the rest of the interface, see [Languages and translations](/admin/languages).
+
+<Note>
+  The banner uses a script and a stylesheet that are loaded from the jsDelivr CDN (`cdn.jsdelivr.net`). A visitor whose network blocks that host will not see the banner.
+</Note>
+
+<Warning>
+  The banner records the visitor's choice, but the Google Analytics tag from [Global settings](/admin/global-settings) loads whatever the visitor chose. Check your own legal requirements before relying on the banner alone.
+</Warning>
+
+## Privacy Policy and Terms of Service
+
+The two legal pages have their own editor under **Frontend Settings**, **Pages**. See [Website content](/admin/website-content).

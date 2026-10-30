@@ -1,0 +1,71 @@
+---
+title: "Finance settings"
+description: "Set the default currency, the invoice tax rate, whether checkout collects billing details, and the decimal points switch under Finance, Finance Settings."
+---
+
+**Finance** → **Finance Settings** holds the store-wide options for billing. The page subtitle reads: control currency and tax settings. Everything is in one **General** card with a **Save** button at the bottom.
+
+## Settings
+
+| Field | What it does |
+|---|---|
+| Default Currency | Required. The currency symbol used for the revenue figures on the Finance dashboard. |
+| Default Tax % | A whole number from 0 to 100. Used to show a VAT breakdown on invoices. |
+| Billing Information | When enabled, billing information is required upon checkout. |
+| Decimal Points in Prices | Saved with the other settings. See the note below. |
+
+The **Default Currency** list shows the currencies MagicPost supports, by name.
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Finance** → **Finance Settings**.
+  </Step>
+  <Step title="Choose the currency and tax">
+    Pick the **Default Currency**. Enter **Default Tax %** if you want invoices to show a tax breakdown, or leave it empty.
+  </Step>
+  <Step title="Choose the checkout behavior">
+    Switch **Billing Information** on if customers must give billing details before they pay.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The message **Settings were saved successfully** confirms it.
+  </Step>
+</Steps>
+
+## Default Currency
+
+The default currency decides which symbol the **Finance dashboard** prints in front of its revenue figures. The main admin dashboard uses it only for amounts that carry no currency of their own. It does not convert anything and it does not change what customers pay. Every plan has its own **Currency** on the plan form, and checkout, orders and invoices use the plan's currency.
+
+<Warning>
+  If your plans use different currencies, the dashboards add the order amounts together without converting them. Keep one currency across your plans for revenue figures that make sense.
+</Warning>
+
+## Default Tax %
+
+The tax rate is applied on invoices only. MagicPost treats the amount the customer paid as tax-inclusive. The invoice then shows the net price, the tax at your rate and a total that equals the amount charged. The tax is not added on top at checkout, so set your plan prices with tax already included. See [Invoices](/saas/invoices).
+
+Only whole numbers are accepted. Leave the field empty or enter 0 to print no tax line.
+
+## Billing Information
+
+When this switch is on, checkout shows a **Billing details** section before the payment method.
+
+| Field | Required |
+|---|---|
+| Full name | Yes |
+| Email | Yes |
+| Phone | No |
+| Company | No |
+| Address | Yes |
+| City | Yes |
+| Postal code | Yes |
+| Country | Yes |
+
+MagicPost saves these details on the order. The name, email, phone and address appear in the buyer block of the invoice. The checkout text tells customers that the details are used for their invoice and payment confirmation. With the switch off, the section is hidden and the invoice falls back to the customer's account name and email.
+
+## Decimal Points in Prices
+
+The switch says that when enabled, all prices show decimal points after the main price. The current plan cards, checkout, orders and invoices do not read this setting, so turning it on or off does not change how prices appear. It is stored with the other finance settings.
+
+<Note>
+  The finance settings row is created by the installer's database seeding. If saving shows the message that there was an error, the row is missing and the seeding did not run.
+</Note>

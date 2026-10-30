@@ -1,0 +1,92 @@
+---
+title: 'Analytics'
+description: 'Measure how your published posts perform: engagements, impressions, followers, top posts, best posting times and what works, with how often figures sync.'
+---
+
+**Analytics** shows how the posts you sent are performing. Open **Publishing → Analytics** in the sidebar. The page reads **How the posts you sent are actually performing.**
+
+<Note>
+Analytics is a plan feature when billing is turned on for the site. If your plan does not include it, the sidebar item shows a lock and leads to the upgrade page. On the page itself, a lock reads **Upgrade to see follower growth, engagement and your best performing posts.** When billing is not turned on, Analytics is available to everyone. See [Billing and subscription](/account/billing).
+</Note>
+
+## Choose what to measure
+
+- The range switch at the top right offers **7 days**, **30 days** and **90 days**. The default is 30 days. The line under the title reads **Changes compare with the N days before.**, so each change figure is measured against the same number of days immediately before the range.
+- The row of buttons below the title filters by channel. **All channels** is the default. Select one or more channels to narrow every figure on the page.
+- **Updated** followed by a time tells you when the networks were last read.
+
+If you have no channel yet, the page reads **Nothing to report yet** with a **Connect a channel** button. Figures start arriving once the first post is live.
+
+## The figures
+
+| Tile | What it counts |
+|---|---|
+| **Posts published** | Posts that went out in the range, with how many have been **measured**. |
+| **Engagements** | Likes, comments and shares combined, with the three counts shown underneath. |
+| **Impressions** | How many times the posts were seen, with the number of people **reached** where the network reports it. |
+| **Engagement rate** | Engagements as a share of **the widest audience reported**. It shows a dash when no network reports an audience. |
+
+Each tile also shows the change against the previous range, as a percentage, in green for up and red for down.
+
+**By publish date** draws a bar for each day. The bar is the running total for the posts sent that day, in your time zone. Switch it between **Engagements**, **Impressions** and **Posts**.
+
+### Followers
+
+The **Followers** card shows the total across the channels, the change over the range, and a trend line. The **Channels** list shows each channel's follower count with its change.
+
+### Channels
+
+The **Channels** card lists each channel with its number of posts, its engagement rate, its engagements and its followers. A channel you disconnected still shows its history, with a **Disconnected** tag.
+
+### Top posts
+
+**Top posts** ranks the best posts in the range by engagements, up to eight. Each row shows the network, the first part of the caption, the channel, the publish date and the engagements. Select a row to open the post. If posts went out but no numbers have come back, you see **Figures for these posts have not come back from the networks yet.**
+
+### When posts do best
+
+A heat map of the week by hour shades the hours where your posts did best. **Strongest hours** lists the top ones, at most one per day.
+
+- Until enough posts are measured, the map leans on the hours that usually work on each network, and the subtitle says so.
+- Once a channel has measured posts in the last 90 days, the map follows your own results, and the subtitle reads **From N measured posts in the last 90 days.** The map counts as personal after 10 measured posts.
+- Each post is compared with its own channel's average, so a large page does not drown out a small one.
+
+**Posting times** opens your queue, where you can add the strongest hours to a channel's posting times. See [Scheduling](/user-guide/scheduling).
+
+### What works
+
+**What works** shows the average engagements per post, by kind of post: **Text only**, **With a link**, **One picture**, **Several pictures** and **Video**, with the number of posts of each kind and an engagement rate where available. It appears once posts in the range are measured.
+
+### WhatsApp
+
+When you published to WhatsApp, an extra card reports what WhatsApp sent back: **Recipients**, **Delivered**, **Read**, **Reactions**, **Replies**, and for Status posts **Status views** and **Channel reactions**. **Billable messages** shows the count, **Counted once per member reached**. Figures arrive as WhatsApp reports receipts, reactions and replies.
+
+### Telegram
+
+When you published to Telegram, an extra card reports what Telegram told the bot: **Reactions**, with the most used emoji underneath, **Replies and comments**, **People reacting** and **Subscribers**, with the people who joined and left shown as `+N · −N`. A tag such as **2 posts not sent** appears when posts to Telegram failed in the range.
+
+**Views**, **Forwards** and **Link clicks** always show a dash and **Not reported by Telegram**, because Telegram does not give a bot those numbers. Reactions are reported only while the bot is an admin of the chat, and comments on a channel's posts only while it is an admin of the channel's discussion group. See [Telegram channels](/channels/telegram/overview#analytics).
+
+## Where the figures come from
+
+MagicPost reads figures from each network's own reporting. A background job collects them, and only for channels that are active, so a paused or expired channel is skipped until it is back.
+
+- **Cadence**: the job runs every hour. It reads a post's figures again when the last reading is old enough. A post less than 2 days old is read about every hour, a post up to 7 days old about every 6 hours, and an older one about every 24 hours.
+- **Window**: posts are read for 30 days after they are published. After that their figures stay as they were last read.
+- **Daily rows**: figures are stored once per day, so today's number is refined through the day and earlier days stay fixed.
+- **Followers**: each channel's audience is read in the same job, where the network provides it. LinkedIn provides followers only for organisation pages, not personal profiles.
+- **On or off**: your administrator can turn the sync off under **Publishing → Settings → Collect analytics**. See [Publishing settings](/admin/publishing-settings).
+
+Not every network reports every figure. A figure a connection cannot return shows **Not reported by this connection**, and the label for it may differ by network. WhatsApp, for example, reports delivery and read instead of impressions, and Telegram never reports views, forwards or clicks. See each network's page under [Publishing channels](/channels/overview).
+
+### When figures stop
+
+A message above the tiles tells you when a channel's figures have stalled:
+
+- **Figures for a channel stopped: its connection was turned down. Reconnect it to bring them back.** with a **Reconnect** button. The network refused the saved authorisation.
+- **A channel asked to be read less often. Its figures pick up again around** a time. The network is limiting requests, and MagicPost backs off.
+
+If posts went out but nothing has been collected, a note reads **Posts went out in this window but no figures have been collected yet. The sync runs every hour.** A brand new post can take up to an hour for its first reading.
+
+## Analytics on Home
+
+Home shows the same figures in a compact form, with the same range switch. See [Dashboard](/user-guide/dashboard).

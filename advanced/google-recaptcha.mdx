@@ -1,0 +1,42 @@
+---
+title: 'Google reCAPTCHA'
+description: 'What the Google reCAPTCHA v3 settings in Global Settings store, what they do not do yet, and the protections that do run on your forms.'
+---
+
+<Warning>
+  In this version of MagicPost the reCAPTCHA settings are saved but not used. No form loads the reCAPTCHA script or checks a token, so switching reCAPTCHA on does not stop bots on sign-in, registration or the contact form. Do not rely on it.
+</Warning>
+
+## What the settings are
+
+**Admin → Backend Settings → Global Settings** has a **Google reCaptcha v3** block with three fields:
+
+| Field | Purpose |
+|---|---|
+| **Enable Google reCaptcha v3** | A switch. |
+| **Google reCaptcha Site Key** | The public key. Required while the switch is on. |
+| **Google reCaptcha Secret Key** | The private key. Required while the switch is on. |
+
+Saving stores the two keys and the switch position. A search of the application finds no code that reads them afterwards, and no page or form that asks Google for a token. If you fill them in, nothing changes for visitors.
+
+## What protects your forms today
+
+These checks run without any setting:
+
+- **Contact form.** One IP address can send three messages in 10 minutes. After that the visitor sees "You have sent a few messages already. Please try again in a few minutes." The form also carries a hidden field that people leave empty and many bots fill in, and a message with that field filled in is rejected.
+- **Registration.** On **Admin → Backend Settings → Registration Settings** you can switch **User Registration** off, so new people cannot sign up. You can also switch **Email Verification** on, so a new account must confirm its email address before it is used. See [Registration and login](/admin/registration-and-login).
+
+<Tip>
+  Email Verification only works if your site can send email. Set up SMTP first. See [Email and SMTP](/admin/smtp).
+</Tip>
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Global settings" icon="gear" href="/admin/global-settings">
+    Website name, URL, theme, time zone and the Google fields.
+  </Card>
+  <Card title="Registration and login" icon="user-plus" href="/admin/registration-and-login">
+    Control sign-ups, email verification and social login.
+  </Card>
+</CardGroup>

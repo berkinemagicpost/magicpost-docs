@@ -1,0 +1,82 @@
+---
+title: 'Wallet'
+description: 'Let customers pay for a plan from the balance stored on their MagicPost account, and understand what this version does and does not provide.'
+---
+
+The wallet gateway lets a customer pay for a plan from the balance stored on their own account. The payment settles inside MagicPost the moment the customer confirms. There is no payment provider, no API key, no webhook and no redirect.
+
+<Warning>
+This version of MagicPost has no way to put money into the wallet. There is no top-up page, no gift card or voucher feature, and no wallet field in the admin user screens. Every new account starts at 0.00, and the only thing MagicPost does with the balance is subtract a plan price from it. Customers can pay with the wallet only when their balance has been filled by other means. If you do not manage balances yourself, leave this gateway switched off.
+</Warning>
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Wallet** |
+| Page title | Wallet Balance Settings |
+| Name at checkout | Account Wallet, with the line "Pay from your account balance" |
+| Plan types | Prepaid, Lifetime, Monthly, Yearly |
+| Monthly and Yearly plans | Granted for one period per payment. No automatic renewal |
+| Webhook | None |
+| Test mode | None |
+
+## Turn it on
+
+<Steps>
+  <Step title="Open the Wallet card">
+    Go to **Admin → Finance → Payment Gateways** and click **Wallet**. The page is titled **Wallet Balance Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**. The description reads "When enabled, users can use their Wallet Balance for payments".
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Wallet settings saved successfully."
+  </Step>
+</Steps>
+
+Status is the only setting.
+
+## What the customer sees
+
+On the checkout page, selecting **Account Wallet** shows a **Your wallet balance** panel with the current balance:
+
+- If the balance covers the total, the panel is green and says "Enough to cover this plan" followed by the amount that will be charged from the wallet.
+- If it does not, the panel is red and says "Not enough to cover the" amount "due. Please top up your wallet or choose another method."
+
+## How payments work
+
+When the customer confirms, MagicPost does the following in one step:
+
+1. Checks that the gateway is enabled and that the amount due is above zero.
+2. Locks the customer's account and checks the balance again, so two checkouts at the same moment cannot spend the same money.
+3. Subtracts the amount from the balance and records a completed order whose reference starts with `WAL-`.
+4. Adds the plan's credits, and for Monthly, Yearly and Lifetime plans creates an active subscription.
+5. Opens the success page and shows "Payment successful — your plan is now active."
+
+If any part fails, the subtraction is rolled back. If the balance is too low, nothing is charged and the customer is sent back to checkout with a message that shows the balance and the amount due.
+
+## Renewals
+
+The wallet cannot charge a customer again by itself. A Monthly or Yearly plan paid from the wallet is granted for one period, and the customer repeats the payment when it ends.
+
+## Currency
+
+The wallet balance is a plain number with no currency of its own. MagicPost subtracts the plan price as it is, with no conversion. Treat the balance as being in the same currency as the plans you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for the wallet. Turn it on and save.
+  </Accordion>
+  <Accordion title="Your wallet balance (...) is too low to pay ... for this plan. Please top up your wallet and try again.">
+    The balance is lower than the amount due. The customer must use another payment method.
+  </Accordion>
+  <Accordion title="This plan is not available.">
+    The amount due is zero or less, or the plan is no longer active.
+  </Accordion>
+  <Accordion title="We could not complete your wallet payment. Please try again or contact support.">
+    The payment could not be saved and the balance was not changed. The reason is in `storage/logs/laravel.log`.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Orders and transactions](/saas/orders).

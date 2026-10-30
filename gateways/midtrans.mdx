@@ -1,0 +1,136 @@
+---
+title: 'Midtrans'
+description: 'Connect Midtrans to MagicPost to take payments for one-time and recurring plans through the Midtrans Snap payment window.'
+---
+
+Midtrans supports every MagicPost plan type. Customers pay in the Midtrans Snap window, which opens over a short intermediate MagicPost page.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Midtrans** |
+| Name at checkout | Midtrans |
+| Test mode | **Mode → Sandbox**, with your Midtrans sandbox keys |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/midtrans`, entered in Midtrans as the Payment Notification URL |
+| Webhook events | Payment notifications with status `settlement` or `capture` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/midtrans`, opened by the Snap window after payment |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, opened when the customer closes the window or the payment errors |
+| Currency | Whole-number amounts, see [Currency](#currency) |
+
+## Get your keys from Midtrans
+
+<Steps>
+  <Step title="Pick the environment">
+    The Midtrans Dashboard has a Sandbox and a Production environment. The Client Key and Server Key are different in each.
+  </Step>
+  <Step title="Open the access keys">
+    Go to **Settings**, then **Access Keys**.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the **Client Key** and the **Server Key**.
+  </Step>
+</Steps>
+
+<Warning>
+Keep the Server Key private. MagicPost uses it to call Midtrans and to verify notifications.
+</Warning>
+
+## Set the notification URL in Midtrans
+
+<Steps>
+  <Step title="Open the payment settings">
+    In the Midtrans Dashboard, open **Settings** and the payment settings page.
+  </Step>
+  <Step title="Enter the URL">
+    Set the **Payment Notification URL** to the **Webhook URL** shown on the MagicPost Midtrans page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/midtrans
+    ```
+  </Step>
+  <Step title="Save">
+    Save. There is no signing secret to copy back, because MagicPost verifies each notification with your Server Key.
+  </Step>
+</Steps>
+
+Do this in both environments if you use both.
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Midtrans card">
+    Go to **Admin → Finance → Payment Gateways** and click **Midtrans**. The page is titled **Midtrans Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Midtrans Client Key**
+    - **Live Midtrans Server Key**
+    - **Sandbox Midtrans Client Key**
+    - **Sandbox Midtrans Server Key**
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Midtrans settings saved successfully."
+  </Step>
+</Steps>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost creates a Midtrans Snap transaction with an order ID that starts with `PRE-`, followed by the plan's internal number and a random string. The window opens on a page that shows "Opening Midtrans…". If it does not appear, the page offers an **Open Midtrans** button.
+
+When the customer finishes, MagicPost asks Midtrans for the order status:
+
+- `settlement` or `capture` records the order. For Lifetime plans MagicPost also creates the subscription.
+- `pending` or `authorize` shows "Your payment is being processed. You will be notified once confirmed." and sends the customer to the Billing page.
+- Anything else shows "Payment was not completed."
+
+The Midtrans notification does the same recording if the customer never returns, provided its fraud status is empty or `accept`, and the notification carries the user and plan details MagicPost attached to the order (the `custom_field1` and `custom_field2` values). Cancelled, expired, denied and failed notifications are only written to the log.
+
+**Recurring plans (Monthly, Yearly).** The first payment is a Snap transaction with an order ID that starts with `SUB-`, and the card is saved with 3-D Secure turned on. Once it is paid, MagicPost creates a Midtrans subscription from the saved card token. Midtrans has no plan objects, so there is nothing to create ahead of time.
+
+The subscription MagicPost registers has these properties:
+
+- It repeats every 1 month for a Monthly plan and every 1 year for a Yearly plan, with no end.
+- Its start time is one day after the first payment.
+- Its amount is the plan price rounded to a whole number, in the plan's currency.
+
+If Midtrans does not return a saved card token, MagicPost still grants the current period but no recurring schedule exists, and the customer has to pay again.
+
+<Note>
+There is no renewal handler for Midtrans in MagicPost. Midtrans charges the schedule, and MagicPost records a later charge only when its notification carries the user and plan details from checkout. Test a Monthly plan in the sandbox and look at the subscription schedule in the Midtrans Dashboard before you go live. Cancelling a subscriber in MagicPost does not cancel the subscription at Midtrans, so also cancel it there.
+</Note>
+
+## Currency
+
+MagicPost sends the Snap amount as a whole number (the plan price rounded) and does not send a currency code with it, so create Midtrans plans with a currency Midtrans Snap can charge, normally IDR. The recurring subscription also sends the plan's currency, defaulting to IDR when a plan has none.
+
+## Test mode
+
+Put the sandbox Client Key and Server Key in the two **Sandbox** fields, select **Sandbox** under **Mode** and save. MagicPost then calls Midtrans' sandbox API and loads the sandbox Snap script. Set the Payment Notification URL in the sandbox environment too. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Midtrans. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    The Server Key for the active Mode is missing. The log says "Midtrans server key is missing."
+  </Accordion>
+  <Accordion title="Midtrans could not start the payment. Please try again. / Midtrans returned an unexpected response.">
+    Midtrans refused to create the Snap transaction. The reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Midtrans billing. Please contact support.">
+    The plan is not a Monthly or Yearly plan with a price above zero, or the Server Key is missing.
+  </Accordion>
+  <Accordion title="Missing Midtrans session reference. / Midtrans status lookup failed.">
+    The customer came back in a different browser session, or Midtrans could not be reached.
+  </Accordion>
+  <Accordion title="Midtrans shows the notification failing with status 400">
+    The body is `invalid signature`: the Server Key saved for the active Mode is not the one for the environment that sent the notification.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

@@ -1,0 +1,176 @@
+---
+title: 'YouTube'
+description: 'Set up a Google Cloud project for the YouTube Data API, connect channels, and publish videos and Shorts with title, visibility and first comments.'
+---
+
+MagicPost uploads to YouTube with the YouTube Data API. You create one Google Cloud project and OAuth client. Each user then connects their own YouTube channel through it.
+
+## What you need
+
+- A Google account that can use the [Google Cloud console](https://console.cloud.google.com/apis/credentials).
+- Your site served over HTTPS.
+- Access to **Admin** → **Publishing** → **Platforms**.
+- For a custom thumbnail, FFmpeg on the server. See [Video processing](/advanced/video-processing).
+
+## Set up Google Cloud
+
+<Steps>
+  <Step title="Create a project and enable the API">
+    In the Google Cloud console, create a project and enable the **YouTube Data API v3** for it.
+  </Step>
+  <Step title="Get the redirect URI from MagicPost">
+    In MagicPost, go to **Admin** → **Publishing** → **Platforms** and click **Add credentials** on the **YouTube** card. Under **What to register**, copy the **Redirect URI** and the permissions under **Permissions asked for**:
+
+    ```text
+    https://your-domain.com/publishing/youtube/callback
+    ```
+  </Step>
+  <Step title="Configure the consent screen">
+    Set up the **OAuth consent screen** for **External** users and add the scopes from the table below.
+  </Step>
+  <Step title="Create the OAuth client">
+    Create an **OAuth client ID** of type **Web application**. Add the redirect URI under **Authorized redirect URIs**.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the **Client ID** and the **Client secret**.
+  </Step>
+  <Step title="Store them in MagicPost">
+    Paste them into **Client ID** and **Client secret**. Tick **Available to users**, click **Save**, then **Run checks**.
+  </Step>
+</Steps>
+
+### Permissions MagicPost asks for
+
+| Scope | Used for |
+|---|---|
+| `https://www.googleapis.com/auth/youtube.upload` | Uploading videos. |
+| `https://www.googleapis.com/auth/youtube.readonly` | Reading the channel and its statistics. |
+| `https://www.googleapis.com/auth/youtube.force-ssl` | Posting first comments. |
+
+<Warning>
+While the consent screen is in **Testing**, Google ends every connection after 7 days. Publish the app to **In production** before users rely on it.
+</Warning>
+
+<Warning>
+Videos uploaded through a Google project that has not passed YouTube's API audit are locked to private, whatever visibility the user chose. Request the audit from Google before people publish publicly.
+</Warning>
+
+## Connect a YouTube channel
+
+<Steps>
+  <Step title="Open Channels">
+    Under **Publishing** in the sidebar, click **Channels**.
+  </Step>
+  <Step title="Add the channel">
+    In **Add a channel**, click **YouTube**. Sign in with Google and approve access. Google asks for consent every time, so that it issues a refresh token.
+  </Step>
+  <Step title="Confirm">
+    You return to **Channels** with a **Channel** entry named after the YouTube channel.
+  </Step>
+</Steps>
+
+A Google account without a YouTube channel cannot be connected. MagicPost answers **This Google account has no YouTube channel.**
+
+Channels connected before first comments were added lack the `youtube.force-ssl` scope. They have to reconnect to get first comments.
+
+## What you can publish
+
+YouTube has two post types: **Video** and **Short**. Both need a video.
+
+| Setting | Video | Short |
+|---|---|---|
+| Description | Up to 5,000 bytes. The characters `<` and `>` are not allowed. | Same. |
+| Video formats | mp4, mov, webm, avi, mkv, flv | mp4, mov, webm |
+| Video size | Up to 262,144 MB | Up to 1,024 MB |
+| Video length | 1 to 43,200 seconds | 1 to 180 seconds |
+| Images | None. | None. |
+| First comment | Yes. | Yes. |
+
+- YouTube counts the description in bytes, so characters outside the basic Latin range use more than one.
+- Files reach YouTube through the media library. Its default ceiling is 2,048 MB per video, and it accepts mp4, mov, webm, avi and mkv. A larger file, or a format the library does not accept such as flv, cannot be added to the library. See [Upload ceilings](/channels/overview#upload-ceilings).
+- A Short needs a square or vertical video. A wide one is published as a regular video.
+- YouTube refuses videos over 15 minutes until the YouTube account is verified.
+
+### Options
+
+Set these under **Settings for** the channel in the composer.
+
+| Option | Required | On Video | On Short | What it does |
+|---|---|---|---|---|
+| **Title** | Yes | Yes | Yes | Up to 100 characters, without `<` or `>`. When empty, the first line of the caption is used, then **Untitled video**. |
+| **Visibility** | Yes | Yes | Yes | **Public**, **Unlisted** or **Private**. |
+| **Category** | No | Yes | No | One of 15 YouTube categories, from **Film & Animation** to **Nonprofits & Activism**. **People & Blogs** is used when none is chosen. |
+| **Tags** | No | Yes | Yes | Up to 500 characters in total, without `<` or `>`. |
+| **Made for kids** | No | Yes | Yes | Required by law to be set honestly. Turns off comments and personalised ads. |
+| **Altered or synthetic content** | No | Yes | Yes | For realistic content made or changed with AI. YouTube shows a label. |
+| **Thumbnail frame** | No | Yes | Yes | Pick a frame of the video as the thumbnail. |
+| **Don't notify subscribers** | No | Yes | Yes | Uploads without notifying subscribers. |
+
+- MagicPost switches **Altered or synthetic content** on by itself when any attached media was created with MagicPost's AI tools.
+- **Thumbnail frame** only works for a verified YouTube account, and the server needs FFmpeg. Otherwise YouTube picks a thumbnail itself. The video stays live either way.
+
+### First comment
+
+The first comment is posted as a top-level comment on the video once YouTube has finished processing it. It is not posted on a video marked **Made for kids**, because comments are off. If posting it fails, the video stays published and the failure is written to the application log.
+
+### How the upload works
+
+- The file is uploaded in chunks of 8 MB against one upload session. A run that is cut short asks Google how much it has and carries on, so a long video is never sent twice.
+- After the upload, MagicPost waits for YouTube to process the video and checks again every minute. A video that is still processing 30 minutes after the upload is treated as published, because it exists and YouTube carries on.
+
+## Connection check
+
+| Item | Result |
+|---|---|
+| **Channel** | **Connected to NAME.** |
+| **Long videos** | Warns when YouTube does not allow long uploads: **Videos over 15 minutes are refused until the YouTube account is verified.** |
+| **Visibility** | Warns when an earlier upload came out private: **YouTube keeps this channel's uploads private until the Google Cloud project behind this app passes YouTube's API audit. Ask your admin to apply for it.** The warning clears when a public upload goes through. |
+| **First comments** | Warns when the connection lacks `youtube.force-ssl`: **Reconnect this channel so MagicPost can post first comments on new videos.** |
+
+The same note about private uploads appears in the composer under **Settings for** the channel.
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes, comments and views. A like count the creator hides is read as zero. |
+| Channel | Subscribers (shown as followers), number of videos, and total views. |
+
+See [Analytics](/user-guide/analytics).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This app has used its YouTube upload allowance for today">
+    The Google project's daily quota is used up. The post is retried after midnight Pacific time, when the allowance resets.
+  </Accordion>
+  <Accordion title="This YouTube channel has reached its daily upload limit">
+    The channel itself hit YouTube's limit. The post goes out after midnight Pacific time.
+  </Accordion>
+  <Accordion title="Videos stay private">
+    The Google project has not passed YouTube's API audit. See the warning above and apply for the audit.
+  </Accordion>
+  <Accordion title="Connections end after a week">
+    The OAuth consent screen is still in **Testing**. Publish it to **In production**, then reconnect the channels.
+  </Accordion>
+  <Accordion title="YouTube refused the video as a duplicate">
+    The channel already holds a video with the same content. Use a different file.
+  </Accordion>
+  <Accordion title="The video is longer than this YouTube account may upload">
+    Verify the YouTube account to upload videos over 15 minutes.
+  </Accordion>
+  <Accordion title="YouTube refused the video over a copyright claim">
+    YouTube rejected the upload because of a copyright claim. The post fails with that reason.
+  </Accordion>
+  <Accordion title="YouTube could not process the file">
+    Export the video as an H.264 MP4 and try again.
+  </Accordion>
+  <Accordion title="The upload session expired">
+    MagicPost starts the upload again automatically. No action is needed.
+  </Accordion>
+  <Accordion title="Redirect URI mismatch when connecting">
+    The URI under **Authorized redirect URIs** in Google Cloud differs from the **Redirect URI** in MagicPost. Copy it again from the setup panel.
+  </Accordion>
+</AccordionGroup>
+
+Other errors are shown with Google's own message. See [Failed posts](/troubleshooting/publishing-errors).

@@ -1,0 +1,100 @@
+---
+title: "Publishing settings"
+description: "Check that your server is ready to publish, choose how posts are sent, set retry and upload limits, add a watermark and control analytics collection."
+---
+
+Open **Publishing**, **Settings** in the admin sidebar. The page is titled **Publishing Settings**: how posts are sent, retried and held back, and whether this server is ready for it. Change the values, then click **Save settings** at the bottom. Everything on the page is saved together.
+
+## System health
+
+The first card, **System health**, runs a set of checks on your installation each time you open the page. Its title summarises the result:
+
+- **Ready to publish** when every check passes.
+- "N things to look at" when some checks warn.
+- "N problems stop posts from going out" when a check fails.
+
+Checks that need your attention are listed first, each with a link to the place to fix it, such as **See the cron job**, **Open Platforms**, **Adjust the limits** or **Open SMTP settings**. Passed checks are folded under "N checks passed". Click **Check again** after you fix something.
+
+[System status](/admin/system-status) explains every check.
+
+## Sending
+
+This card decides what sends posts once they are due. Under **Posts are sent by** choose one of two modes:
+
+| Mode | Use it when |
+|---|---|
+| **The scheduler** | Your host only offers cron. Every minute, the scheduler sends whatever is due. This is the default. |
+| **A queue worker** | You keep a queue worker running under Supervisor or systemd. |
+
+<Tabs>
+  <Tab title="The scheduler">
+    **Each pass sends for** sets how long one scheduler pass keeps taking queued jobs, from 10 to 55 seconds (default 45). Keep it under a minute so one pass ends before the next begins. Lower it if your host stops long cron jobs.
+  </Tab>
+  <Tab title="A queue worker">
+    The page shows the command under **Keep this running**:
+
+    ```bash
+    php artisan queue:work --queue=publishing,default,media
+    ```
+
+    Run it from the folder MagicPost is installed in. The cron job below is still needed, because it decides what is due.
+  </Tab>
+</Tabs>
+
+### Cron job
+
+The **Cron job** box shows the exact command for your installation and a tag with the last time the scheduler ran, or **Has not run yet**. Add it to your server to run every minute. In cPanel choose **Once Per Minute** and paste the command. **Copy the crontab line** copies the full line with the schedule included.
+
+The scheduler is considered stale when it has not run for 5 minutes. See [Cron and queue](/installation/cron-and-queue) for the full setup, including everything the scheduler does besides sending posts.
+
+## Retries and waiting
+
+| Setting | Range | Default | What it does |
+|---|---|---|---|
+| **Tries before a post fails** | 1 to 10 | 3 | How many times a post is attempted. A post that fails for a reason that can pass, such as a network outage, is tried again a few minutes later. |
+| **Wait for a channel for up to** | 1 to 168 hours | 24 | How long a due post waits for a paused channel, one that needs reconnecting, or a network that is switched off. After that it is not sent. |
+| **Pick up a stalled send after** | 10 to 240 minutes | 15 | When a post counts as stuck while sending. Keep it longer than your largest video takes to upload. |
+| **Hand out at most** | 1 to 500 posts a minute | 25 | A cap on posts started per minute. Posts due at the same moment beyond this go out over the following minutes, taking turns between people. |
+
+The delay between tries is 2, 10 and 30 minutes after the first, second and third failure, and the last delay repeats. These delays are set in `config/publishing.php`, not on this page. Stalled sends are checked every 5 minutes. What happens to a post that runs out of tries is covered in [Failed posts](/troubleshooting/publishing-errors).
+
+## Uploads
+
+**Images up to** (1 to 200 MB, default 25) and **Videos up to** (1 to 10240 MB, default 2048) set the largest file anyone can add to the media library.
+
+Files are sent in pieces, so PHP's own upload limit does not cap them. The page shows how much PHP takes per request and the piece size. These ceilings apply before each network's own limits, which are checked again when a post is prepared. See [Media library](/user-guide/media-library).
+
+The library accepts these formats:
+
+| Type | Formats |
+|---|---|
+| Images | jpg, jpeg, png, gif, webp |
+| Video | mp4, mov, webm, avi, mkv |
+
+## Watermark
+
+The watermark is placed on images as they go out. Images in the library stay as they are, and videos are sent without it. It applies to every network.
+
+<Steps>
+  <Step title="Upload the image">
+    Choose a file under **Watermark image**. PNG, WebP or JPG up to 2 MB. A PNG with a transparent background works best. It is shown at about a fifth of the image width.
+  </Step>
+  <Step title="Position it">
+    Set **Position** to Top left, Top right, Bottom left, Bottom right (default) or Centre, and **Opacity** from 10 to 100 percent (default 80).
+  </Step>
+  <Step title="Switch it on">
+    Turn on **Add the watermark to images** and click **Save settings**. Saving with the switch on and no image shows "Add an image to use as the watermark."
+  </Step>
+</Steps>
+
+**Remove the watermark** deletes the file and switches the option off. Plans can include a **Watermark-free** feature, see [Subscription plans](/saas/plans).
+
+## Defaults and housekeeping
+
+- **Default timezone** is used for scheduling whenever a person or a post has not chosen one. It starts from the site's time zone.
+- **Collect analytics** reads followers and post performance back from the networks every hour. Each read counts against the networks' API allowances. Turn it off to stop collection entirely. See [Analytics](/user-guide/analytics).
+- **Keep read notifications** is **For good**, or 30, 90, 180 or 365 days. Read publishing notifications older than this are deleted each night. Unread ones are always kept.
+
+## If posts do not go out
+
+Start with the **System health** card, then read [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).

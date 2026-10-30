@@ -1,0 +1,88 @@
+---
+title: 'Update instructions'
+description: 'Update MagicPost from the admin panel, finish the database update, or update by hand, with a backup before you start.'
+---
+
+<Warning>
+Back up all your files and your database before you update. An update replaces application files in place and changes database tables, and neither can be undone from the admin panel.
+</Warning>
+
+Your current version is shown at the top of the **Update** page and on the admin dashboard. The latest version is published through the same license server that activated your install, so the license must be active. See [License activation](/license/activation).
+
+## Update from the admin panel
+
+<Steps>
+  <Step title="Back up">
+    Download a copy of the application folder, including `.env` and `.lic`, and export the database.
+  </Step>
+  <Step title="Open the Update page">
+    In the admin sidebar open **Platform → Update**. You can also click **Check for updates** next to the version number on the admin dashboard. The page is titled **Update Software** and shows **Current version**.
+  </Step>
+  <Step title="Install the update">
+    If a newer version exists, the page shows **New version** with the number and **update available**. Click **Install Update** and wait. The button changes to **Installing, please wait...**, and the page warns you not to refresh while it downloads and extracts the files.
+
+    <Note>
+    The update is downloaded and unpacked in a single request. If your host ends long requests early, the update can stop part-way. The updater raises PHP's `max_execution_time` to 1600 seconds and `memory_limit` to 256M for that request when your host allows it.
+    </Note>
+  </Step>
+  <Step title="Wait for the confirmation">
+    A successful run shows the message **Software successfully was upgraded to version** followed by the number. In the background the updater has replaced the application files, written the new version into `APP_VERSION` in `.env`, run `php artisan migrate --force`, and cleared the view, cache, config and route caches.
+  </Step>
+  <Step title="Run the database update">
+    Open `https://YOUR_DOMAIN/app/admin/update/now` while signed in as an admin. This runs the migrations again and clears the caches, and unlike the automatic run it shows any error. The message **Database updated successfully** and a redirect to the dashboard mean the database is current.
+  </Step>
+  <Step title="Check the result">
+    Reload the **Update** page: it should say you are fully up to date. Then open **Publishing → Settings**: the **Database** line of **System health** should read that every database update is applied.
+  </Step>
+</Steps>
+
+<Note>
+When no update is available, the page says your application is fully up to date and shows the version you are running.
+</Note>
+
+## If the update fails
+
+The page shows **Software was not updated correctly. Please try again or contact support**, or an error that begins with **There was an error during software update.** The cause is written to the application log, `storage/logs/laravel.log` by default. Look there for these messages:
+
+<AccordionGroup>
+  <Accordion title="Your update period has ended or your license is invalid">
+    The license server refused the download. Open **Platform → Activation** and check that the license is activated. See [License activation](/license/activation).
+  </Accordion>
+  <Accordion title="Server returned an invalid response">
+    The license server could not be reached or did not answer correctly. Check that your host allows outbound HTTPS requests, then try again. The log entry **download_update server response body** holds what the server sent back.
+  </Accordion>
+  <Accordion title="Update zip extraction failed">
+    The download was incomplete or corrupt. Try again. The `zip` PHP extension must be installed.
+  </Accordion>
+  <Accordion title="An error about a file or folder">
+    The package is saved in the application folder as `update_` followed by the version number, then extracted over the application. PHP must be able to write to the whole application folder. Fix the ownership or permissions and try again.
+  </Accordion>
+  <Accordion title="Failed to update the database">
+    This appears when you open the `update/now` address. The message after the colon is the database error. Fix the cause, then open the address again. Running it again is safe.
+  </Accordion>
+</AccordionGroup>
+
+## Update by hand
+
+Use this route only if the **Update** page cannot download the package.
+
+<Steps>
+  <Step title="Back up">
+    Back up the files and the database as above.
+  </Step>
+  <Step title="Upload the new files">
+    Download the latest package from the place you bought MagicPost and upload its files over the existing ones. Do not overwrite `.env`, the `.lic` file, the contents of `storage`, or the `public/uploads` and `public/media` folders. If you edited translations in the Language Manager, keep your `lang` folder too.
+  </Step>
+  <Step title="Set the version">
+    Set `APP_VERSION` in `.env` to the new version number. The plugin marketplace uses it to decide which plugins are compatible.
+  </Step>
+  <Step title="Update the database">
+    Open `https://YOUR_DOMAIN/app/admin/update/now` while signed in as an admin.
+  </Step>
+</Steps>
+
+<Warning>
+Both routes replace files that ship with MagicPost. Changes you made to those files are lost, so keep customisations in a separate copy and reapply them after you update.
+</Warning>
+
+See [Changelog](/updates/changelog) for what each version contains.

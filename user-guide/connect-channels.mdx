@@ -1,0 +1,172 @@
+---
+title: 'Connect channels'
+description: 'Link your social accounts, choose which ones to publish to, check their health, reconnect expired ones and stay within your plan limit.'
+---
+
+A channel is one account or destination that MagicPost publishes to, such as an X profile, a LinkedIn page, a Facebook Page, a WhatsApp group or a Telegram channel. You connect channels once on the **Channels** page, then pick them in the composer for every post.
+
+Open **Publishing → Channels** in the sidebar.
+
+<Note>
+The networks you can connect depend on your administrator. Each network needs its developer app credentials entered under **Publishing → Platforms** in the admin panel first. If you see **No networks are available yet**, the apps are not registered. See [Publishing channels](/channels/overview).
+</Note>
+
+## Networks you can connect
+
+MagicPost can publish to X (Twitter), LinkedIn, Facebook Pages, Instagram, TikTok, YouTube, Pinterest, Threads, WhatsApp and Telegram. Each network has its own account requirements and limits. Read its page before you connect:
+
+<CardGroup cols={3}>
+  <Card title="X" href="/channels/x" />
+  <Card title="LinkedIn" href="/channels/linkedin" />
+  <Card title="Facebook" href="/channels/meta/facebook" />
+  <Card title="Instagram" href="/channels/meta/instagram" />
+  <Card title="Threads" href="/channels/meta/threads" />
+  <Card title="TikTok" href="/channels/tiktok" />
+  <Card title="YouTube" href="/channels/youtube" />
+  <Card title="Pinterest" href="/channels/pinterest" />
+  <Card title="WhatsApp" href="/channels/whatsapp/overview" />
+  <Card title="Telegram" href="/channels/telegram/overview" />
+</CardGroup>
+
+## Connect a channel
+
+<Steps>
+  <Step title="Open the Add a channel card">
+    On the Channels page, select **Add a channel** at the top right, or scroll to the **Add a channel** card. It lists every network that is available to you.
+  </Step>
+  <Step title="Choose a network">
+    Select the network. You are sent to that network's site to authorise MagicPost, then returned to the Channels page.
+  </Step>
+  <Step title="Approve access">
+    Sign in on the network if asked and approve the permissions MagicPost requests. Declining returns you to Channels with **The connection was cancelled.**
+  </Step>
+  <Step title="Pick accounts if asked">
+    When one authorisation gives access to several accounts, such as the Pages you manage, a **Choose accounts to connect** window opens. Tick the accounts you want and select **Connect**. Each account you pick counts as one channel.
+  </Step>
+  <Step title="Confirm">
+    A message such as **Name is connected.** or **N channels connected** confirms the result. The channel appears in the list with the **Active** tag.
+  </Step>
+</Steps>
+
+<Tip>
+Connect from a browser where you are signed in to the right account on the network. The account that authorises the connection is the one MagicPost links.
+</Tip>
+
+### WhatsApp
+
+WhatsApp does not send you to the network's site. Selecting it opens a MagicPost page where you link a number. A window then lists the number's groups, and its WhatsApp Channels and Status where the provider supports them, so you can pick where to post. Nothing is ticked for you, because a number can sit in hundreds of groups and each one you pick counts as a channel. The steps depend on the provider your administrator chose: [WAHA](/channels/whatsapp/waha), [Whapi.Cloud](/channels/whatsapp/whapi) or the [Official Cloud API](/channels/whatsapp/official-cloud-api). See also [WhatsApp channels](/channels/whatsapp/overview).
+
+### Telegram
+
+Telegram does not send you to the network's site either. Selecting it opens the **Connect Telegram** page, where you:
+
+1. Link your Telegram account by pressing **Start** in a chat with the bot. Where your administrator allows it, you can paste the token of a bot of your own first.
+2. Add the bot to a Telegram channel or group you run, as an admin.
+
+Each chat you add becomes one channel, and it is connected when Telegram confirms that a linked account of yours is an admin of the chat. The steps are on [Set up Telegram](/channels/telegram/setup#part-2-connect-a-channel-or-group), and post limits are on [Telegram channels](/channels/telegram/overview).
+
+## What you see for each channel
+
+Each channel card shows the avatar, name, network and handle, the channel type, and its groups. A status tag shows its state:
+
+| Tag | Meaning |
+|---|---|
+| **Active** | Connected and ready to publish. |
+| **Paused** | You paused it. Posts due for it wait until you resume it. |
+| **Expired** | The network stopped accepting the saved authorisation. Reconnect it. |
+| **Disconnected** | The connection was removed on the network side. Reconnect it. |
+| **Cooling down** | The network asked MagicPost to slow down. Posting resumes by itself after the wait shown on hover. |
+| **Not in your plan** | Your plan no longer includes this network. |
+
+The summary tiles at the top of the page show **Connected** (for example `3 / 5`, with **slots left**), **Networks**, **Ready to publish** and **Published · 14 days**.
+
+Use the network tabs, the **Search channels** box and **Filters** (by **Status** and **Group**) to narrow the list. The **Grid** and **List** buttons change the layout. You can also open a pre-filtered view with a link such as `/app/user/channels?status=reconnect`.
+
+## Reconnect a channel
+
+A channel needs reconnecting when it shows **Expired** or **Disconnected**. A banner at the top of the page lists these channels and warns that scheduled posts for them are skipped until the connection is restored.
+
+<Steps>
+  <Step title="Start the reconnect">
+    Select the **Expired** or **Disconnected** tag, or open the actions menu on the card and choose **Reconnect**.
+  </Step>
+  <Step title="Authorise again">
+    Approve access on the network, using the account you originally linked.
+  </Step>
+</Steps>
+
+If you authorise a different account, MagicPost refuses with **That is a different account. Reconnect using the account you originally linked.** Reconnecting an existing channel never uses a new place in your plan, so you can always recover when you are at your limit.
+
+For a WhatsApp number or a Telegram chat there is no network sign-in. **Reconnect** opens the MagicPost page for that network instead. For Telegram, add the bot back to the chat as an admin, then click **Check again**.
+
+Many networks renew their authorisation automatically. For the ones that do not, the connection check shows the date until which the connection is valid.
+
+## Check a connection
+
+Open the actions menu on a card and choose **Check connection**, or select **Check** or **Check again** on the card. The **Connection check** window lists what MagicPost tested:
+
+- **Authorisation** shows whether the connection renews by itself, does not expire, or expires on a date. You get a warning when it ends within seven days.
+- **Live check** asks the network whether it still accepts the connection. Some networks cannot be asked without posting, and the window says so.
+- **Paused** and **Rate limit** appear when you paused the channel or the network asked MagicPost to wait.
+
+The overall result is **All good**, **Works, with notes** or **Needs attention**. A check can also mark a channel as needing a reconnect, or put an expired channel back into service when the network accepts it again.
+
+Networks that support it offer **Send a private test**, which publishes a private test post so you can prove the whole path works. The window describes what the test does on that network before you run it.
+
+MagicPost also checks channels in the background, so most problems show up before a scheduled post fails. See [Channel connection problems](/troubleshooting/channel-connections).
+
+## Pause and resume
+
+Open the actions menu and choose **Pause**. While a channel is paused, nothing goes out to it. Choose **Resume** to bring it back. Posts that were waiting go out shortly afterwards. A channel that needs reconnecting cannot be resumed until you reconnect it.
+
+A post scheduled for a paused channel waits for up to the hold time set by your administrator, then is not sent. The post page shows **Held until** and a **Resume channel** button. See [Posts and statuses](/user-guide/posts-and-statuses).
+
+## Disconnect a channel
+
+<Warning>
+Disconnecting removes the saved authorisation and skips every post still waiting to go out to that channel.
+</Warning>
+
+1. Open the actions menu on the channel and choose **Disconnect**.
+2. Confirm **Disconnect this channel?** with **Disconnect**.
+
+Posts the channel already published, and their analytics, stay in MagicPost. If you connect the same account again, it returns as the same channel with its history. A reconnected account counts against your channel limit again, because a disconnected channel stops taking a place.
+
+For a WhatsApp number, **Disconnect this number** removes every group, WhatsApp Channel and Status linked to it at once. Disconnecting a Telegram channel does not remove the bot from the chat, so remove it in Telegram if you no longer want it there.
+
+## Channel limit and plan
+
+Your plan sets how many channels you can connect. The **Connected** tile shows the count and the places left. Reaching the limit has these effects:
+
+- The **Add a channel** button at the top is hidden, and the networks in the **Add a channel** card are greyed out under a limit note.
+- Starting a connection anyway returns **You have connected the maximum of N channels. Upgrade your plan to add more.**
+- If your plan includes no channels at all, you see **Connecting channels is not included in your plan. Upgrade your plan to add channels.**
+- When you pick several accounts at once and the limit is reached partway, the rest are skipped and a warning says how many.
+
+A plan can also limit which networks you may use. Networks outside it show **Not in your plan** with an **Upgrade** link when billing is enabled. If you try to publish to such a channel, the save is refused with **Your plan does not include X. Remove those channels to save this post.** Plans are covered in [Billing and subscription](/account/billing).
+
+<Note>
+When billing is not turned on for the site, channels are not limited by a plan.
+</Note>
+
+## Channel groups
+
+Groups let you pick a set of channels in one click, for example all channels for one client.
+
+1. Select **Groups** at the top of the Channels page.
+2. Under **New group**, type a name such as `Client accounts`.
+3. Tick the channels under **Channels in this group**.
+4. Select **Save group**.
+
+Group names must be unique for your account. To change a group, select the pencil icon next to it, rename it or change its channels, and save again. The trash icon deletes the group but not its channels. In the composer, your groups appear under **Sets** in the channel picker. See [Composer](/user-guide/composer).
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Composer" icon="pencil" href="/user-guide/composer">
+    Pick your channels and write a post.
+  </Card>
+  <Card title="Posting queue" icon="calendar" href="/user-guide/scheduling">
+    Set posting times per channel.
+  </Card>
+</CardGroup>

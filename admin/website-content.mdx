@@ -1,0 +1,158 @@
+---
+title: "Website content"
+description: "Manage the public landing site: page toggles and social links, SEO tags, logos, legal pages, FAQs, testimonials and Google AdSense."
+---
+
+Everything that visitors see before they sign in is managed under **Platform**, **Frontend Settings** in the admin sidebar. The group is collapsed by default, so click **Frontend Settings** to open it. Blog posts have their own page, see [Blog](/admin/blog).
+
+| Page | Controls |
+|---|---|
+| **Frontend Settings** | Whether the landing page is public, a redirect to your own site, social links. |
+| **SEO Manager** | Meta tags for the landing, login and registration pages. |
+| **Logos** | Public site, dashboard and favicon images. |
+| **Pages** | Privacy Policy and Terms of Service. |
+| **FAQs Manager** | The FAQ section of the landing page. |
+| **Testimonials** | The testimonials section of the landing page. |
+| **Google Adsense** | Ad placements on the landing page and blog. |
+
+Each page has its own **Save** button, except FAQs and Testimonials, which save from a window.
+
+## Frontend Settings
+
+The first item in the group is also called **Frontend Settings**. It is titled "Setup your frontend settings".
+
+### Frontend Page
+
+Switch **Frontend Page** controls the main landing page. It is on by default. When you turn it off, the landing page is not available to anyone: visitors who are not signed in are sent to the login screen and signed-in users go to their dashboard. Use it when MagicPost is a private tool and you do not want a marketing page.
+
+### Custom Landing Page URL
+
+Use this to send visitors to a marketing site that lives elsewhere.
+
+1. Turn on the **Enable** switch under **Custom Landing Page URL**.
+2. Enter the **Landing Page URL** as a full URL. The page notes that `https://` is required. The field is required while the switch is on.
+3. Click **Save**.
+
+Public pages then redirect to that address. A request is not redirected when the target is on the same host as your site, so it cannot loop.
+
+<Warning>
+  The redirect covers the whole public route group: the landing page, contact, Privacy Policy, Terms of Service, the blog and the social sign-in routes (`/auth/PROVIDER/redirect` and `/auth/PROVIDER/callback`). If you use social login from [Registration and login](/admin/registration-and-login), do not point the landing page to another domain unless you are sure those routes still work for you.
+</Warning>
+
+### Social Media Information
+
+Optional links for **Twitter**, **Facebook**, **LinkedIn**, **Instagram**, **YouTube** and **TikTok**. Each must be a valid URL. The ones you fill in appear in the footer of the public site.
+
+## SEO Manager
+
+**SEO Manager** sets the meta tags for three pages: **SEO for Main Landing Page**, **SEO for Login Page** and **SEO for Registration Page**. Each has the same five fields:
+
+| Field | Limit |
+|---|---|
+| Title (for example **Home Page Title**) | Up to 255 characters |
+| Description | Free text |
+| Keywords | Free text |
+| Author | Up to 255 characters |
+| Canonical URL | A valid URL, up to 255 characters |
+
+All fields are optional. Blog posts have their own SEO fields, see [Blog](/admin/blog).
+
+## Logos
+
+Open **Logos**. Upload a file in each slot you want to change and click **Save**. A slot you leave empty keeps its current image.
+
+| Slot | Used for | File |
+|---|---|---|
+| **Frontend Logo** | The wordmark on the public site, and the image shared in link previews. | Image, up to about 5 MB |
+| **Frontend Collapsed Logo** | The compact mark on the public site. | Image, up to about 5 MB |
+| **Favicon** | The browser tab icon. | `.ico` file, up to 1 MB |
+| **Dashboard Light Logo** | The logo at the top of the sidebar on the light theme. | Image, up to about 5 MB |
+| **Dashboard Dark Logo** | The logo at the top of the sidebar on the dark theme. | Image, up to about 5 MB |
+| **Dashboard Collapsed Light Logo**, **Dashboard Collapsed Dark Logo** | Compact dashboard variants, stored the same way. | Image, up to about 5 MB |
+
+Files are saved in `public/uploads/logo/`, named after the slot. If you upload no dashboard logo, the sidebar shows the initials of your site name instead. If you upload no favicon, the bundled `favicon.ico` is used.
+
+<Tip>
+  A PNG with a transparent background suits the dashboard logos. Upload a light version of the logo as the Dashboard Dark Logo so it stays readable on the dark sidebar.
+</Tip>
+
+## Pages
+
+**Pages** holds the content of your **Privacy Policy** and **Terms of Service**, which are published at `/privacy` and `/terms`.
+
+<Steps>
+  <Step title="Choose the page">
+    Click the **Privacy Policy** or **Terms of Service** tab.
+  </Step>
+  <Step title="Write the content">
+    Enter text in the **Content** box. HTML is supported, for example `h2`, `p`, `ul`, `li` and `a` tags. Headings, paragraphs and lists are styled automatically. A **Live preview** shows the result, and **View page** opens the public page.
+  </Step>
+  <Step title="Save">
+    Click **Save Privacy Policy** or **Save Terms of Service**. Only the tab you are on is saved.
+  </Step>
+</Steps>
+
+Leave a page empty to show the built-in default text. MagicPost records the date a page last changed and shows it on the public page.
+
+<Note>
+  Review the built-in text before you rely on it, and replace it with a policy that matches how you run your service.
+</Note>
+
+## FAQs Manager
+
+**FAQs Manager** manages the questions shown in the FAQ section of the landing page.
+
+- **Add FAQ** opens a window with **Question** (required, up to 255 characters), **Answer** (required) and **Status**.
+- Only **Active** FAQs are shown on the landing page. **Inactive** ones are kept as drafts.
+- Use **Search questions...** to filter. The list shows 10 per page, newest first.
+- Each row has actions to edit and to delete the FAQ. Deleting asks for confirmation and is permanent.
+
+## Testimonials
+
+**Testimonials** manages the customer quotes on the landing page. **Add Testimonial** opens a window with:
+
+| Field | Rule |
+|---|---|
+| **Testimonial** | Required, up to 1000 characters. |
+| Stars | The rating, 1 to 5. The default is 5. |
+| **Name** | Required, up to 255 characters. |
+| **Role**, **Company** | Optional, up to 255 characters each. |
+| **Avatar** | Optional. JPG or PNG, up to 2 MB. Without one, the initials of the name are used. **Remove avatar** deletes it. |
+| **Featured** | Featured testimonials render as a full-black card to stand out. |
+| **Status** | **Active** testimonials are shown, **Inactive** ones are hidden. |
+
+Use the search box to find a testimonial by name, company or text. Avatars are saved in `public/uploads/testimonials/`.
+
+## Google Adsense
+
+**Google Adsense** shows ads on your public pages.
+
+<Steps>
+  <Step title="Get your publisher ID">
+    In your AdSense account open **Account**, **Settings** and copy the publisher ID. It looks like `ca-pub-` followed by 16 digits.
+  </Step>
+  <Step title="Enable AdSense">
+    Under **Account** turn on **Enable Google AdSense** and paste the **Publisher ID**. MagicPost refuses to save with AdSense enabled and no publisher ID.
+  </Step>
+  <Step title="Choose how ads are placed">
+    **Auto Ads** lets Google place ads across your pages. You can still use the manual placements.
+  </Step>
+  <Step title="Add ad unit slots">
+    Create an ad unit in your AdSense dashboard under **Ads**, **By ad unit**, copy its `data-ad-slot` value and paste it into the matching placement. Slot IDs are up to 30 characters. A placement with no slot ID does not render.
+  </Step>
+  <Step title="Save">
+    Click **Save**.
+  </Step>
+</Steps>
+
+The five placements are:
+
+| Placement | Position |
+|---|---|
+| Home, Top | Below the hero on the landing page. |
+| Home, Bottom | Above the footer on the landing page. |
+| Blog, Top of listing | Top of the blog listing. |
+| Blog post, In-article | Inside a blog post. |
+| Blog post, Below content | Below a blog post. |
+
+When **Enable Google AdSense** is off, no ad code is loaded on the public site.

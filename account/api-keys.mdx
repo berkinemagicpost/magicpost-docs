@@ -1,0 +1,115 @@
+---
+title: 'API keys'
+description: 'Create, use and revoke the keys that let your own scripts and tools read your posts and channels and line up new posts.'
+---
+
+An API key lets a script or a tool such as Zapier talk to your MagicPost account without signing in. A key can read your account, channels, posts and analytics, and, if you allow it, create and remove posts. The calls are listed in the [REST API reference](/account/rest-api).
+
+## Before you start
+
+API access is a plan feature called **API and webhooks**. If your plan does not include it, the API keys page shows a locked panel. The page says that your keys are kept and can be revoked, but requests made with them are turned away until your plan includes API and webhooks again.
+
+When the site runs without SaaS billing, API access is not restricted by plan. See [SaaS overview](/saas/overview).
+
+## Create a key
+
+<Steps>
+  <Step title="Open API keys">
+    Click your name at the bottom of the sidebar, then click **API keys** (`/app/settings/api`).
+  </Step>
+  <Step title="Name the key">
+    Under **Make a key**, enter a **Name** so you remember what the key is for, for example the tool that will use it. The name can be up to 80 characters.
+  </Step>
+  <Step title="Choose how long it lasts">
+    Pick a value in **Lasts**: **30 days**, **90 days**, **365 days** or **Until revoked**. The default is 90 days.
+  </Step>
+  <Step title="Decide whether it can write">
+    Tick **Can also create and remove posts** if the key needs to create or delete posts. Without it, the key can only read.
+  </Step>
+  <Step title="Make the key">
+    Click **Make the key**.
+  </Step>
+  <Step title="Copy it now">
+    MagicPost shows **Your new key** once. Click **Copy**, store it somewhere safe, then click **Done**.
+  </Step>
+</Steps>
+
+<Warning>
+The key is shown once. MagicPost keeps only a hash of it, so nobody, including your administrator, can show it to you again. If you lose it, revoke it and make another.
+</Warning>
+
+A key starts with `mp_` followed by 40 random characters.
+
+You can have up to 10 keys. When you reach that number, the form is disabled until you revoke one.
+
+## What a key can do
+
+| Ability | Shown as | Allows |
+|---|---|---|
+| Read | **Read only** | Every `GET` request: account, channels, analytics and posts |
+| Write | **Read and write** | Everything above, plus creating and deleting posts |
+
+Posts created through a key are checked like posts made in the composer. They count towards your plan's limits, such as posts per month and posts scheduled ahead, and they follow your team's approval rules. See [Composer](/user-guide/composer).
+
+## Your keys
+
+The **Your keys** list shows, for each key:
+
+- the name and a **Read only** or **Read and write** tag,
+- an **Expired** tag when the expiry date has passed,
+- the last four characters, as `mp_…` followed by those characters, so you can tell keys apart,
+- when it was last used, or **never used**,
+- when it expires, or **does not expire**.
+
+An expired key stops working. Make a new one to replace it.
+
+## Revoke a key
+
+<Steps>
+  <Step title="Find the key">
+    Open **API keys** and locate the key in **Your keys**.
+  </Step>
+  <Step title="Revoke it">
+    Click **Revoke**, then confirm **Revoke this key?**.
+  </Step>
+</Steps>
+
+Anything that uses the key stops working straight away. You cannot undo a revocation.
+
+## Use a key
+
+Send the key as a bearer token in the `Authorization` header. A key can make up to 60 requests a minute.
+
+```bash
+curl https://your-site.example/api/v1/channels \
+  -H "Authorization: Bearer mp_your_key" \
+  -H "Accept: application/json"
+```
+
+Replace `your-site.example` with the address of your MagicPost site. The API keys page prints examples with your real address.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Make the key is disabled">
+    Either your plan does not include API and webhooks, or you already have 10 keys. The page shows which one applies. Revoke a key you no longer use, or ask your administrator about your plan.
+  </Accordion>
+  <Accordion title="401: A valid API key is needed. Send it as a bearer token.">
+    The key is missing, mistyped, revoked or expired. Check the header, and check the key's tag in **Your keys**.
+  </Accordion>
+  <Accordion title="403: This API key can only read. Make a key that can also write.">
+    You called `POST` or `DELETE` with a read-only key. Make a key with **Can also create and remove posts** ticked.
+  </Accordion>
+  <Accordion title="403: API and webhooks is not part of your plan.">
+    Your plan does not include the feature. Upgrade your plan, or ask your administrator. See [Billing and subscription](/account/billing).
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="REST API reference" icon="code" href="/account/rest-api">
+    Every endpoint, with request and response examples.
+  </Card>
+  <Card title="Webhooks" icon="signal" href="/account/webhooks">
+    Get events pushed to your own address.
+  </Card>
+</CardGroup>

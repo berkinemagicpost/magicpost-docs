@@ -1,0 +1,157 @@
+---
+title: 'Stripe'
+description: 'Connect Stripe to MagicPost to take card payments for one-time and recurring plans through Stripe Checkout.'
+---
+
+Stripe supports every MagicPost plan type: Prepaid and Lifetime as one-time payments, Monthly and Yearly as recurring subscriptions. Customers pay on a page hosted by Stripe.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Stripe** |
+| Name at checkout | Stripe |
+| Test mode | **Mode → Sandbox**, with your Stripe test keys |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/stripe` |
+| Webhook events | `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/stripe`, set by MagicPost on each payment |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, set by MagicPost on each payment |
+| Currency | The currency of the plan |
+
+## Get your keys from Stripe
+
+<Steps>
+  <Step title="Sign in">
+    Open the [Stripe Dashboard](https://dashboard.stripe.com/) and sign in to your account.
+  </Step>
+  <Step title="Pick the environment">
+    Stripe issues different keys for live and test use. Live keys start with `pk_live_` and `sk_live_`. Test keys start with `pk_test_` and `sk_test_`. Make sure you are looking at the one you want to copy.
+  </Step>
+  <Step title="Copy the keys">
+    Open **Developers**, then **API keys**. Copy the **Publishable key** and the **Secret key**.
+  </Step>
+</Steps>
+
+<Warning>
+Keep the Secret key private. Never post it publicly or send it to anyone.
+</Warning>
+
+## Create the webhook in Stripe
+
+<Steps>
+  <Step title="Add a destination">
+    In the Stripe Dashboard, open **Developers**, then **Webhooks**, and click **Add destination**. Older dashboards call this **Add endpoint**.
+  </Step>
+  <Step title="Choose the events">
+    Select these three events:
+
+    - `checkout.session.completed`
+    - `invoice.payment_succeeded`
+    - `customer.subscription.deleted`
+  </Step>
+  <Step title="Set the endpoint">
+    Choose **Webhook endpoint** as the destination type. For the endpoint URL, enter:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/stripe
+    ```
+  </Step>
+  <Step title="Copy the signing secret">
+    Create the destination, then copy its **Signing secret**. It starts with `whsec_`.
+  </Step>
+</Steps>
+
+<Warning>
+Create the destination with an API version earlier than `2025-03-31.basil`. The earlier guide for this gateway used `2024-06-20`. From `2025-03-31.basil`, Stripe [removes the top-level `subscription` field from invoices](https://docs.stripe.com/changelog/basil/2025-03-31/adds-new-parent-field-to-invoicing-objects). MagicPost reads that field in `invoice.payment_succeeded` to find the subscription to renew.
+</Warning>
+
+Stripe keeps test and live webhooks apart. If you use both modes, create one destination in each and expect two different signing secrets.
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Stripe card">
+    Go to **Admin → Finance → Payment Gateways** and click **Stripe**. The page is titled **Stripe Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**.
+  </Step>
+  <Step title="Choose the Mode">
+    Under **Mode**, select **Live** or **Sandbox**. Only the keys for the selected mode are used.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Stripe Publishable Key**
+    - **Live Stripe Secret Key**
+    - **Sandbox Stripe Publishable Key**
+    - **Sandbox Stripe Secret Key**
+  </Step>
+  <Step title="Paste the signing secret">
+    Under **Webhooks**, check that **Webhook URL** matches the endpoint you gave Stripe. Paste the signing secret into **Webhook Signing Secret**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Stripe settings saved successfully."
+  </Step>
+</Steps>
+
+<Note>
+There is one **Webhook Signing Secret** field for both modes. When you switch **Mode**, replace it with the secret of the matching Stripe destination.
+</Note>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost opens Stripe Checkout in payment mode. The line item is built from the plan's name, description, price and currency.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates a Stripe Product and a recurring Price (every month or every year) and opens Stripe Checkout in subscription mode. You do not create products or copy Price IDs. If the plan has **Free trial days**, Stripe delays the first charge by that many days.
+
+**After payment.** Stripe sends the customer back to the return URL with the checkout session. MagicPost fetches the session, records the order, creates the subscription for Monthly, Yearly and Lifetime plans, and opens the success page. The `checkout.session.completed` webhook does the same if the customer closes the browser first. Both paths check whether the order already exists before recording it.
+
+**Renewals and cancellation.**
+
+- `invoice.payment_succeeded` extends the subscriber's period and renews the credit allowance.
+- `customer.subscription.deleted` marks the subscription as cancelled.
+- When a subscriber is cancelled in MagicPost, MagicPost cancels the Stripe subscription immediately.
+
+**Price changes.** If you change a plan's name, price, currency or type, MagicPost creates a new Stripe Price the next time the plan is bought and archives the old one. Existing Stripe subscriptions keep running as they are.
+
+## Currency
+
+MagicPost sends the plan's currency in lowercase. Amounts are sent in the smallest unit (price multiplied by 100), except for these currencies, which are sent as whole amounts: BIF, CLP, DJF, GNF, JPY, KMF, KRW, MGA, PYG, RWF, UGX, VND, VUV, XAF, XOF and XPF. Your Stripe account must be able to charge the plan's currency.
+
+## Test mode
+
+<Steps>
+  <Step title="Use test keys">
+    Enter your test keys in the two **Sandbox** fields.
+  </Step>
+  <Step title="Create a test-mode webhook">
+    Create the destination while Stripe is in test mode and put its signing secret in **Webhook Signing Secret**.
+  </Step>
+  <Step title="Switch Mode">
+    Select **Sandbox**, click **Save**, and buy a plan with one of Stripe's test cards.
+  </Step>
+  <Step title="Go back to Live">
+    Select **Live**, enter the live webhook's signing secret and save again.
+  </Step>
+</Steps>
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off, or the gateway has no saved settings. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    Stripe rejected the request or no Secret Key is saved for the selected Mode. Check the key pair, then read the latest entries in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Stripe billing. Please contact support.">
+    MagicPost could not create the Product or Price for a Monthly or Yearly plan. The log line starts with "Stripe plan sync failed" and includes Stripe's reason, often a wrong key or a currency your account cannot use.
+  </Accordion>
+  <Accordion title="Stripe shows webhook deliveries as failed with status 400">
+    The response body is either `webhook secret missing` or `invalid signature`. Fill in **Webhook Signing Secret**, and make sure it belongs to the destination for the active Mode.
+  </Accordion>
+  <Accordion title="Payment was not completed.">
+    Stripe reported that the checkout session was neither paid nor complete when the customer came back. Ask the customer to try again.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

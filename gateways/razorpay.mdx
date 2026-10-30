@@ -1,0 +1,135 @@
+---
+title: 'Razorpay'
+description: 'Connect Razorpay to MagicPost to take payments for one-time and recurring plans in the Razorpay checkout window.'
+---
+
+Razorpay supports every MagicPost plan type. Razorpay does not redirect to a hosted page. MagicPost opens a short intermediate page that loads the Razorpay checkout window on top of it.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Razorpay** |
+| Name at checkout | Razorpay |
+| Test mode | **Mode → Sandbox**, with your Razorpay test keys |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/razorpay` |
+| Webhook events | `subscription.charged`, `subscription.cancelled`, `subscription.completed`, `subscription.halted` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/razorpay`, called by the checkout window after a successful payment |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, opened when the customer closes the window or the payment fails |
+| Currency | The currency of the plan |
+
+## Get your keys from Razorpay
+
+<Steps>
+  <Step title="Sign in">
+    Open the Razorpay Dashboard and sign in.
+  </Step>
+  <Step title="Pick test or live">
+    Razorpay keeps test mode and live mode apart, each with its own keys. Key IDs begin with `rzp_test_` or `rzp_live_`.
+  </Step>
+  <Step title="Generate a key">
+    In **Account & Settings**, open **API Keys** and generate a key. Copy the **Key ID** and the **Key Secret**. Razorpay shows the secret once, so store it before you close the dialog.
+  </Step>
+</Steps>
+
+## Create the webhook in Razorpay
+
+<Steps>
+  <Step title="Add a webhook">
+    In **Account & Settings**, open **Webhooks** and add a new webhook.
+  </Step>
+  <Step title="Enter the URL">
+    Use the URL from the MagicPost Razorpay page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/razorpay
+    ```
+  </Step>
+  <Step title="Choose a secret">
+    Enter a secret of your own choosing. Razorpay signs every event with it.
+  </Step>
+  <Step title="Select the events">
+    Turn on:
+
+    - `subscription.charged`
+    - `subscription.cancelled`
+    - `subscription.completed`
+    - `subscription.halted`
+  </Step>
+</Steps>
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Razorpay card">
+    Go to **Admin → Finance → Payment Gateways** and click **Razorpay**. The page is titled **Razorpay Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Razorpay Key ID**
+    - **Live Razorpay Key Secret**
+    - **Sandbox Razorpay Key ID**
+    - **Sandbox Razorpay Key Secret**
+  </Step>
+  <Step title="Paste the webhook secret">
+    Under **Webhooks**, compare **Webhook URL** with the one in Razorpay and type the same secret into **Webhook Secret**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Razorpay settings saved successfully."
+  </Step>
+</Steps>
+
+<Warning>
+When **Webhook Secret** is empty, MagicPost accepts webhook requests without checking their signature. Fill it in on a live site. There is one secret for both modes, so replace it if you use a different webhook secret in test mode.
+</Warning>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost creates a Razorpay order for the plan price and opens the Razorpay window. If the window does not appear, the page shows an **Open Razorpay** button. After a successful payment the window sends the payment ID and signature back to MagicPost, which verifies the signature with your Key Secret, records the order and, for Lifetime plans, creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates a Razorpay plan with a one-month or one-year period. It then creates a Razorpay subscription for the customer, set to run for 120 billing cycles on a Monthly plan and 10 on a Yearly plan, and opens the same window. The customer is notified by Razorpay.
+
+**Renewals and cancellation.**
+
+- `subscription.charged` extends the subscriber's period and renews the credit allowance.
+- `subscription.cancelled`, `subscription.completed` and `subscription.halted` mark the subscription as cancelled.
+- Cancelling a subscriber in MagicPost does not cancel it at Razorpay. Also cancel it in your Razorpay Dashboard.
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost creates a new Razorpay plan at the next purchase.
+
+If the customer closes the window or the payment fails, they are sent to the Billing page. A failed payment first shows an alert that begins "Payment failed:".
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price multiplied by 100, for every currency. Your Razorpay account must be able to charge the plan's currency.
+
+## Test mode
+
+Fill in the **Sandbox** key fields, select **Sandbox** under **Mode** and save. Use Razorpay's test payment details with your dashboard in test mode. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Razorpay. Turn it on and save.
+  </Accordion>
+  <Accordion title="Razorpay could not start the payment. Please try again. / Razorpay could not start the subscription. Please try again.">
+    The request to Razorpay failed, usually because the Key ID or Key Secret for the active Mode is wrong. Razorpay's reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Razorpay returned an unexpected response.">
+    Razorpay replied but did not create the order or subscription.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Razorpay billing. Please contact support.">
+    The Razorpay plan could not be created. The log line begins with "Razorpay plan create failed".
+  </Accordion>
+  <Accordion title="Razorpay signature verification failed.">
+    The payment signature did not match. The Key Secret saved for the active Mode is not the one used for this payment.
+  </Accordion>
+  <Accordion title="Missing Razorpay session reference.">
+    The checkout window returned to MagicPost in a different browser session from the one that started the payment.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

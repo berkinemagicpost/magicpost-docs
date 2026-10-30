@@ -1,0 +1,177 @@
+---
+title: "Channel credentials"
+description: "Register each social network's developer app in MagicPost, paste its keys, copy the exact callback URL, run the configuration checks and switch the network on for your users."
+---
+
+Before anyone can connect a channel, you register an app with each network and store its keys in MagicPost. Do this under **Publishing**, **Platforms** in the admin sidebar. The page is titled **Publishing Platforms** and shows one card per network. A badge at the top counts how many networks are currently available to users.
+
+<Note>
+  Each network has its own setup page with the developer-console steps, scopes and posting limits. This page covers the MagicPost side. Start with [Publishing channels](/channels/overview).
+</Note>
+
+## What a card shows
+
+| Element | Meaning |
+|---|---|
+| **Live** (green badge) | The network has working credentials, is switched on, and can be connected and published to. |
+| **Not configured** | No client ID and secret are stored yet. |
+| **Disabled** | Credentials are stored, but the switch is off. |
+| **Driver pending** | This build has no connect driver or no publisher for the network. |
+| **Sandbox** | The sandbox option is on for this network. |
+| Account type badges | What a user can connect on that network, for example Profile, Page or Group. |
+| Line under the name | The post types the network supports. |
+| **Last checked** | When **Run checks** last passed completely. |
+| Switch | Makes the network available to users, or hides it. It stays disabled until credentials are stored. |
+
+## Add credentials
+
+<Steps>
+  <Step title="Open the setup panel">
+    Click **Add credentials** on the network's card. For a network that already has keys the button reads **Edit credentials**. A panel titled **Set up** followed by the network name opens on the right.
+  </Step>
+  <Step title="Choose the kind of app (LinkedIn and WhatsApp only)">
+    Where the network offers more than one setup, **Kind of app** appears first. The console steps, permissions and fields below change to match your choice. Changing it later means everyone reconnects their channels for that network.
+  </Step>
+  <Step title="Register the app in the network's console">
+    Open the section titled **In the** followed by the console's name, for example **In the X Developer Portal**, and follow its numbered steps. The **Open the** button below the steps takes you to that console. The section starts expanded until keys are stored.
+  </Step>
+  <Step title="Copy the values MagicPost gives you">
+    Under **What to register**, copy the **Redirect URI** (the callback URL) with **Copy** and paste it into the app exactly. **Permissions asked for** lists the scopes to request, and **Copy all** copies them in one go.
+  </Step>
+  <Step title="Paste the keys back">
+    Enter the **Client ID** and **Client secret** from the console. The labels follow the console's own wording, see the table below. Stored secrets are encrypted, and the secret field then reads "Leave blank to keep the stored secret".
+  </Step>
+  <Step title="Save and switch on">
+    Tick **Available to users** and click **Save**. You can also leave it unticked and use the switch on the card later.
+  </Step>
+</Steps>
+
+Click **Remove** in the panel to delete the stored keys. It clears the client ID, secret and any extra secrets and switches the network off.
+
+## What to copy from each console
+
+| Network | Developer console | ID field in MagicPost | Secret field in MagicPost |
+|---|---|---|---|
+| X (Twitter) | X Developer Portal | OAuth 2.0 Client ID | Client Secret |
+| LinkedIn | LinkedIn Developers | Client ID | Primary Client Secret |
+| Facebook Page | Meta for Developers | App ID | App Secret |
+| Instagram | Meta for Developers | App ID | App Secret |
+| Threads | Meta for Developers | Threads app ID | Threads app secret |
+| TikTok | TikTok for Developers | Client key | Client secret |
+| YouTube | Google Cloud console | Client ID | Client secret |
+| Pinterest | Pinterest Developers | App ID | App secret key |
+
+<Tip>
+  Facebook and Instagram can use the same Meta app: paste the same App ID and App Secret in both panels. Threads is different. It needs its own **Threads app ID** and **Threads app secret**, which are not the Meta app ID and secret.
+</Tip>
+
+Per-network details: [X](/channels/x), [LinkedIn](/channels/linkedin), [Facebook Pages](/channels/meta/facebook), [Instagram](/channels/meta/instagram), [Threads](/channels/meta/threads), [TikTok](/channels/tiktok), [YouTube](/channels/youtube), [Pinterest](/channels/pinterest), [WhatsApp](/channels/whatsapp/overview) and [Telegram](/channels/telegram/overview).
+
+## Callback URL
+
+Every OAuth network uses one callback URL pattern, built from your **Website URL** in [Global settings](/admin/global-settings) (the `APP_URL` value):
+
+```text
+APP_URL/publishing/PLATFORM/callback
+```
+
+`PLATFORM` is the network key from the table below. The URL has no language prefix, so it matches character for character on every callback.
+
+| Network | Key | Callback URL |
+|---|---|---|
+| X (Twitter) | `twitter` | `APP_URL/publishing/twitter/callback` |
+| LinkedIn | `linkedin` | `APP_URL/publishing/linkedin/callback` |
+| Facebook Page | `facebook` | `APP_URL/publishing/facebook/callback` |
+| Instagram | `instagram` | `APP_URL/publishing/instagram/callback` |
+| Threads | `threads` | `APP_URL/publishing/threads/callback` |
+| TikTok | `tiktok` | `APP_URL/publishing/tiktok/callback` |
+| YouTube | `youtube` | `APP_URL/publishing/youtube/callback` |
+| Pinterest | `pinterest` | `APP_URL/publishing/pinterest/callback` |
+
+Always copy the value from the setup panel instead of typing it, because it reflects your current site address.
+
+<Warning>
+  Networks accept only https callbacks. If your site address starts with `http://`, **Run checks** fails the Redirect URI check. Fix the site address before you go live, and register the new callback in every console after you change it.
+</Warning>
+
+If your site is reached through a different address than the one in `APP_URL`, set **Custom redirect URI** in the panel. It must be a full URL up to 255 characters, and it replaces the default. Leave it empty otherwise.
+
+## Run checks
+
+Click **Run checks** on a card to open **Configuration checks**. For an OAuth network it verifies, without contacting the network:
+
+| Check | Passes when |
+|---|---|
+| **Client ID** | A client ID is stored. |
+| **Client secret** | A secret is stored. |
+| **Redirect URI** | The callback URL starts with `https://`. |
+| **Requested scopes** | The network has scopes configured. |
+| **Connect driver** | This build can connect accounts for the network. |
+| **Publisher** | This build can publish to the network. |
+
+When every check passes, the card shows **Last checked**. The checks cannot detect a wrong secret. The real test is connecting a channel yourself under **Channels**, see [Connect channels](/user-guide/connect-channels).
+
+## Switch a network on or off
+
+Use the switch on the card. MagicPost confirms with "is now available to users" or "is hidden from users".
+
+- You can only switch a network on after the client ID and secret are stored. Otherwise MagicPost asks you to add them first.
+- A network that is off cannot be connected, and posts to channels on it wait. How long they wait before they are skipped is **Wait for a channel for up to** in [Publishing settings](/admin/publishing-settings).
+- The **Networks** health check fails when no network is switched on.
+
+## Field limits
+
+| Field | Rule |
+|---|---|
+| Client ID | Required, up to 255 characters |
+| Client secret | Required the first time, up to 500 characters, leave blank to keep the stored one |
+| Custom redirect URI | Optional, a valid URL, up to 255 characters |
+
+## Pinterest sandbox
+
+New Pinterest apps start on Trial access, which can create pins only in the Pinterest sandbox. Pinterest is the one network with a sandbox option. Tick **Use the Pinterest sandbox** to test on Trial access, then untick it once Pinterest grants Standard access. In sandbox mode pins are visible only to the account that created them.
+
+## WhatsApp setups
+
+WhatsApp is linked through a provider, so its panel asks for different fields. Choose a **Kind of app**:
+
+| Kind of app | Fields |
+|---|---|
+| **WAHA (self-hosted)** | **Server URL**, **API key**, **Webhook signing key**, **Shortest gap**, **Longest gap** |
+| **Whapi.Cloud (hosted)** | **API address**, **Test token**, **Webhook signing key**, **Shortest gap**, **Longest gap** |
+| **Official WhatsApp Cloud API (Meta)** | **App ID**, **App secret**, **Verify token**, **Shortest gap**, **Longest gap** |
+
+- The URL you register replaces the Redirect URI. It is labelled **Webhook URL** for WAHA and Whapi and **Callback URL** for the official setup. It is `APP_URL/webhooks/whatsapp/waha`, `APP_URL/webhooks/whatsapp/whapi` or `APP_URL/webhooks/whatsapp/official`, depending on the setup. **Custom webhook URL** overrides it for a server that reaches your site by another address.
+- With the official setup, the panel pre-fills the App ID from your Facebook or Instagram app when one is saved. Leave **App secret** blank to reuse that app's secret.
+- **Webhook signing key** is 16 to 255 characters. Leave it blank to have MagicPost generate one. Webhooks signed with a key you just replaced are still accepted for 15 minutes.
+- **Verify token** (official setup) is 16 to 100 characters, letters, digits, dots, hyphens and underscores. MagicPost pre-fills a random one.
+- **App ID** (official setup) is 5 to 20 digits.
+- **Shortest gap** is 1 to 300 seconds and **Longest gap** is at least the shortest and at most 600. Each number waits a random time between them before its next message. The defaults are 5 and 15 seconds.
+- WAHA and Whapi are not official WhatsApp APIs. The panel shows a note that numbers used this way can be restricted by WhatsApp.
+- The Whapi **API address** must start with `https://`.
+
+Setup guides: [WhatsApp channels](/channels/whatsapp/overview), [WAHA](/channels/whatsapp/waha), [Whapi.Cloud](/channels/whatsapp/whapi) and [Official Cloud API](/channels/whatsapp/official-cloud-api).
+
+## Telegram setup
+
+Telegram posts through a bot, so its panel asks for different fields. The guide section is titled **In the @BotFather chat**.
+
+| Field | What to enter |
+|---|---|
+| **Bot API server** | `https://api.telegram.org`, or the address of your own Bot API server. A full URL, up to 255 characters. |
+| **Bot token** | The token @BotFather sends after `/newbot`. It looks like `123456789:AA…` and is stored encrypted. Optional while people only use their own bots. |
+| **How people connect** | **Through the site's bot**, **With their own bot**, or both. At least one has to be on. |
+| **How updates arrive** | **Webhook** or **Polling**. |
+
+- The **Webhook URL** under **What to register** is `APP_URL/webhooks/telegram`. You do not paste it anywhere, because MagicPost registers it with Telegram when you save. The panel has no **Custom redirect URI** field for Telegram.
+- Saving checks the token with Telegram first, and a webhook needs an https address on port 443, 80, 88 or 8443. Choose **Polling** for a site on localhost or without https.
+- A bot that already sends its updates to another address is not taken over until you tick **Move this bot's updates here**.
+- The card shows the badges **Channel** and **Group**, and **Message** under the name.
+- **Remove** also removes the bot's webhook at Telegram. While people may use their own bots, the button reads **Remove the site's bot** and keeps their bots running.
+- **Run checks** asks Telegram about the token and the delivery of updates, unlike the checks for OAuth networks.
+
+Setup guide: [Set up Telegram](/channels/telegram/setup). Post limits and analytics are on [Telegram channels](/channels/telegram/overview).
+
+## If something fails
+
+See [Channel connection problems](/troubleshooting/channel-connections) for redirect URI mismatches, expired tokens and missing scopes.

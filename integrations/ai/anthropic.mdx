@@ -1,0 +1,75 @@
+---
+title: 'Anthropic'
+description: 'Add an Anthropic API key so MagicPost can write captions, post versions and alt text with Claude models.'
+---
+
+Anthropic provides **writing models** in MagicPost: captions, versions of one post adapted for several networks, and alt text for pictures. Anthropic has no picture or video models here. Use [OpenAI](/integrations/ai/openai), [Google Gemini](/integrations/ai/gemini), [xAI Grok](/integrations/ai/xai) or [fal.ai](/integrations/ai/fal) for those.
+
+The key is entered on **Writing Models** only. **Media Models** has no Anthropic section.
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have an Anthropic account with API billing or credits set up. Anthropic bills you directly for every request. This is separate from the credits your users spend in MagicPost.
+
+## Get an API key
+
+<Steps>
+  <Step title="Sign in to the Claude Console">
+    Go to [platform.claude.com](https://platform.claude.com/) and sign in or create an account.
+  </Step>
+  <Step title="Add credits or billing">
+    Open the billing settings and add a payment method or credits so requests can go through.
+  </Step>
+  <Step title="Create the key">
+    Go to **Settings → API keys** and click **Create key**. Name it (for example, MagicPost). You can also pick a workspace for the key and set an expiry. If you set an expiry, plan to replace the key before that date.
+
+    <Warning>
+    The console shows the full key only once. Copy it now. If you lose it, create a new key.
+    </Warning>
+  </Step>
+</Steps>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open Writing Models">
+    Go to **Admin → Publishing → Writing Models**.
+  </Step>
+  <Step title="Paste the key">
+    In the **Provider keys** box, paste the key into the **Anthropic Claude** field and click **Save keys**. The toast reads **Keys saved.** and the Anthropic Claude card shows **Key stored**.
+  </Step>
+  <Step title="Switch on the models">
+    Turn on the switch next to each Claude model you want to offer, then click **Test** on one of them. MagicPost sends a one-word request and shows either that the model answered or the error Anthropic returned.
+  </Step>
+</Steps>
+
+## Starting models
+
+The installer loads this list. Identifiers are as shipped and can be corrected later (see [Model identifiers](/integrations/overview#model-identifiers)). Credits are MagicPost credits, not Anthropic prices, and you can change them on the model.
+
+| Model | Identifier | Tier | Starting credits per run |
+|---|---|---|---|
+| Claude Opus 4.8 | `claude-opus-4-8` | Premium | 4 |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | Standard | 2 |
+| Claude Haiku 4.5 | `claude-haiku-4-5` | Fast | 1 |
+
+For every field you can edit on a model, see [AI models](/admin/ai-models).
+
+## How MagicPost calls Anthropic
+
+- Requests go to Anthropic's Messages API with your key in the `x-api-key` header. MagicPost also sends the API version header that Anthropic requires, so you do not configure it.
+- Opus 4.7 and later Opus versions, and every model from generation 5 on, refuse any temperature except their default. MagicPost sends no temperature to them. If another model rejects `temperature` by name, MagicPost sends the request again without it and remembers that for the model.
+- Pictures attached to a caption request are sent along with the question. Claude 3 and later models are treated as able to look at pictures.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| **Keys saved.** but the card still reads **No key** | The Anthropic Claude field was empty when you saved | Paste the key and click **Save keys** again |
+| **Test** says to add the Anthropic Claude API key first | No key is stored | Paste the key on **Writing Models** and save |
+| **Test** fails with an authentication or permission message from Anthropic | The key is wrong, revoked, expired, or its workspace cannot use the model | Create a new key and save it |
+| **Test** fails with a not found or unknown model message | Anthropic no longer has that identifier | Click **Edit** and correct **Model identifier** |
+| The model returned nothing. Try again, or pick a different model. | The reply had no text | Try again or switch to another model |
+| Users see that no writing model is available | No model has both a stored key and its switch on | Store a key and switch at least one model on |
+| Keys stopped working after moving the site | `APP_KEY` changed, so the stored key cannot be decrypted | Paste the key again and click **Save keys** |

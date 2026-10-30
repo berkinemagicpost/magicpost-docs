@@ -1,0 +1,38 @@
+---
+title: "General settings"
+description: "Set the credits new accounts start with, choose where Image and Video Studio results are stored, and reach the settings of installed plugins."
+---
+
+Open **Platform**, **General Settings** in the admin sidebar. The page has two tabs, **General** and **Plugins**. The selected tab is kept in the address as `?tab=plugins`, so you can bookmark it.
+
+## General tab
+
+### Default Registration Credits
+
+The number of credits granted to a user automatically when they register for the first time. Enter a whole number, 0 or more. The default is 0.
+
+- The credits are added when a person signs up with the registration form.
+- Accounts created by social sign-in start with 0 credits.
+- Accounts you create yourself in [Users](/admin/users) start with the number you type into the **Credits** field of the form.
+
+How credits are spent and how plans refill them is covered in [Credits and allowances](/saas/credits).
+
+### Default Storage
+
+Chooses where new **Image Studio** and **Video Studio** results are stored. **Local server (this machine)** keeps files on your server and is always available. Other choices appear in the list only when a storage provider is installed, enabled and configured.
+
+If the provider you picked is later disabled, MagicPost saves the setting as **Local server (this machine)** the next time you click **Save**, so uploads never point at an unusable backend. For file storage in general, see [File storage](/advanced/storage).
+
+### Free tier
+
+When SaaS Business is on, the tab also shows a link, **Open Free tier**. Free tier limits and features are set on the Free tier page, not here. See [Free tier](/saas/free-tier).
+
+### Save
+
+Click **Save**. The confirmation reads "Settings were saved successfully".
+
+## Plugins tab
+
+This tab collects the settings pages of plugins you have installed from [Plugins and themes](/admin/plugins-and-themes). Each plugin that has settings shows as a card with its name and a short description. Click a card to open it. With no plugins installed the tab reads "No plugins installed yet."
+
+When the SaaS plugin is installed, a **SaaS Business** card appears. It opens a page with one switch, **Enable SaaS Business**. Turning it on makes billing, plans, subscriptions and referral features available across the platform, and adds the Finance and Affiliates sections to the admin sidebar. Click **Save** to apply it. Everything that follows from it is covered in [SaaS overview](/saas/overview).

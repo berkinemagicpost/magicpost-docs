@@ -1,0 +1,241 @@
+---
+title: "Subscription plans"
+description: "Create and edit plans under Finance, Pricing Plans: plan types, pricing, AI credits, limits, features, networks and how plans sync with payment gateways."
+---
+
+A plan is what a customer buys. It sets the price, the AI credits, the limits, the features and the networks that customer can use. You manage plans under **Finance** → **Pricing Plans**. This page covers plans of type Monthly, Yearly and Lifetime. Prepaid plans use the same form and are covered in [Prepaid plans](/saas/prepaid-plans).
+
+<Note>
+  Plans exist only while [SaaS Business is switched on](/saas/overview). Decide what users get without a plan on the [Free tier](/saas/free-tier) page.
+</Note>
+
+## The plans list
+
+Open **Finance** → **Pricing Plans**. The page title is **Plans** and shows the total number of pricing plans.
+
+| Column | Meaning |
+|---|---|
+| Plan Name | The name customers see. |
+| Active Subscribers | How many active subscriptions the plan has. |
+| Status | Active, Hidden or Closed. |
+| Price | The price with the currency symbol. |
+| Plan Type | Monthly, Yearly, Lifetime or Prepaid. |
+| Featured | A check mark when the plan is featured. |
+| Created | The creation date. |
+
+You can search, sort, filter by **Status**, and show or hide columns. Each row has **Edit** and **Delete** actions. Use the table's reorder control to drag plans into the order you want. Users see plans on their **Billing** page in that order, then by price. The home page pricing section orders active plans by price.
+
+## Create a plan
+
+<Steps>
+  <Step title="Start a new plan">
+    Click **Create New Plan** above the table.
+  </Step>
+  <Step title="Fill in the form">
+    Work through the sections described below. Required fields are marked with an asterisk.
+  </Step>
+  <Step title="Save">
+    Click **Create plan**. You return to the list with the message **Pricing plan created successfully**.
+  </Step>
+</Steps>
+
+A new plan starts with these values, so check each section before you save.
+
+| Setting | Default |
+|---|---|
+| Status | Active |
+| Featured | Off |
+| Plan type | Monthly |
+| Price | 0.00 |
+| Currency | USD |
+| Free plan | Off |
+| Free trial days | Empty |
+| AI credits | 0 |
+| Connected channels | 5 |
+| Posts per month | 100 |
+| Posts scheduled ahead | 50 |
+| Media storage | 1 GB |
+| Team seats | 0 |
+| AI writing | On |
+| AI media | Off |
+| Analytics | On |
+| Approval workflow | Off |
+| API and webhooks | Off |
+| RSS feeds | On |
+| Bulk CSV import | On |
+| Recurring and evergreen posts | On |
+| Watermark-free | Off |
+| Allowed networks | None ticked, which means every enabled network |
+
+## General
+
+| Field | What it does |
+|---|---|
+| Plan name | Required. The name subscribers see on the pricing page, at checkout and on their billing page. Between 1 and 255 characters. |
+| Description | A short tagline shown with the plan on the pricing, billing and checkout pages. The plan card on the Billing page cuts it at 80 characters. |
+| Status | Required. **Active** plans can be bought. **Hidden** plans can only be assigned by an admin. **Closed** plans are no longer offered. |
+| Featured | Highlights the plan above the others on the pricing page. Featured plans carry a **Most popular** tag. |
+
+<Note>
+  Closing a plan stops new sales. It does not take the plan away from people who already have it.
+</Note>
+
+## Pricing
+
+| Field | What it does |
+|---|---|
+| Plan type | Required. **Monthly** and **Yearly** plans renew automatically each billing cycle. **Lifetime** and **Prepaid** plans are one-time payments with no automatic renewal. |
+| Price | Required. What a subscriber pays each billing cycle, or once for Lifetime and Prepaid plans. Zero or more, with two decimals. |
+| Currency | Required. The currency subscribers are charged in. Each plan has its own currency. |
+| Free plan | Subscribers can sign up to this plan without paying. |
+| Free trial days | Subscribers are not charged until the trial days run out. Leave it blank for no trial. Accepts 0 to 65,535. |
+
+<Warning>
+  A plan marked **Free plan** is activated from the Billing page without a payment even if its price is above zero. Set **Price** to 0 on free plans.
+</Warning>
+
+<Warning>
+  Free trial days are passed to Stripe as the trial period of the subscription. The other gateways do not read this field, so a trial is only honored when the customer pays with Stripe.
+</Warning>
+
+### How long access lasts
+
+| Plan type | Access period after a payment |
+|---|---|
+| Monthly | One month. The gateway's renewal charge extends it. |
+| Yearly | One year. The gateway's renewal charge extends it. |
+| Lifetime | 50 years from the purchase date. |
+| Prepaid | Not applicable. Prepaid plans do not create a subscription. |
+
+<Warning>
+  Only gateway renewal charges extend a Monthly or Yearly period. A free plan, a plan assigned from [Subscriptions](/saas/subscriptions), and a bank transfer order get a single period. When it ends, the user falls back to the free tier. Choose **Lifetime** for free or assigned plans that should not lapse.
+</Warning>
+
+## AI credits
+
+| Field | What it does |
+|---|---|
+| AI credits | Required. The credits a subscriber on this plan receives to spend on AI. Accepts -1 to 1,000,000. Use **-1** for unlimited credits. |
+
+Credits on Monthly, Yearly and Lifetime plans are renewed on a monthly basis. Unused monthly allowance does not carry over. Credits are spent on AI writing and AI media runs, at the cost per run set on the **Writing Models** and **Media Models** pages. See [AI models](/admin/ai-models) and [Credits and allowances](/saas/credits).
+
+## AI features
+
+| Switch | What it does |
+|---|---|
+| AI writing | Lets subscribers write, rewrite and translate captions with AI and use hashtag and alt-text suggestions and brand voices. |
+| AI media | Lets subscribers generate images and videos with AI in the Media Studio. |
+
+## Publishing limits
+
+Each limit has a number box and an **Unlimited** switch. The text next to the box previews the result, for example **Unlimited** or **Not included**. A value of 0 means the plan does not include that capability.
+
+| Limit | What it counts | Highest value |
+|---|---|---|
+| Connected channels | How many social accounts a subscriber can have connected at once. | 1,000 |
+| Posts per month | Posts created in the current calendar month. A post that went out still counts after it is deleted. Recurring series count by their occurrences, not by the series itself. | 1,000,000 |
+| Posts scheduled ahead | Posts that are scheduled, waiting for approval or paused at the same time. | 100,000 |
+| Media storage | How much space the files in the subscriber's media library can take up. Pick **MB** or **GB** next to the box. | 10,485,760 MB, which is 10,240 GB |
+
+## Workspace and team
+
+| Field | What it does |
+|---|---|
+| Team seats | How many members a subscriber can add to their team, not counting themselves. Highest value 1,000. At 0 the Teams feature is not available on the plan. |
+| Approval workflow | Posts by a subscriber's team members wait for the owner's approval before they are scheduled. |
+
+See [Teams](/account/teams) for how owners and members use this.
+
+## Networks
+
+**Allowed networks** controls which social networks subscribers can use. Subscribers can use only the ticked networks, or every network enabled on the **Platforms** page when none is ticked. A network that you later disable on that page stays listed with the note **Disabled on the Platforms page**. See [Channel credentials](/admin/publishing-platforms).
+
+## Feature access
+
+| Switch | What it does |
+|---|---|
+| Analytics | Opens the Analytics page, the analytics panels on the dashboard and the analytics API endpoint. |
+| API and webhooks | Lets subscribers create API keys and webhook endpoints and use the REST API. |
+| RSS feeds | Lets subscribers add RSS feeds whose new items become posts. |
+| Bulk CSV import | Lets subscribers create many posts at once by importing a CSV file. |
+| Recurring and evergreen posts | Lets subscribers repeat posts on a schedule and recycle evergreen posts. |
+| Watermark-free | Images from subscribers on this plan go out without the watermark set in Publishing Settings. Takes effect once a watermark is set in [Publishing settings](/admin/publishing-settings). |
+
+## Custom features
+
+Custom features are extra perks listed with the plan on the pricing page. They grant nothing on their own.
+
+<Steps>
+  <Step title="Type the perk">
+    Enter text in **Custom feature**, for example a support promise.
+  </Step>
+  <Step title="Add it">
+    Click **Add** or press Enter. Each entry appears below as a tag with a remove button.
+  </Step>
+</Steps>
+
+You can add up to 50 custom features of up to 255 characters each. Duplicates are ignored, whatever their capitalization.
+
+## Limits that plans do not control
+
+A few caps are fixed for every user, whatever plan they have.
+
+| Item | Cap per user |
+|---|---|
+| RSS feeds | 20 |
+| API keys | 10 |
+| Webhook endpoints | 10 |
+| Brand voices | 20 |
+| Rows read from one CSV import | 200 |
+
+## Edit a plan
+
+<Steps>
+  <Step title="Open the plan">
+    On the plans list, open the actions for the plan and choose **Edit**. The plan's ID appears under the heading.
+  </Step>
+  <Step title="Change the fields">
+    The form is the same as for a new plan.
+  </Step>
+  <Step title="Save">
+    Click **Save changes**. The message **Pricing plan updated successfully** confirms it.
+  </Step>
+</Steps>
+
+Limits, features, networks and credits are read from the plan whenever MagicPost checks what a subscriber may do. A change therefore applies to every current subscriber straight away.
+
+If your change makes a plan stricter, a **Tighten this plan?** dialog opens first. It shows how many subscribers are affected and lists the controls that get tighter: a lower limit, a feature switched off, or fewer allowed networks. Existing work keeps running and nothing is deleted. A subscriber who is already over a lowered limit can add no more of that kind until usage falls below it. Click **Save anyway** to continue or **Cancel** to go back. The dialog does not appear when nobody is on the plan.
+
+## Gateway plan IDs
+
+The plan form has no fields for gateway plan or product IDs. MagicPost creates the matching product, price or plan at the payment gateway itself.
+
+- The first time a customer starts a Monthly or Yearly subscription through a gateway, MagicPost creates the gateway-side plan and stores its ID.
+- If you change the plan's name, price, currency or type, the next checkout creates a fresh price at the gateway. On Stripe the old price is archived first.
+- Which gateways appear at checkout depends on the plan type. Monthly and Yearly plans use gateways enabled for subscriptions. Lifetime and Prepaid plans use gateways enabled for one-time plans. See [Payment gateways](/gateways/overview).
+
+To create or refresh gateway plans ahead of time, run the sync command on the server. It covers active plans with a price above zero.
+
+<CodeGroup>
+```bash All gateways
+php artisan payments:sync-plans
+```
+
+```bash One gateway
+php artisan payments:sync-plans --gateway=stripe
+```
+
+```bash One gateway and one plan
+php artisan payments:sync-plans --gateway=paypal --plan=PLAN_ID
+```
+</CodeGroup>
+
+Replace `PLAN_ID` with the ID shown on the **Edit Plan** page. The command prints the gateway-side ID for each plan, or the error when a gateway fails. Stripe and Paddle are synced for every paid plan, including Lifetime and Prepaid. The other gateways are synced for Monthly and Yearly plans only.
+
+## Delete a plan
+
+Open the row actions and choose **Delete**, then confirm. A plan that has subscription records cannot be deleted, because the database blocks it. Set its **Status** to **Closed** instead.
+
+## What customers see
+
+Active plans appear on the home page pricing section and on the **Billing** page, grouped by plan type. The plan card lists a **What's included** summary built from the plan: credits, every limit above 0, every feature that is on, the allowed networks and your custom features. A plan with **Free plan** on or a price of 0 is shown with a **Free** tag and the **Get started** button.

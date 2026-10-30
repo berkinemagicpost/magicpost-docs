@@ -1,0 +1,232 @@
+---
+title: 'Webhooks'
+description: 'Send events to your own address the moment a post goes out, fails or needs attention, and verify each request with its signature.'
+---
+
+A webhook is an address of yours that MagicPost calls when something happens to your posts or channels. Instead of asking the [REST API](/account/rest-api) over and over, your system hears about it straight away.
+
+Each event is posted as JSON to your address and signed with a secret that only you and MagicPost know.
+
+## Before you start
+
+- Webhooks are part of the plan feature **API and webhooks**. Without it, the page is locked. Your endpoints are kept and can be deleted, and their events wait for up to 30 days and are sent once your plan includes the feature again.
+- Your address must be a public `https` address on the standard port (443). Addresses that point to private networks, that use another port or that include a user name are refused.
+- You can add up to 10 webhooks.
+- Deliveries and their retries are sent by a scheduled task that runs every minute, so the site needs its [cron job and queue](/installation/cron-and-queue) running.
+
+## Add a webhook
+
+<Steps>
+  <Step title="Open Webhooks">
+    Click your name at the bottom of the sidebar, then click **Webhooks** (`/app/settings/webhooks`).
+  </Step>
+  <Step title="Click Add a webhook">
+    The **Add a webhook** window opens.
+  </Step>
+  <Step title="Enter the address">
+    Type your endpoint in **Address**. It has to start with `https://` and can be up to 2,048 characters.
+  </Step>
+  <Step title="Pick the events">
+    Under **Send these events**, tick the ones you want. All are ticked at first. You need at least one.
+  </Step>
+  <Step title="Save">
+    Click **Add webhook**. MagicPost shows the **Signing secret** for the new webhook.
+  </Step>
+</Steps>
+
+Copy the secret into your receiving system. You can show it again later with **Show**, and hide it with **Hide**.
+
+## Manage a webhook
+
+Each webhook shows its address, a status tag, how many events it listens to and when it last delivered something.
+
+| Tag | Meaning |
+|---|---|
+| **On** | Active. Events are sent. |
+| **On hold** | Active, but your plan does not include API and webhooks right now. Events wait. |
+| **Off** | Switched off, by you or automatically. An automatic shutdown shows its reason. |
+
+Use the **Test** button, or open the actions menu (the three dots) for these options:
+
+| Action | What it does |
+|---|---|
+| **Test** | Sends a `ping` event to the address. Its result appears in the list. Only active webhooks can be tested. |
+| **Edit** | Changes the address or the events. Saving also switches the webhook back on and resets its failure count. |
+| **Switch off** / **Switch on** | Pauses or resumes sending. Switching on also resets the failure count. |
+| **Make a new secret** | Creates a fresh signing secret. Requests are signed with it from now on, so update your receiver at the same time. |
+| **Delete** | Removes the webhook and its delivery history. Nothing more is sent to it. |
+
+<Note>
+A test or an event goes to the address you saved. Your receiver has to answer with a `2xx` status for the delivery to count as successful.
+</Note>
+
+### Delivery history
+
+Under each webhook, MagicPost lists its five latest deliveries with a tag: the response status when delivered, **Retrying** or **Waiting** while it is queued, and **Failed** or the failing status when it gave up. The event name, how long ago it was created and, for problems, the receiver's answer are shown next to it.
+
+Click **Send again** on a failed delivery to send the same event again. MagicPost keeps deliveries for 30 days and then clears them.
+
+## Events
+
+| Event | Sent when |
+|---|---|
+| `post.published` | A post went out everywhere it was sent |
+| `post.partly_published` | A post went out on some channels but not others |
+| `post.failed` | A post went out nowhere |
+| `post.unconfirmed` | Nobody can tell whether a channel has the post |
+| `post.submitted_for_approval` | A post is waiting for a reviewer |
+| `post.approved` | A reviewer approved a post |
+| `post.rejected` | A reviewer turned a post down |
+| `channel.needs_reconnect` | A channel needs to be connected again |
+
+Events are sent for your own posts and channels. The **Test** button also sends `ping`, which belongs to no post.
+
+## What MagicPost sends
+
+Every request is a `POST` with a JSON body in this envelope:
+
+```json
+{
+  "id": "6b1d2a4e-8c0f-4f57-9d52-3b0a1f4c7e21",
+  "event": "post.published",
+  "created_at": "2030-01-15T08:30:00+00:00",
+  "data": {
+    "post": {}
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | A unique id for the delivery. A retry of the same delivery keeps the same `id`, so you can use it to ignore duplicates. |
+| `event` | The event name |
+| `created_at` | When MagicPost created the delivery, in ISO 8601 |
+| `data` | The payload, described below |
+
+Request headers:
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/json` |
+| `User-Agent` | Your site name followed by `-Webhooks/1.0` |
+| `X-MagicPost-Event` | The event name |
+| `X-MagicPost-Delivery` | The same value as `id` |
+| `X-MagicPost-Signature` | `t=<unix timestamp>,v1=<signature>` |
+
+### The data for each event
+
+| Event | `data` |
+|---|---|
+| `post.published`, `post.partly_published`, `post.failed`, `post.submitted_for_approval` | `post`: the [post object](/account/rest-api#the-post-object), including its media and each channel's result |
+| `post.unconfirmed` | `post`, plus `channel_id` and `platform` of the channel whose result is unknown |
+| `post.approved` | `post`, plus `reviewer`: the reviewer's name |
+| `post.rejected` | `post`, plus `reviewer` and `reason`: the reviewer's note, or `null` |
+| `channel.needs_reconnect` | `channel`: the channel object (`id`, `platform`, `name`, `username`, `type`, `status`, `avatar`, `url`), plus `reason`: the last error MagicPost recorded |
+| `ping` | `message`: a short test text |
+
+## Verify a request
+
+Check the signature before you trust a request. The `X-MagicPost-Signature` header holds a timestamp `t` and a signature `v1`. The signature is an HMAC-SHA256, written in hexadecimal, of the timestamp, a dot and the raw request body, keyed with your signing secret.
+
+```text
+X-MagicPost-Signature: t=1791000000,v1=5257a869e7...
+
+expected = hmac_sha256(secret, t + "." + body)
+```
+
+Compare `v1` with your result, and turn away requests whose timestamp is more than a few minutes old.
+
+<Warning>
+Compute the signature over the raw body exactly as it arrived. Parsing and re-encoding the JSON changes the bytes and breaks the match.
+</Warning>
+
+<CodeGroup>
+
+```php PHP
+<?php
+$secret = getenv('MAGICPOST_WEBHOOK_SECRET');
+$body = file_get_contents('php://input');
+$header = $_SERVER['HTTP_X_MAGICPOST_SIGNATURE'] ?? '';
+
+parse_str(str_replace(',', '&', $header), $parts);
+$timestamp = $parts['t'] ?? '';
+$signature = $parts['v1'] ?? '';
+
+$expected = hash_hmac('sha256', $timestamp . '.' . $body, $secret);
+
+if (! hash_equals($expected, $signature) || abs(time() - (int) $timestamp) > 300) {
+    http_response_code(400);
+    exit;
+}
+
+$event = json_decode($body, true);
+http_response_code(200);
+```
+
+```js Node.js
+import crypto from 'node:crypto';
+import express from 'express';
+
+const app = express();
+const secret = process.env.MAGICPOST_WEBHOOK_SECRET;
+
+app.post('/hooks/magicpost', express.raw({ type: 'application/json' }), (req, res) => {
+  const header = req.get('X-MagicPost-Signature') ?? '';
+  const parts = Object.fromEntries(header.split(',').map((part) => part.split('=')));
+  const body = req.body.toString('utf8');
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(`${parts.t}.${body}`)
+    .digest('hex');
+
+  const valid =
+    typeof parts.v1 === 'string' &&
+    parts.v1.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(parts.v1), Buffer.from(expected));
+  const fresh = Math.abs(Date.now() / 1000 - Number(parts.t)) <= 300;
+
+  if (!valid || !fresh) {
+    return res.sendStatus(400);
+  }
+
+  const event = JSON.parse(body);
+  res.sendStatus(200);
+});
+```
+
+</CodeGroup>
+
+## Retries and automatic shut-off
+
+MagicPost waits up to 10 seconds for your answer and does not follow redirects. Any `2xx` status counts as delivered.
+
+If the delivery fails, because of a connection error, a timeout or a non-`2xx` answer, MagicPost tries again after 1, 5, 30, 120 and 360 minutes. That makes six attempts in total over about nine hours. After the last attempt the delivery is marked **Failed**, and you can click **Send again**.
+
+Each failed attempt adds to the webhook's failure count, and a successful delivery resets it to zero. When the count reaches 25 in a row, MagicPost switches the webhook off and shows **Switched off after 25 failed deliveries in a row.** Fix your receiver, then click **Switch on** or **Edit** to turn it back on.
+
+An address that is no longer a public `https` address fails at once without retries.
+
+<AccordionGroup>
+  <Accordion title="Use a public https address on the standard port.">
+    The address you entered is `http`, uses a port other than 443, includes credentials, or resolves to a private network. Use a public `https://` address.
+  </Accordion>
+  <Accordion title="Pick at least one event to send.">
+    Tick at least one event in **Send these events** before you save.
+  </Accordion>
+  <Accordion title="My webhook shows Off with a reason">
+    MagicPost switched it off after 25 failed deliveries in a row. Check that your receiver is reachable and answers with `2xx`, then switch it on again.
+  </Accordion>
+  <Accordion title="Events are not arriving">
+    Check that the webhook is **On** and not **On hold**, that it listens to the event, and that the site's cron job runs. Use **Test** and read the answer in the delivery history.
+  </Accordion>
+</AccordionGroup>
+
+<CardGroup cols={2}>
+  <Card title="REST API" icon="code" href="/account/rest-api">
+    The post object sent in webhook payloads.
+  </Card>
+  <Card title="API keys" icon="key" href="/account/api-keys">
+    Keys for reading and creating posts.
+  </Card>
+</CardGroup>

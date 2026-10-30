@@ -1,0 +1,198 @@
+---
+title: 'Environment variables'
+description: 'Every .env key MagicPost reads, grouped by purpose, with defaults and the admin screens that write to the file.'
+---
+
+The `.env` file sits in the application root, next to `artisan`. It holds server-level settings: the site address, the database, and the cache, queue and mail drivers. Everything an owner changes day to day, such as channel keys, AI keys, payment gateways and SMTP, lives in the admin panel and is stored in the database instead.
+
+<Warning>
+  `.env` contains secrets. Keep it out of the public web folder, out of shared backups and out of version control.
+</Warning>
+
+## Edit the file
+
+<Steps>
+  <Step title="Open the file">
+    Open `.env` with your hosting file manager or over SSH. Do not rename it or move it.
+  </Step>
+  <Step title="Change the value">
+    Put a value in quotes when it contains spaces or a `#`. Leave a key out entirely to use its default.
+  </Step>
+  <Step title="Reload the configuration">
+    If you ever ran `php artisan config:cache` on the server, run `php artisan config:clear` afterwards. Otherwise the change applies on the next request.
+  </Step>
+</Steps>
+
+## Screens that write to `.env`
+
+Three places in MagicPost change the file for you, so PHP must be able to write to it. The installer checks this on its **Permissions** step.
+
+| Where | Keys it writes |
+|---|---|
+| Installer, **Database** step and the step after it | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, then `SESSION_DRIVER=database` |
+| **Admin → Backend Settings → Global Settings**, **Save** | `APP_NAME`, `APP_URL`, `APP_TIMEZONE` |
+| **Admin → Update**, **Install Update** | `APP_VERSION` |
+
+## Application
+
+| Key | Default | What it does |
+|---|---|---|
+| `APP_NAME` | `Laravel` in `.env.example` | The site name. **Global Settings → Website Name** writes it. It also seeds the default session cookie name and the cache prefix. |
+| `APP_ENV` | `production` | Environment name. In `production` MagicPost requires strong passwords (at least 12 characters with upper and lower case, a number, a symbol, and not found in a known data breach) and switches on Laravel's protection against destructive database commands such as `migrate:fresh`. `local` and `testing` relax the **Debug mode** health check. |
+| `APP_KEY` | empty | The encryption key. Generate it once with `php artisan key:generate`. It encrypts cookies and the secrets saved under **Admin → Publishing → Platforms**, so changing it later makes those saved values unreadable. |
+| `APP_PREVIOUS_KEYS` | empty | Comma-separated older keys that Laravel still accepts when decrypting. |
+| `APP_DEBUG` | `false` | Shows full error pages. Keep it `false` on a live site. **System health** warns when it is on outside a local or testing environment. |
+| `APP_URL` | `http://localhost` | The public address of the site, with `https://` and no trailing slash. Channel redirect URIs, webhook addresses, media links and email links are built from it, and every generated link is forced to `https` when it starts with `https://`. **Global Settings → Website URL** writes it. |
+| `APP_VERSION` | not in `.env.example` | The installed version, written by the updater. Leave it alone. |
+| `APP_TIMEZONE` | not in `.env.example` | Written by **Global Settings → Time Zone**. `config/app.php` fixes the application time zone at `UTC`, so this key does not change it. Scheduling time zones come from **Admin → Publishing → Settings → Default timezone** and each person's **Time and date** setting. |
+| `APP_LOCALE` | `en` | Default language code. |
+| `APP_FALLBACK_LOCALE` | `en` | Language used when a translation is missing. |
+| `APP_FAKER_LOCALE` | `en_US` | Locale for generated sample data. Leave it. |
+| `APP_MAINTENANCE_DRIVER` | `file` | Where `php artisan down` keeps the maintenance state. `database` also needs `APP_MAINTENANCE_STORE`. |
+| `BCRYPT_ROUNDS` | `12` | Password hashing cost. |
+
+<Note>
+  The address you type in a browser must match `APP_URL`. **System health** shows a **Site address** warning when the page was opened at one host while `APP_URL` names another, because posts sent in the background and links in emails use `APP_URL`.
+</Note>
+
+## Database
+
+| Key | Default | What it does |
+|---|---|---|
+| `DB_CONNECTION` | `mysql` in `.env.example`, `sqlite` if unset | The driver. The installer tests its connection with MySQL, so use `mysql` (MariaDB also works through the `mariadb` driver). |
+| `DB_HOST` | `127.0.0.1` | Database server. |
+| `DB_PORT` | `3306` | Database port. |
+| `DB_DATABASE` | `laravel` | Database name. |
+| `DB_USERNAME` | `root` | Database user. |
+| `DB_PASSWORD` | empty | Database password. |
+| `DB_SOCKET` | empty | Unix socket path, if your host uses one. |
+| `DB_CHARSET` / `DB_COLLATION` | `utf8mb4` / `utf8mb4_unicode_ci` | Character set and collation. |
+| `DB_ENGINE` | `InnoDB` | Storage engine for MySQL. |
+| `DB_URL` | empty | A single connection URL that replaces the keys above. |
+| `MYSQL_ATTR_SSL_CA` | empty | Path to a CA certificate for an encrypted MySQL connection. |
+
+The installer saves your answers by replacing the existing `DB_*` lines, so those lines must already exist in `.env`. See [Installation problems](/troubleshooting/installation).
+
+## Sessions
+
+| Key | Default | What it does |
+|---|---|---|
+| `SESSION_DRIVER` | `database` | Keep it on `database`. The **Accounts Dashboard** counts online users from the `sessions` table, and the installer sets this value. |
+| `SESSION_LIFETIME` | `120` | Minutes of inactivity before a session ends. |
+| `SESSION_ENCRYPT` | `false` | Encrypts stored session data. |
+| `SESSION_PATH` | `/` | Cookie path. |
+| `SESSION_DOMAIN` | `null` | Cookie domain. |
+| `SESSION_SECURE_COOKIE` | unset | Set `true` to send the cookie only over HTTPS. |
+| `SESSION_SAME_SITE` | `lax` | Cookie same-site policy. |
+| `SESSION_HTTP_ONLY` | `true` | Hides the cookie from scripts. |
+| `SESSION_EXPIRE_ON_CLOSE` | `false` | Ends the session when the browser closes. |
+| `SESSION_COOKIE`, `SESSION_TABLE`, `SESSION_CONNECTION`, `SESSION_STORE`, `SESSION_PARTITIONED_COOKIE` | derived from `APP_NAME` or unset | Cookie name, session table, connection, store and partitioned-cookie options. |
+
+## Cache and locks
+
+| Key | Default | What it does |
+|---|---|---|
+| `CACHE_STORE` | `database` | Where cached data and locks live. Use `database` or `file`. The scheduler uses cache locks to stop overlapping passes, and **System health** warns when the store is `array` or `null`. |
+| `CACHE_PREFIX` | slug of `APP_NAME` plus `-cache-` | Prefix for every cache key. |
+| `DB_CACHE_CONNECTION`, `DB_CACHE_TABLE`, `DB_CACHE_LOCK_CONNECTION`, `DB_CACHE_LOCK_TABLE` | `cache` table | Database cache connection and tables. |
+| `MEMCACHED_HOST`, `MEMCACHED_PORT`, `MEMCACHED_PERSISTENT_ID`, `MEMCACHED_USERNAME`, `MEMCACHED_PASSWORD` | `127.0.0.1`, `11211` | Only used when `CACHE_STORE=memcached`. |
+| `REDIS_CACHE_CONNECTION`, `REDIS_CACHE_LOCK_CONNECTION` | `cache`, `default` | Only used when `CACHE_STORE=redis`. |
+
+See [Cache and optimisation](/advanced/cache).
+
+## Queue
+
+| Key | Default | What it does |
+|---|---|---|
+| `QUEUE_CONNECTION` | `database` | Where background jobs wait. Use `database`. **System health** reports `null` as a failure because it throws jobs away, and `sync` as a warning because every post is then sent inside the request that queued it. |
+| `DB_QUEUE_CONNECTION`, `DB_QUEUE_TABLE`, `DB_QUEUE` | `jobs` table, `default` queue | Database queue settings. |
+| `DB_QUEUE_RETRY_AFTER` | `960` | Seconds before a job that has not finished is handed out again. Publishing jobs time out at 840 seconds, so keep this above that. |
+| `REDIS_QUEUE_CONNECTION`, `REDIS_QUEUE`, `REDIS_QUEUE_RETRY_AFTER` | `default`, `default`, `960` | Only used when `QUEUE_CONNECTION=redis`. |
+| `BEANSTALKD_QUEUE_HOST`, `BEANSTALKD_QUEUE`, `BEANSTALKD_QUEUE_RETRY_AFTER` | `localhost`, `default`, `90` | Only used with Beanstalkd. |
+| `SQS_PREFIX`, `SQS_QUEUE`, `SQS_SUFFIX` | see `config/queue.php` | Only used with Amazon SQS, together with the `AWS_*` keys. |
+| `QUEUE_FAILED_DRIVER` | `database-uuids` | Where failed jobs are recorded, in the `failed_jobs` table. |
+
+How the scheduler and the queue work together is covered in [Cron and queue](/installation/cron-and-queue).
+
+## Mail
+
+These values are the fallback. Once a host is saved under **Admin → Backend Settings → SMTP Settings**, that saved row overrides them for every email. See [Email and SMTP](/admin/smtp).
+
+| Key | Default | What it does |
+|---|---|---|
+| `MAIL_MAILER` | `log` | `log` writes emails to the log file instead of sending them. **System health** warns about this on the **Email** line. Use `smtp` for real delivery. |
+| `MAIL_SCHEME` | `null` | `smtp` or `smtps`. |
+| `MAIL_HOST` | `127.0.0.1` | SMTP host. |
+| `MAIL_PORT` | `2525` | SMTP port. |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | `null` | SMTP credentials. |
+| `MAIL_FROM_ADDRESS` | `hello@example.com` | Sender address. |
+| `MAIL_FROM_NAME` | `${APP_NAME}` | Sender name. |
+| `MAIL_URL`, `MAIL_EHLO_DOMAIN`, `MAIL_SENDMAIL_PATH`, `MAIL_LOG_CHANNEL` | unset | Optional transport settings from `config/mail.php`. |
+
+## Files and storage
+
+| Key | Default | What it does |
+|---|---|---|
+| `FILESYSTEM_DISK` | `local` | The framework default disk. Keep it `local`: Livewire uses the default disk for temporary uploads. |
+| `LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK` | unset | Disk for Livewire temporary uploads. |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`, `AWS_USE_PATH_STYLE_ENDPOINT`, `AWS_URL`, `AWS_ENDPOINT` | empty | Feed the `s3` disk defined in `config/filesystems.php`. |
+
+Read [File storage](/advanced/storage) before relying on the `s3` disk.
+
+## Video processing
+
+| Key | Default | What it does |
+|---|---|---|
+| `FFMPEG_BINARIES` | `ffmpeg` | Full path to the `ffmpeg` program. |
+| `FFPROBE_BINARIES` | `ffprobe` | Full path to the `ffprobe` program. |
+| `FFMPEG_THREADS` | `2` | Threads ffmpeg may use. |
+| `FFMPEG_TEMPORARY_FILES_ROOT` | `storage/framework/ffmpeg` | Working folder for ffmpeg. |
+| `FFMPEG_TEMPORARY_ENCRYPTED_HLS` | `FFMPEG_TEMPORARY_FILES_ROOT` if set, otherwise the system temp folder | Working folder for encrypted HLS output. |
+
+See [Video processing](/advanced/video-processing).
+
+## Logging
+
+| Key | Default | What it does |
+|---|---|---|
+| `LOG_CHANNEL` | `stack` | The logging channel. |
+| `LOG_STACK` | `single` | Channels in the stack. `single` writes to `storage/logs/laravel.log`. |
+| `LOG_LEVEL` | `debug` | Lowest level written. |
+| `LOG_DEPRECATIONS_CHANNEL` | `null` | Channel for deprecation notices. |
+| `LOG_DAILY_DAYS` | `14` | Days of files kept by the `daily` channel. |
+| `LOG_SLACK_WEBHOOK_URL`, `LOG_SLACK_USERNAME`, `LOG_SLACK_EMOJI`, `PAPERTRAIL_URL`, `PAPERTRAIL_PORT`, `LOG_PAPERTRAIL_HANDLER`, `LOG_STDERR_FORMATTER`, `LOG_SYSLOG_FACILITY` | unset | Options for the optional Slack, Papertrail, stderr and syslog channels. |
+
+## Redis
+
+Only needed if you choose `redis` for the cache or the queue.
+
+| Key | Default |
+|---|---|
+| `REDIS_CLIENT` | `phpredis` |
+| `REDIS_HOST` | `127.0.0.1` |
+| `REDIS_PORT` | `6379` |
+| `REDIS_PASSWORD`, `REDIS_USERNAME`, `REDIS_URL` | unset |
+| `REDIS_DB`, `REDIS_CACHE_DB` | `0`, `1` |
+| `REDIS_CLUSTER`, `REDIS_PREFIX`, `REDIS_PERSISTENT` | `redis`, slug of `APP_NAME` plus `-database-`, `false` |
+| `REDIS_MAX_RETRIES`, `REDIS_BACKOFF_ALGORITHM`, `REDIS_BACKOFF_BASE`, `REDIS_BACKOFF_CAP` | `3`, `decorrelated_jitter`, `100`, `1000` |
+
+## Plugin license checks
+
+These tune how plugin license keys entered in **Admin → Plugins** are verified.
+
+| Key | Default | What it does |
+|---|---|---|
+| `EXTENSION_LICENSE_DOMAIN` | unset | Host reported to the license server. When empty, the host of the current request is used. |
+| `EXTENSION_LICENSE_CONNECT_TIMEOUT` | `5` | Seconds to wait for a connection. |
+| `EXTENSION_LICENSE_TIMEOUT` | `10` | Seconds to wait for a reply. |
+| `EXTENSION_LICENSE_CLOCK_SKEW` | `900` | Seconds of clock difference tolerated on a signed reply. |
+| `EXTENSION_LICENSE_THROTTLE_ATTEMPTS` | `5` | Key attempts allowed per window. |
+| `EXTENSION_LICENSE_THROTTLE_DECAY` | `300` | Window length in seconds. |
+
+## Laravel Pulse
+
+MagicPost includes Laravel Pulse. Its `PULSE_*` keys (`PULSE_ENABLED`, `PULSE_PATH`, `PULSE_STORAGE_DRIVER`, `PULSE_STORAGE_KEEP`, `PULSE_INGEST_DRIVER`, `PULSE_INGEST_BUFFER`, `PULSE_INGEST_KEEP`, `PULSE_DB_CONNECTION`, `PULSE_REDIS_CONNECTION`, `PULSE_CACHE_DRIVER`, `PULSE_SERVER_NAME`, `PULSE_SERVER_DIRECTORIES`, `PULSE_DOMAIN`, and the `PULSE_*_ENABLED`, `PULSE_*_SAMPLE_RATE`, `PULSE_*_THRESHOLD` and `PULSE_*_LOCATION` options for each recorder) are defined in `config/pulse.php`. The defaults work as they are. The `/pulse` dashboard is open only when `APP_ENV` is `local`, because the application defines no access rule of its own.
+
+## Keys you do not need
+
+`config/services.php` lists `GOOGLE_*`, `FACEBOOK_*`, `TWITTER_*` and `LINKEDIN_*` client keys. MagicPost overwrites them at runtime with the values saved under **Admin → Backend Settings → Auth Settings**, so set social login there, not in `.env`.

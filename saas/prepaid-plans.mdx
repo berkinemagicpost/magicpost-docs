@@ -1,0 +1,72 @@
+---
+title: "Prepaid plans"
+description: "Sell one-time AI credit packs with prepaid plans: how to create them, how the credits are stored and spent, and how they differ from subscriptions."
+---
+
+A prepaid plan sells a fixed number of AI credits for a single payment. Customers see these as credit packs. The credits never expire, they are not renewed, and buying a pack does not change the buyer's limits, features or networks.
+
+## Prepaid compared with subscriptions
+
+| | Prepaid plan | Monthly, Yearly or Lifetime plan |
+|---|---|---|
+| Payment | Once | Monthly and Yearly renew, Lifetime is paid once |
+| Credits | Added to the **Credit packs** balance and kept until spent | Set as the **Plan allowance** and renewed monthly |
+| Unused credits | Stay on the account | Do not carry over |
+| Creates a subscription | No | Yes |
+| Changes limits and features | No | Yes |
+| Unlimited credits (-1) | Not allowed | Allowed |
+
+## Create a prepaid plan
+
+<Steps>
+  <Step title="Open the form">
+    Go to **Finance** → **Pricing Plans** and click **Create New Plan**.
+  </Step>
+  <Step title="Name the pack">
+    Enter a **Plan name** such as the size of the pack, and an optional **Description**.
+  </Step>
+  <Step title="Choose the type and price">
+    Set **Plan type** to **Prepaid**, then enter the **Price** and **Currency**. Prepaid plans are one-time payments with no automatic billing renewal.
+  </Step>
+  <Step title="Set the credits">
+    Under **AI credits**, enter the number of credits the pack contains. It must be a fixed number. Entering -1 is rejected with the message that prepaid plans need a fixed number of credits.
+  </Step>
+  <Step title="Set the status">
+    Choose **Active** to sell the pack, **Hidden** to assign it yourself, or **Closed** to stop offering it.
+  </Step>
+  <Step title="Keep the unused sections empty">
+    A prepaid purchase never applies the limits, features or networks from the form. Set each limit to 0, switch the features off and leave the networks unticked.
+  </Step>
+  <Step title="Save">
+    Click **Create plan**.
+  </Step>
+</Steps>
+
+<Note>
+  The plan card on the Billing page lists every limit above 0 and every feature that is switched on, even for prepaid plans. Leaving them at 0 and off keeps the card from promising things the pack does not grant. The card still shows the networks line.
+</Note>
+
+The full field reference is in [Subscription plans](/saas/plans).
+
+## What happens when someone buys a pack
+
+1. The customer opens **Billing**, picks the **Prepaid** tab, and chooses a pack. The tab appears only when at least one active prepaid plan exists. The card shows the price with **one-time**.
+2. The customer pays with a gateway that is enabled for one-time plans, or with a bank transfer. See [Payment gateways](/gateways/overview).
+3. When the payment is confirmed, MagicPost records a completed order and adds the pack's credits to the buyer's **Credit packs** balance. For a bank transfer this happens when you mark the order **Completed**. See [Orders and transactions](/saas/orders).
+4. No subscription is created and the buyer's plan does not change. The credits appear in their credit history as a credit pack.
+
+You can also grant a pack yourself with **Assign Subscription**. For prepaid plans it only adds the credits. See [Subscriptions](/saas/subscriptions).
+
+<Warning>
+  Assigning a pack records a completed order at the plan's full price. It counts as revenue on the [Finance dashboard](/saas/finance-dashboard) and can earn the referrer a commission. Use a plan priced at 0 when you only want to give credits away.
+</Warning>
+
+## How pack credits are spent
+
+MagicPost keeps two balances for each user: the plan allowance and the credit packs. AI runs draw from the plan allowance first and from the credit packs second. Renewing a subscription replaces the allowance but leaves the credit packs alone. Details are in [Credits and allowances](/saas/credits).
+
+If a user has an unlimited allowance from a plan with -1 credits, runs are covered by that allowance and pack credits are not touched.
+
+## Gateway support
+
+Not every gateway sells one-time plans. Each gateway has its own switches for prepaid plans and for subscriptions, and checkout only offers the gateways that match the plan type. Coinbase Commerce, for example, only takes one-time payments. Check the page for your gateway in [Payment gateways](/gateways/overview).

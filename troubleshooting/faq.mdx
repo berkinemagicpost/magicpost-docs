@@ -1,0 +1,162 @@
+---
+title: 'FAQ'
+description: 'Short answers to common questions about hosting, publishing, channels, files, email and billing in MagicPost.'
+---
+
+Each answer below comes from how MagicPost behaves, and links to the page with the full steps.
+
+## Hosting and setup
+
+<AccordionGroup>
+  <Accordion title="What does MagicPost need to run?">
+    PHP 8.3 or newer with the extensions the installer lists, a MySQL database and a web server that rewrites requests to `index.php` (`mod_rewrite` on Apache). `proc_open` is optional and only needed for video processing. See [Requirements](/getting-started/requirements).
+  </Accordion>
+
+  <Accordion title="Does it run on shared hosting?">
+    Yes. In its default mode MagicPost needs one cron job and no long-running process. The scheduler sends posts itself every minute. See [Cron and queue](/installation/cron-and-queue).
+  </Accordion>
+
+  <Accordion title="What are the default admin login details?">
+    The last installer page shows them: email `admin@example.com` and password `admin12345`. Change them straight after your first sign-in. See [Installation problems](/troubleshooting/installation).
+  </Accordion>
+
+  <Accordion title="Where is the error log?">
+    In `storage/logs/laravel.log`, unless you changed `LOG_CHANNEL` or `LOG_STACK` in `.env`. Failed jobs also appear in the `failed_jobs` table.
+  </Accordion>
+
+  <Accordion title="Do I have to edit .env often?">
+    No. It holds only server-level values such as the database and the cache. Channel keys, AI keys, gateways and SMTP are saved in the admin panel. A few admin screens write to `.env` for you, so keep it writable. See [Environment variables](/advanced/environment-variables).
+  </Accordion>
+
+  <Accordion title="I moved the site to a new address. What do I update?">
+    Change **Website URL** in **Admin → Backend Settings → Global Settings**, which also updates `APP_URL`. Then re-register the new redirect URIs in every network's developer console and the new webhook addresses in every payment gateway, because both are built from the site address. The license check reports the site's address, so review [License activation](/license/activation) too.
+  </Accordion>
+</AccordionGroup>
+
+## Publishing
+
+<AccordionGroup>
+  <Accordion title="How soon after its time does a post go out?">
+    The scheduler looks for due posts every minute, so a post goes out within about a minute of its time when cron runs every minute. If your host only allows cron every 5 minutes, it can be up to 5 minutes late. See [Scheduler and queue problems](/troubleshooting/scheduler-and-queue).
+  </Accordion>
+
+  <Accordion title="Do I need a queue worker?">
+    No. Under **Admin → Publishing → Settings → Sending**, **The scheduler** is the default way posts are sent. Choose **A queue worker** only if you can keep `queue:work` running yourself. The cron job is needed either way.
+  </Accordion>
+
+  <Accordion title="How many times is a failed post retried?">
+    Three tries by default, with waits of 2 and 10 minutes between them. An admin can change the number of tries from 1 to 10. Errors that retrying cannot fix, such as rejected content, are not retried. See [Failed posts](/troubleshooting/publishing-errors).
+  </Accordion>
+
+  <Accordion title="What happens to a post when its channel is paused, expired or switched off?">
+    The post waits on hold without using an attempt. It goes out when the channel is back. After **Wait for a channel for up to** hours, 24 by default, it is closed: skipped if the owner paused the channel, failed in the other cases.
+  </Accordion>
+
+  <Accordion title="The scheduler was stopped. Will old posts go out late?">
+    Yes. Posts that came due while cron was stopped are sent when it runs again, a batch a minute. Pause or remove any you no longer want before you restart it.
+  </Accordion>
+
+  <Accordion title='What does "Unconfirmed" mean?'>
+    MagicPost sent the post but never heard back, and the network cannot say whether it exists. Open the channel, then choose **It went out** or **Send it again**. See [Unconfirmed posts](/troubleshooting/publishing-errors#unconfirmed-posts).
+  </Accordion>
+
+  <Accordion title="Why can I not schedule a post for a time in the past?">
+    The composer answers "That time has already passed. Pick a time in the future." Pick a later time.
+  </Accordion>
+
+  <Accordion title="Why do my analytics show nothing?">
+    Analytics need the plan feature, a connected channel and **Collect analytics** switched on under **Admin → Publishing → Settings → Defaults and housekeeping**. MagicPost reads figures back from the networks once an hour, so a new post can take up to an hour to show numbers. See [Analytics](/user-guide/analytics).
+  </Accordion>
+</AccordionGroup>
+
+## Channels
+
+<AccordionGroup>
+  <Accordion title='A channel says "Needs reconnect". Why?'>
+    The network rejected or revoked the authorisation. Open the channel, select **Check**, and if it still fails, **Reconnect** with the same account. See [Channel connection problems](/troubleshooting/channel-connections).
+  </Accordion>
+
+  <Accordion title="Does the redirect URI change with the language?">
+    No. It is always `{your site}/publishing/{network}/callback`, so the same address works for every language. **Admin → Publishing → Platforms** shows the exact value to copy.
+  </Accordion>
+
+  <Accordion title="Only I can connect Facebook, Instagram or Threads. Why?">
+    Until Meta approves the app in App Review, only people with a role on the app, or invited testers for Threads, can connect. See [Channel connection problems](/troubleshooting/channel-connections#the-app-is-still-in-review-or-testing).
+  </Accordion>
+
+  <Accordion title="The first comment option is missing for one channel.">
+    The channel was connected before the comment permission was added to the app, so MagicPost switches the option off for it. Reconnect the channel to grant the permission. For a Telegram channel, the option appears once the bot is an admin of the channel's discussion group. See [Telegram channels](/channels/telegram/overview#first-comment).
+  </Accordion>
+
+  <Accordion title="Why do Telegram posts show no views?">
+    Telegram does not tell a bot how often a post was viewed, forwarded or clicked. MagicPost shows reactions, replies, comments and member counts instead, and marks the rest **Not reported by Telegram**. See [Telegram channels](/channels/telegram/overview#analytics).
+  </Accordion>
+
+  <Accordion title="What happens to posts when I disconnect a channel?">
+    Anything still waiting for it is skipped. What it already published, and its analytics, stays and comes back if you reconnect it.
+  </Accordion>
+</AccordionGroup>
+
+## Media and files
+
+<AccordionGroup>
+  <Accordion title="Where are uploaded files stored?">
+    Media library files are in `public/media` on your server. Logos, blog covers and profile photos are in `public/uploads`. Back both up. See [File storage](/advanced/storage).
+  </Accordion>
+
+  <Accordion title="Can I store media on Amazon S3?">
+    Not in this version. The `AWS_*` keys in `.env` feed an `s3` disk, but no MagicPost feature writes to it. **Default Storage** lists only **Local server (this machine)** unless a storage plugin is installed. See [File storage](/advanced/storage).
+  </Accordion>
+
+  <Accordion title="What is the largest file I can upload?">
+    The smaller of the admin's limits (25 MB for images and 2048 MB for videos by default), your plan's media storage, and each network's own limit. PHP's upload limit does not apply to the media library, because large files are sent in pieces.
+  </Accordion>
+
+  <Accordion title="Why does my video have no preview?">
+    ffmpeg is missing or cannot run on the server. The video still publishes, but its length is not checked first. See [Video processing](/advanced/video-processing).
+  </Accordion>
+
+  <Accordion title="Is the watermark added to videos?">
+    No. The watermark is placed on images as they go out. Videos are sent without it, and images in the library stay as they are.
+  </Accordion>
+</AccordionGroup>
+
+## Accounts, email and security
+
+<AccordionGroup>
+  <Accordion title="My new password is rejected.">
+    On a site with `APP_ENV=production`, a password must have at least 12 characters, upper and lower case letters, a number and a symbol, and must not appear in a known data breach.
+  </Accordion>
+
+  <Accordion title="Emails are not arriving.">
+    With `MAIL_MAILER=log` and no host saved under **Admin → Backend Settings → SMTP Settings**, emails are only written to the log. **System health** shows this on the **Email** line. See [Email and SMTP](/admin/smtp).
+  </Accordion>
+
+  <Accordion title="Does reCAPTCHA protect my forms?">
+    Not in this version. The settings are saved, but no form checks them. See [Google reCAPTCHA](/advanced/google-recaptcha).
+  </Accordion>
+
+  <Accordion title="Is the API rate limited?">
+    Yes, to 60 requests a minute for each API key. See [REST API](/account/rest-api).
+  </Accordion>
+
+  <Accordion title="Which time zone do posts use?">
+    The application runs in UTC. Each person sees and schedules in the time zone they choose under **Time and date**, and the site default is set under **Admin → Publishing → Settings → Default timezone**. See [Scheduling](/user-guide/scheduling).
+  </Accordion>
+</AccordionGroup>
+
+## Billing
+
+<AccordionGroup>
+  <Accordion title="Where are the billing menus?">
+    They appear when **Enable SaaS Business** is on under **Admin → General Settings → Plugins → SaaS Business**. See [SaaS overview](/saas/overview).
+  </Accordion>
+
+  <Accordion title="A customer paid but has no plan.">
+    Check **Admin → Finance → Orders**. If there is no order, the gateway's webhook did not arrive. See [Billing problems](/troubleshooting/billing-and-payments).
+  </Accordion>
+
+  <Accordion title="A bank transfer order is stuck on Pending.">
+    That is expected until an admin sets the order to **Completed**. Open the order, review the proof of payment, and update its status. See [Orders and transactions](/saas/orders).
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,67 @@
+---
+title: "Blog"
+description: "Write and publish blog posts, feature them, set their SEO fields, and moderate reader comments from the Blogs Manager."
+---
+
+MagicPost includes a public blog at `/blog`. Posts live at `/blog/POST-SLUG`. You manage both posts and comments under **Platform**, **Frontend Settings**, **Blogs Manager**.
+
+## Blogs Manager
+
+The page is titled **Blogs Manager**: create and manage the posts that appear on your public blog. The list shows 10 posts per page, newest first.
+
+- **Search posts...** filters by text. The status menu offers **All statuses**, **Published**, **Draft** and **Archived**.
+- Each row shows the title, category (or **Uncategorized**), status, reading time in minutes, number of views, the comment count and how many comments are pending.
+- The star toggles **Featured**. Featured posts are pinned to the top of the blog listing.
+- Row actions are **View on site**, **Edit post** and **Delete post**. Deleting asks for confirmation and permanently deletes the post, its cover image if it was uploaded here, and all of its comments.
+- **Comments** at the top opens comment moderation, and **New Post** opens the editor.
+
+## Create or edit a post
+
+<Steps>
+  <Step title="Open the editor">
+    Click **New Post**, or **Edit post** on a row.
+  </Step>
+  <Step title="Write the content">
+    Fill in **Title** (required, up to 255 characters), an optional **Slug**, an optional **Excerpt** (up to 500 characters) and the **Body** (required).
+  </Step>
+  <Step title="Add a cover image">
+    Under **Featured Image**, upload a **Cover Image**. JPG, PNG or WEBP, up to 5 MB, 1200 x 630 recommended. Add **Image Alt Text** (up to 255 characters) for accessibility and SEO. **Remove** deletes the current image.
+  </Step>
+  <Step title="Organise it">
+    Under **Organization** set the **Category**, **Tags** (comma separated, up to 500 characters in total), **Author Name** (required, defaults to your site name followed by "Team") and **Author Role**.
+  </Step>
+  <Step title="Choose when it goes live">
+    Under **Publication** set the **Status**: **Draft**, **Published** or **Archived**. Optionally set a **Publish Date**. Tick **Mark as Featured** to pin it.
+  </Step>
+  <Step title="Add SEO fields">
+    Under **SEO** fill in **Meta Title** (up to 70 characters), **Meta Description** (up to 160), **Meta Keywords** (up to 255) and **Canonical URL** (a valid URL). Empty fields fall back to the post title and the excerpt.
+  </Step>
+  <Step title="Save">
+    Click **Create Post** or **Update Post**. You return to the list.
+  </Step>
+</Steps>
+
+Details worth knowing:
+
+- Leave **Slug** blank to generate it from the title. It may contain lowercase letters, numbers and dashes only.
+- The **Body** supports HTML and is rendered as written on the post page. Only paste HTML you trust. The reading time is calculated automatically.
+- Saving with status **Published** and no **Publish Date** publishes the post immediately. A post shows on the public blog only when its status is **Published** and its publish date is not in the future, so a future date schedules it.
+- **Archived** posts are kept but hidden from the public blog.
+
+## Comments
+
+Visitors can comment on a published post. New comments are saved as **Pending** and do not appear until you approve them. Replies to approved comments are supported.
+
+Open **Comments** from Blogs Manager. The page is titled **Blog Comments**: moderate, approve and remove comments left by your readers.
+
+| Filter | Shows |
+|---|---|
+| **Pending** | New comments waiting for a decision. This is the default view. |
+| **Approved** | Comments visible on the post. |
+| **Spam** | Comments you marked as spam. |
+| **Rejected** | Comments you decided against. |
+| **All** | Every comment. |
+
+Each filter shows its count. Use **Search by author or content...** to find a comment by name, email or text. For each comment you can use **Approve**, **Mark pending**, **Mark as spam** or **Delete**. Deleting permanently removes the comment and any replies to it. **Back to Posts** returns to the list.
+
+To slow down spam, the public comment form allows 5 comments per IP address every 10 minutes and includes a hidden field that only bots fill in. HTML tags are stripped from comments.

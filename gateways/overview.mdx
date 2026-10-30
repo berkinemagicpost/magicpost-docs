@@ -1,0 +1,187 @@
+---
+title: 'Payment gateways'
+description: 'Enable the payment methods your customers use to buy MagicPost plans, and learn how webhooks, return URLs, plan sync and renewals work.'
+---
+
+Payment gateways are how customers pay for a plan at checkout. You configure them in **Admin → Finance → Payment Gateways**. Every gateway is switched off after installation, and a customer only sees the ones you turn on.
+
+<Note>
+The Finance menu, and with it Payment Gateways, appears only when SaaS Business is enabled. See [SaaS overview](/saas/overview).
+</Note>
+
+## Turn a gateway on
+
+<Steps>
+  <Step title="Open the gateway list">
+    Go to **Admin → Finance → Payment Gateways**. Each gateway is a card with a status dot. Hover the dot to read **Enabled** or **Disabled**.
+  </Step>
+  <Step title="Open the gateway">
+    Click the card. The settings page is called, for example, **Stripe Settings**.
+  </Step>
+  <Step title="Turn on Status">
+    Under **General**, switch **Status** on. The description reads "When enabled, users can use Stripe for payments", with the gateway's own name.
+  </Step>
+  <Step title="Pick the Mode">
+    Gateways that have a test environment show a **Mode** choice: **Sandbox** (sandbox mode for development) or **Live** (live mode for production). A gateway you have never saved opens on **Live**, so choose **Sandbox** first if you want to test.
+  </Step>
+  <Step title="Enter the keys">
+    Fill in the fields under **Keys**. Live and sandbox keys are stored separately, and MagicPost uses the pair that matches the selected Mode.
+  </Step>
+  <Step title="Add the webhook">
+    Copy the **Webhook URL** into the provider's dashboard, then paste back any secret it gives you. Each gateway page lists the exact steps.
+  </Step>
+  <Step title="Save">
+    Click **Save**. A confirmation such as "Stripe settings saved successfully." appears.
+  </Step>
+</Steps>
+
+<Warning>
+Fields marked with a red asterisk can be saved empty, but checkout fails until the keys for the active Mode are filled in. Switching **Mode** applies immediately to every customer, so do not leave a gateway in Sandbox once you go live.
+</Warning>
+
+## Supported gateways
+
+| Gateway | Name at checkout | Prepaid and Lifetime | Monthly and Yearly | Test mode |
+|---|---|---|---|---|
+| [Stripe](/gateways/stripe) | Stripe | Yes | Yes | Sandbox / Live |
+| [PayPal](/gateways/paypal) | PayPal | Yes | Yes | Sandbox / Live |
+| [Paystack](/gateways/paystack) | Paystack | Yes | Yes | Sandbox / Live |
+| [Razorpay](/gateways/razorpay) | Razorpay | Yes | Yes | Sandbox / Live |
+| [Mollie](/gateways/mollie) | Mollie | Yes | Yes | Sandbox / Live |
+| [Flutterwave](/gateways/flutterwave) | Flutterwave | Yes | Yes, see note | Sandbox / Live |
+| [Paddle](/gateways/paddle) | Paddle | Yes | Yes | Sandbox / Live |
+| [YooKassa](/gateways/yookassa) | YooKassa | Yes | First payment only | Sandbox / Live |
+| [Braintree](/gateways/braintree) | Braintree | Yes | Yes | Sandbox / Live |
+| [Iyzico](/gateways/iyzico) | iyzico | Yes | Yes | Sandbox / Live |
+| [Midtrans](/gateways/midtrans) | Midtrans | Yes | Yes, see note | Sandbox / Live |
+| [Coinbase Commerce](/gateways/coinbase) | Coinbase | Yes | No | None |
+| [Bank transfer](/gateways/bank-transfer) | Bank Transfer | Yes | One period per payment | None |
+| [Wallet](/gateways/wallet) | Account Wallet | Yes | One period per payment | None |
+
+"Prepaid and Lifetime" are the one-time plan types. "Monthly and Yearly" are the recurring plan types. You choose the type on the plan, see [Subscription plans](/saas/plans).
+
+<Note>
+**Flutterwave and Midtrans:** MagicPost has no dedicated renewal handler for these two. See their pages for what is recorded when the provider charges a renewal.
+
+**YooKassa:** MagicPost saves the customer's payment method but no scheduled task charges renewals.
+
+**Bank transfer and Wallet:** a Monthly or Yearly plan is granted for one period. The customer pays again when it ends.
+
+**Coinbase Commerce:** Coinbase has announced the closure of the Commerce portal after March 31, 2026. Read the warning on its page before you enable it.
+
+**Wallet:** this version has no way to add money to a customer's wallet balance. Read its page before you enable it.
+</Note>
+
+If no gateway is enabled, checkout shows "No payment methods are available right now." and asks the customer to contact support.
+
+## Webhooks
+
+A webhook is a message the provider sends to your site when a payment, renewal or cancellation happens. MagicPost uses them to record renewals and cancellations, and as a second path for first payments.
+
+Every webhook URL has the same shape and accepts `POST` requests only:
+
+```text
+https://YOUR_DOMAIN/webhooks/stripe
+```
+
+Replace `stripe` with the gateway name from the table below. The URL is also shown in the **Webhook URL** field of each gateway page, with a copy button.
+
+- The URL must be reachable from the internet without a login, a password prompt or a firewall rule that blocks the provider.
+- CSRF protection is switched off for every path under `webhooks/`. Each gateway checks its own signature instead.
+- Bank transfer and Wallet have no webhook.
+
+| Gateway | URL path | How the request is checked | Events MagicPost acts on |
+|---|---|---|---|
+| Stripe | `/webhooks/stripe` | **Webhook Signing Secret**, always required | `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.deleted` |
+| PayPal | `/webhooks/paypal` | **Webhook ID**, checked with PayPal when filled in | `BILLING.SUBSCRIPTION.RENEWED`, `PAYMENT.SALE.COMPLETED`, `BILLING.SUBSCRIPTION.CANCELLED`, `BILLING.SUBSCRIPTION.EXPIRED`, `BILLING.SUBSCRIPTION.SUSPENDED` |
+| Paystack | `/webhooks/paystack` | Your Secret Key (HMAC-SHA512, `X-Paystack-Signature`) | `charge.success`, `subscription.create`, `invoice.payment_succeeded`, `subscription.disable`, `subscription.not_renew` |
+| Razorpay | `/webhooks/razorpay` | **Webhook Secret**, checked when filled in | `subscription.charged`, `subscription.cancelled`, `subscription.completed`, `subscription.halted` |
+| Mollie | `/webhooks/mollie` | None; MagicPost fetches the payment from Mollie | Payment status changes |
+| Flutterwave | `/webhooks/flutterwave` | **Secret Hash**, checked when filled in | `charge.completed`, `subscription.cancelled` |
+| Paddle | `/webhooks/paddle` | **Webhook Secret Key**, checked when filled in | `transaction.completed`, `subscription.activated`, `subscription.resumed`, `subscription.canceled`, `subscription.paused` |
+| YooKassa | `/webhooks/yookassa` | None; MagicPost fetches the payment from YooKassa | `payment.succeeded`, `payment.canceled` |
+| Braintree | `/webhooks/braintree` | Your Private Key, through the Braintree library | Subscription charged successfully, canceled, expired |
+| Iyzico | `/webhooks/iyzico` | Not checked in this version | `SUBSCRIPTION_ORDER_SUCCESS`, `SUBSCRIPTION_CANCELLED`, `SUBSCRIPTION_EXPIRED` |
+| Midtrans | `/webhooks/midtrans` | `signature_key`, built with your Server Key | Payment notifications (`settlement`, `capture`) |
+| Coinbase | `/webhooks/coinbase` | **Webhook Shared Secret**, checked when filled in | `charge:confirmed`, `charge:resolved` |
+
+<Tip>
+Where a secret is optional, fill it in anyway. When the secret field is empty, those gateways accept the request without checking who sent it.
+</Tip>
+
+## Return and cancel URLs
+
+You never enter a return or cancel URL in a provider dashboard. MagicPost sends them with every payment.
+
+| Step | URL | What happens |
+|---|---|---|
+| Start | `/app/user/payments/start/PLAN_ID/GATEWAY` | Created when the customer clicks the pay button at checkout |
+| Return | `/app/user/payments/return/GATEWAY` | The provider sends the customer back here. MagicPost verifies the payment, records the order and opens the success page |
+| Success | `/app/user/payments/success` | Shows the plan, amount, gateway, credits added and order reference, with a **Download invoice** button |
+| Cancel | `/app/user/billing` | A customer who backs out on the provider's page lands on the Billing page |
+
+`GATEWAY` is the gateway name used in the webhook table, for example `stripe`.
+
+## Plans, currency and amounts
+
+- The currency is set on each plan (the **Currency** field), not once for the whole site. The provider account must be able to charge that currency.
+- Amounts are converted to the unit each provider expects. Stripe and Paddle send zero-decimal currencies such as JPY without multiplying by 100. Paystack and Razorpay always multiply by 100. Midtrans receives whole numbers.
+- **Free trial days** on a plan are passed to the provider by Stripe only. No other gateway delays the first charge.
+- Free plans never go through a gateway.
+
+## Plan sync
+
+For Monthly and Yearly plans, most providers need a matching product or plan on their side. MagicPost creates it for you the first time someone buys the plan, so you do not copy plan IDs by hand.
+
+| Gateway | What MagicPost creates at the provider |
+|---|---|
+| Stripe | A Product and a recurring Price (month or year) |
+| PayPal | A catalog Product and a Billing Plan |
+| Paystack | A plan (monthly or annually) |
+| Razorpay | A plan (monthly or yearly) |
+| Flutterwave | A payment plan (monthly or yearly) |
+| Paddle | A Product and a Price, for both one-time and recurring plans |
+| Iyzico | A subscription Product and a Pricing Plan |
+| Mollie, YooKassa, Midtrans | Nothing; the recurring schedule is created per customer |
+| Braintree | Nothing; you create the plan in the Braintree Control Panel with the same ID as the MagicPost plan |
+
+When you change a plan's name, price, currency or type, MagicPost marks the provider copy as out of date. At the next purchase it creates a new price or plan and retires the old one where the provider allows it. Existing subscriptions are not modified.
+
+To sync ahead of time, run this from the project root:
+
+```bash
+php artisan payments:sync-plans
+php artisan payments:sync-plans --gateway=stripe
+php artisan payments:sync-plans --gateway=paypal --plan=PLAN_ID
+```
+
+`--gateway` accepts `stripe`, `paypal`, `paystack`, `razorpay`, `mollie`, `flutterwave`, `paddle`, `yookassa`, `iyzico`, `midtrans`, `braintree` or `all`. `--plan` limits the run to one plan ID. The command only processes active plans with a price above zero.
+
+## Cancelling a subscription
+
+When a subscriber is cancelled, MagicPost always ends the subscription locally and returns the user to the base account group. For Monthly and Yearly plans it also tries to stop the recurring charge at the provider, but only **Stripe** and **PayPal** support this. For every other gateway the cancellation is local only, so also cancel the subscription in the provider's dashboard.
+
+See [Subscriptions](/saas/subscriptions) and [Orders and transactions](/saas/orders) for the admin side.
+
+## Troubleshooting
+
+MagicPost writes gateway failures to `storage/logs/laravel.log`. The customer sees a short message, and the log has the provider's reply. For a payment that succeeded at the provider but did not unlock a plan, see [Billing problems](/troubleshooting/billing-and-payments).
+
+## Gateway guides
+
+<CardGroup cols={2}>
+  <Card title="Stripe" href="/gateways/stripe">Cards through Stripe Checkout.</Card>
+  <Card title="PayPal" href="/gateways/paypal">PayPal orders and billing plans.</Card>
+  <Card title="Paystack" href="/gateways/paystack">Hosted Paystack checkout.</Card>
+  <Card title="Razorpay" href="/gateways/razorpay">Razorpay checkout window.</Card>
+  <Card title="Mollie" href="/gateways/mollie">Hosted Mollie checkout.</Card>
+  <Card title="Flutterwave" href="/gateways/flutterwave">Hosted Flutterwave checkout.</Card>
+  <Card title="Paddle" href="/gateways/paddle">Paddle Billing overlay.</Card>
+  <Card title="YooKassa" href="/gateways/yookassa">Redirect to YooKassa.</Card>
+  <Card title="Braintree" href="/gateways/braintree">Braintree Drop-in.</Card>
+  <Card title="Iyzico" href="/gateways/iyzico">Hosted iyzico pages.</Card>
+  <Card title="Midtrans" href="/gateways/midtrans">Midtrans Snap popup.</Card>
+  <Card title="Coinbase Commerce" href="/gateways/coinbase">Crypto, one-time plans only.</Card>
+  <Card title="Bank transfer" href="/gateways/bank-transfer">Manual payment with approval.</Card>
+  <Card title="Wallet" href="/gateways/wallet">Pay from the account balance.</Card>
+</CardGroup>

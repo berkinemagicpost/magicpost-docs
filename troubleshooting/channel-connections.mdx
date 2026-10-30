@@ -1,0 +1,171 @@
+---
+title: 'Channel connection problems'
+description: 'Fix redirect URI mismatches, failed connections, apps still in review, expired authorisations and missing permissions on connected channels.'
+---
+
+A channel is an account, Page or group that someone has connected to MagicPost with the network's own sign-in. Two people can be involved when something breaks: the admin who registered the developer app and entered its keys, and the user who connects an account through it. This page says which of them has to act. For the normal flow, see [Connect channels](/user-guide/connect-channels) and [Publishing channels](/channels/overview).
+
+## How a connection is made
+
+1. A user selects **Add a channel** on **Channels** and picks a network. MagicPost sends them to the network to authorise access.
+2. The network sends them back to `{your site}/publishing/{network}/callback`, with a one-time code.
+3. MagicPost swaps the code for tokens, reads the account details and saves the channel. If the authorisation covers more than one account, the user picks which ones to connect.
+
+The callback address does not change with the interface language, so it is the same for every user.
+
+WhatsApp and Telegram do not use this flow. See [WhatsApp](#whatsapp) and [Telegram](#telegram) at the end of this page.
+
+## Messages after the redirect
+
+When the connection does not complete, **Channels** shows one of these.
+
+| Message | Cause | Who fixes it |
+|---|---|---|
+| That network is not available right now. | The network is switched off, has no saved keys, or has no connect driver. | Admin: **Admin → Publishing → Platforms**. |
+| Your plan does not include the network. | The user's plan leaves the network out. | Admin changes the plan, or the user upgrades. |
+| Connecting channels is not included in your plan. Upgrade your plan to add channels. | The plan allows 0 channels. | The user upgrades. |
+| You have connected the maximum of N channels. Upgrade your plan to add more. | The plan's channel limit is used. Reconnecting an existing channel does not count against it. | The user removes a channel or upgrades. |
+| The connection was cancelled. | The user declined on the network's page, or the network returned an error. | The user tries again. |
+| The connect request could not be verified. Please try again. | The sign-in session was lost between the redirect and the return. See below. | The user tries again. |
+| The network did not return an authorisation code. | The network returned without a code. | Check the redirect URI and the app's status. |
+| Connecting failed: reason | The token exchange or the account lookup failed. See below. | Usually the admin: keys or redirect URI. |
+| That authorisation did not grant access to any account. | The network returned no account MagicPost can post to, for example no Facebook Page, or an Instagram account that is not a professional account. | The user fixes the account and tries again. |
+| That is a different account. Reconnect using the account you originally linked. | While reconnecting, the user signed in as someone else. | The user signs in as the original account. |
+
+### "The connect request could not be verified"
+
+MagicPost remembers the connection attempt in the user's session. The message appears when that session is gone at the return, which happens when:
+
+- The user opened the site at one address (for example `example.com`) and the network returned them to another (`www.example.com`). The two do not share a session. Make the redirect URI, `APP_URL` and the address people use all the same.
+- The user started the connection in one browser or tab and finished it in another, or started two connections at once.
+- Sessions cannot be saved. Check `SESSION_DRIVER` and that the `sessions` table exists.
+
+### "Connecting failed: ..."
+
+The text after the colon names what failed.
+
+| Text | Meaning |
+|---|---|
+| Token exchange with [network] failed: reason | The network refused to trade the code for a token. Copy the **Client ID** and **Client secret** into MagicPost again, because the secret may have been regenerated. Check that the redirect URI in the developer console matches the one MagicPost uses, since the exchange sends it a second time. |
+| Token exchange with [network] could not be completed right now: reason | The network was busy or unreachable. The keys are not at fault. Try again later, and check that your server can make outbound HTTPS requests. |
+| Could not read the account profile from [network]: reason | The sign-in worked, but the network refused to share the account details. A permission or product is missing on the developer app. Compare the app with the **Permissions asked for** list on the platform. |
+| The response contained no access token. | The network answered without a token. Try again. |
+
+## Redirect URI mismatch
+
+The most common admin mistake. The network compares the address character for character, and refuses the sign-in on its own page, before the user returns to MagicPost.
+
+<Steps>
+  <Step title="Copy the address from MagicPost">
+    Go to **Admin → Publishing → Platforms**, select **Add credentials** (or **Edit credentials**) on the network, and copy the **Redirect URI** under **What to register**.
+  </Step>
+  <Step title="Paste it exactly into the developer console">
+    Add it to the network's list of redirect, callback or authorised URLs. Do not add or remove a trailing slash, and keep `https`.
+  </Step>
+  <Step title="Check it">
+    Select **Run checks** on the network. The **Redirect URI** line fails with "platforms only accept HTTPS callbacks" when the address is plain `http`. If it does, fix `APP_URL` and open the admin panel over `https`.
+  </Step>
+</Steps>
+
+The address shown is built from the address you opened the admin panel at. If you copy it while on a different host name than your users use, the console and the real flow disagree. A **Custom redirect URI** field exists for the rare case where you must register another address. Leave it blank otherwise.
+
+<Note>
+  Changing the redirect URI, the keys or the permissions of a developer app does not update channels that are already connected. Users reconnect them.
+</Note>
+
+## The app is still in review or testing
+
+Until a network approves the developer app, it only lets a few people connect. The setup guide for each network on **Admin → Publishing → Platforms** says the same.
+
+| Network | What is limited until approval | What to do |
+|---|---|---|
+| Facebook and Instagram | Only people with a role on the Meta app can connect a Page. | Request advanced access to each permission in App Review, and publish the app. Instagram needs a professional account linked to a Page. |
+| Threads | Only accounts invited as Threads testers can connect. | Complete App Review for the permissions. |
+| TikTok | Everything the app posts is visible only to the account that posted it, and at most 5 accounts a day can post. | Submit the app for review. |
+| YouTube | While the consent screen is in **Testing**, Google ends every connection after 7 days. Videos from an app that has not passed YouTube's API audit are locked to private. | Publish the app to **In production**, and request the API audit. |
+| Pinterest | New apps are on Trial access and may only create pins in the sandbox. | Apply for Standard access, then untick **Use the Pinterest sandbox** on the platform. |
+| LinkedIn | The Community Management API starts on a development tier with a daily call limit for the whole app. | Apply for the Standard tier. |
+
+Each network has its own page with the exact console steps: [X](/channels/x), [LinkedIn](/channels/linkedin), [TikTok](/channels/tiktok), [YouTube](/channels/youtube), [Pinterest](/channels/pinterest), [Facebook](/channels/meta/facebook), [Instagram](/channels/meta/instagram) and [Threads](/channels/meta/threads).
+
+## Needs reconnect
+
+A channel marked **Needs reconnect** has lost its authorisation. Posts for it wait on hold and are closed after **Wait for a channel for up to** hours (24 by default). MagicPost sends the owner a notification titled "Reconnect" followed by the channel's name. By default it also sends an email, and each person can change that under **Settings → Notifications**. See [Notifications](/account/notifications).
+
+### Why it happens
+
+- The user signed out of the app on the network, changed their password, or removed MagicPost from their connected apps.
+- The token expired and could not be renewed. MagicPost renews tokens by itself, hourly, when they are due within 24 hours and the network allows it. A network that refuses the renewal marks the channel for reconnection. A network that is only busy or unreachable does not.
+- The admin changed or regenerated the app's keys, or the app lost a permission. **System health** then shows "Every ... channel needs reconnecting, which usually means the app's keys or permissions changed. Check the app under Platforms."
+- A channel with posts due in the next two days is checked about once a day, so a revoked token is usually noticed before a post fails.
+
+### Reconnect
+
+<Steps>
+  <Step title="Open Channels">
+    Select **Channels**, and find the channel marked **Needs reconnect**.
+  </Step>
+  <Step title="Check the connection">
+    Select **Check** (or **Check again**). **Connection check** shows the authorisation state. If the network now accepts the token, the channel returns to **Active** by itself.
+  </Step>
+  <Step title="Reconnect">
+    If it still fails, select **Reconnect**, sign in to the network with the same account as before, and approve the permissions.
+  </Step>
+  <Step title="Confirm">
+    The page says that the channel "is connected." Posts that were waiting go out shortly.
+  </Step>
+</Steps>
+
+The same **Reconnect** button appears on a post that is on hold for that channel.
+
+### Check connections from SSH
+
+These commands are what the scheduler runs for you. Run them by hand to test a fix.
+
+| Command | What it does |
+|---|---|
+| `php artisan publishing:refresh-tokens` | Renews tokens that expire within 24 hours (`--hours=48` changes the window). Prints "Renewed N, needs reconnecting N, postponed N." |
+| `php artisan publishing:check-channels` | Checks channels with posts due in the next two days. Prints "Checked N, needing attention N." |
+| `php artisan publishing:repair-tokens` | Lists Facebook and Instagram channels that were wrongly marked expired. Add `--apply` to restore them. Without it nothing is written. |
+
+## Missing permissions
+
+Each channel remembers the permissions it was connected with. When one that a feature needs is missing, that feature is switched off for the channel instead of failing later. For example, the first comment option disappears in the composer for a channel connected before the comment permission was added to the app.
+
+Reconnect the channel to grant the missing permission. If every user has the problem, the admin should check the **Permissions asked for** list on the platform and the app's permissions in the developer console.
+
+For LinkedIn, changing **Kind of app** changes the permissions. MagicPost warns that "Changing this later means everyone reconnects their LinkedIn channels."
+
+## Admin: a network will not switch on
+
+When you try to switch a network on before saving its keys, MagicPost answers "Add the client ID and secret before enabling ...". Save the **Client ID** and **Client secret** first. The network card then shows one of these badges:
+
+| Badge | Meaning |
+|---|---|
+| **Live** | Configured and available to users. |
+| **Not configured** | No keys saved. |
+| **Disabled** | Keys saved, but switched off. |
+| **Driver pending** | The connect driver or the publisher is missing in this build. |
+| **Sandbox** | Sandbox mode is on. |
+
+## WhatsApp
+
+WhatsApp numbers connect through a provider, not a redirect. WhatsApp signs a number linked through WAHA or Whapi.Cloud out after about 14 days with the phone offline or the server stopped. Use **Reconnect** on the channel, see [WhatsApp channels](/channels/whatsapp/overview#reconnecting-a-number). Provider problems are on the [WAHA](/channels/whatsapp/waha#if-something-goes-wrong), [Whapi.Cloud](/channels/whatsapp/whapi#if-something-goes-wrong) and [Official Cloud API](/channels/whatsapp/official-cloud-api#if-something-goes-wrong) pages.
+
+## Telegram
+
+Telegram chats connect through a bot, not a redirect. A user links a Telegram account, adds the bot to a chat and, when a linked account is an admin there, the chat becomes a channel. See [Telegram channels](/channels/telegram/overview) and [Set up Telegram](/channels/telegram/setup).
+
+Under **Your Telegram chats** on the **Connect Telegram** page, a chat that is not connected yet shows **Waiting** with one of these reasons:
+
+| Message | Cause | Who fixes it |
+|---|---|---|
+| The bot cannot post in this chat yet. Make it an admin with permission to post, then check again. | The bot is not an admin of the channel, lacks **Post messages**, or cannot send in the group. | The user, in Telegram. Then **Check again**. |
+| Link your Telegram account first. | No Telegram account is linked to the MagicPost account. | The user. |
+| Only an admin of this chat can connect it. Link the Telegram account you manage it with. | None of the linked accounts is an admin of the chat. | The user links the right account. |
+| This chat is already connected to another MagicPost account. | A chat belongs to one account at a time. | The other account disconnects it. |
+| Telegram is not available on this site right now. | The bot is not active, for example because Telegram turned its token down. | Admin: save a working token under **Admin → Publishing → Platforms**. |
+
+A channel marked **Expired** shows why: the bot was removed or lost its rights, or the site's bot stopped working or was replaced. Add the bot back as an admin, then use **Reconnect** and **Check again**. If the bot stopped working for every Telegram channel at once, the administrator has to save a working token first, see [Set up Telegram](/channels/telegram/setup#if-something-goes-wrong).
+
+If a user presses **Start** and nothing links, or a chat never appears, updates from Telegram are not reaching the site. See [Set up Telegram](/channels/telegram/setup#if-something-goes-wrong).

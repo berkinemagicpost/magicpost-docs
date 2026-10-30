@@ -1,0 +1,81 @@
+---
+title: 'Cache and optimisation'
+description: 'Choose a cache store, learn what MagicPost keeps in it, which optimisation commands to avoid, and how to clear caches after a change.'
+---
+
+MagicPost uses Laravel's cache for short-lived values and for locks. You rarely need to touch it, but a few changes only show up after the cache is cleared.
+
+## Choose the cache store
+
+The store is set with `CACHE_STORE` in `.env`. The default is `database`, which keeps cached values in the `cache` table and locks in the `cache_locks` table. Both tables are created by the migrations.
+
+| `CACHE_STORE` | Use it when |
+|---|---|
+| `database` | Default. Works on any host that runs MagicPost. |
+| `file` | You prefer files in `storage/framework/cache`. |
+| `redis` or `memcached` | You run those services and have set the matching keys in `.env`. |
+| `array` or `null` | Do not use. They forget everything between requests. |
+
+The scheduler relies on cache locks to stop two passes from sending the same post. **Admin → Publishing → Settings → System health** shows a **Locks** warning when the store is `array` or `null`, and the fix it names is `CACHE_STORE=database` or `file`.
+
+## What is kept in the cache
+
+| Value | How long it lives |
+|---|---|
+| Locks that keep one post, one channel token renewal or one scheduler pass from running twice | While the work runs |
+| The ffmpeg version check | 1 hour |
+| The Website traffic figures on the admin dashboard | 15 minutes |
+| The system health summary on the admin dashboard | 60 seconds |
+| Best posting times shown in the composer | 10 minutes |
+| A CSV import you are reviewing before you confirm it | 2 hours |
+| WhatsApp group lists, connection state and QR codes | 20 seconds to 10 minutes |
+| Telegram updates already taken in, the one-time link that connects a Telegram account, and when each chat may be sent to next | 15 minutes to 26 hours |
+
+Everything here is rebuilt on demand. What you lose by clearing the cache is a CSV import that was waiting for confirmation and a Telegram account link someone has just started.
+
+## Do not cache the configuration or the routes
+
+Do not run these on the server:
+
+- `php artisan config:cache`
+- `php artisan route:cache`
+- `php artisan optimize`, which runs both of them
+
+The updater, the installer and the plugin installer read `.env` values directly, and Laravel returns nothing for those reads when the configuration is cached. The updater would then write a wrong `APP_VERSION`. Route caching also fails because `routes/web.php` contains closure routes that Laravel cannot cache.
+
+<Warning>
+  If you already ran one of these commands, run `php artisan optimize:clear` to undo it.
+</Warning>
+
+## Clear the caches
+
+Pick whichever fits your hosting.
+
+<Tabs>
+  <Tab title="With an update">
+    Installing an update from **Admin → Update → Install Update** applies the database changes and then clears the view, application, configuration and route caches for you. Nothing else is needed.
+  </Tab>
+  <Tab title="Without SSH">
+    Sign in as an admin and open `{APP_URL}/app/admin/update/now` in your browser. MagicPost applies any waiting database changes, clears the view, route, application and configuration caches, and returns you to the admin dashboard with the message "Database updated successfully".
+  </Tab>
+  <Tab title="Over SSH">
+    From the application folder, run:
+
+    ```bash
+    php artisan optimize:clear
+    ```
+
+    This clears the configuration, route, view, event and application caches in one go. It is the same command MagicPost runs itself when a plugin is installed or removed.
+  </Tab>
+</Tabs>
+
+## When to clear
+
+- After editing `.env`, if the configuration was ever cached.
+- After a manual update, once the new files are uploaded. See [Update instructions](/updates/update-instructions).
+- After fixing an ffmpeg problem that the **Video processing** health line still reports. See [Video processing](/advanced/video-processing).
+- When admin dashboard figures look out of date and you do not want to wait for them to expire.
+
+<Note>
+  The admin panel has no **Clear Cache** button. Use one of the three routes above.
+</Note>

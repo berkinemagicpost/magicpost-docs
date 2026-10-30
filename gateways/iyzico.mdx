@@ -1,0 +1,128 @@
+---
+title: 'Iyzico'
+description: 'Connect iyzico to MagicPost to take payments for one-time and recurring plans through the hosted iyzico checkout form.'
+---
+
+Iyzico supports every MagicPost plan type. Customers pay on an iyzico page and are sent back to MagicPost, which confirms the result with iyzico before it grants the plan. Customers see this gateway as **iyzico** at checkout.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Iyzico** |
+| Name at checkout | iyzico |
+| Test mode | **Mode → Sandbox**, with your iyzico sandbox merchant credentials |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/iyzico` |
+| Webhook events | `SUBSCRIPTION_ORDER_SUCCESS`, `SUBSCRIPTION_CANCELLED`, `SUBSCRIPTION_EXPIRED` |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/iyzico`, set by MagicPost on each payment |
+| Cancel URL | None is sent. A customer who returns without paying lands on `https://YOUR_DOMAIN/app/user/billing` |
+| Currency | The currency of the plan |
+
+## Get your keys from iyzico
+
+<Steps>
+  <Step title="Pick the panel">
+    iyzico has a sandbox merchant panel and a live merchant panel, each with its own credentials. Sign in to the one you are setting up.
+  </Step>
+  <Step title="Open the API keys">
+    Go to **Settings**, then **Merchant Settings**, and open the **API Keys** section. Select **Show detail** to reveal the keys.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the **API Key** and the **Secret Key**.
+  </Step>
+</Steps>
+
+## Set the notification URL in iyzico
+
+<Steps>
+  <Step title="Open the notification settings">
+    In the iyzico merchant panel, open the notification settings.
+  </Step>
+  <Step title="Enter the URL">
+    Use the **Webhook URL** from the MagicPost Iyzico page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/iyzico
+    ```
+  </Step>
+</Steps>
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Iyzico card">
+    Go to **Admin → Finance → Payment Gateways** and click **Iyzico**. The page is titled **Iyzico Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Iyzico API Key**
+    - **Live Iyzico Secret Key**
+    - **Sandbox Iyzico API Key**
+    - **Sandbox Iyzico Secret Key**
+  </Step>
+  <Step title="Webhook Secret">
+    Under **Webhooks**, **Webhook Secret** is optional.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Iyzico settings saved successfully."
+  </Step>
+</Steps>
+
+<Warning>
+The page describes **Webhook Secret** as verifying incoming notifications when it is set. In this version of MagicPost the Iyzico notification handler does not read it, so notifications are not signature-checked whether the field is empty or not.
+</Warning>
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost opens an iyzico checkout form for the plan price. It offers installments of 1, 2, 3, 6 and 9, sends the plan as one virtual item, and redirects the customer to the iyzico payment page. When the customer returns, MagicPost asks iyzico for the form result and records the order only if the payment status is `SUCCESS`. For Lifetime plans it also creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** The first time someone buys the plan, MagicPost creates an iyzico subscription product and a recurring pricing plan with a monthly interval, repeated once for Monthly plans and twelve times for Yearly plans. It then opens an iyzico subscription checkout form for the customer. When the customer returns, MagicPost confirms the form, then records the order and the subscription using iyzico's subscription reference code.
+
+**Buyer details.** iyzico requires buyer and address data. MagicPost sends the name, email and phone from checkout, and the address, city, country and postal code from the billing details. Where a value is missing it sends `—` for text, `00000` for the postal code and `TR` for the country. iyzico also requires an identity number, and MagicPost sends the placeholder `11111111111` for every buyer. To collect real addresses, turn on **Billing Information** in [Finance settings](/saas/finance-settings).
+
+**Webhook.**
+
+- `SUBSCRIPTION_ORDER_SUCCESS` (also accepted as `subscription.success`) extends the subscriber's period and renews the credit allowance.
+- `SUBSCRIPTION_CANCELLED`, `SUBSCRIPTION_EXPIRED` and `subscription.cancelled` mark the subscription as cancelled.
+
+MagicPost finds the subscriber from the subscription reference code in the notification. Cancelling a subscriber in MagicPost does not cancel the subscription at iyzico, so also cancel it in your iyzico merchant panel.
+
+**Price changes.** When you change a plan's name, price, currency or type, MagicPost retires the old pricing plan and creates a new one at the next purchase.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price with two decimals. Your iyzico account must be able to charge the plan's currency.
+
+## Test mode
+
+Put the sandbox API key and secret key in the two **Sandbox** fields, select **Sandbox** under **Mode** and save. MagicPost then calls iyzico's sandbox API. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Iyzico. Turn it on and save.
+  </Accordion>
+  <Accordion title="We could not start the payment. Please try again or contact support.">
+    The API Key or Secret Key for the active Mode is missing. The log says "Iyzico API key / secret are missing."
+  </Accordion>
+  <Accordion title="Iyzico could not start the payment. Please try again. / Iyzico returned an unexpected response.">
+    iyzico refused the request, for example because of the currency or the buyer data. The reply is in `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Iyzico did not return a checkout URL. / Iyzico did not return a subscription token.">
+    iyzico accepted the request but returned no page to send the customer to.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Iyzico billing. Please contact support.">
+    The product or pricing plan could not be created. The log line begins with "Iyzico product create failed" or "Iyzico pricing plan create failed".
+  </Accordion>
+  <Accordion title="Missing Iyzico session reference. / Missing Iyzico token.">
+    The customer came back in a different browser session, or without the token iyzico adds to the return address.
+  </Accordion>
+  <Accordion title="Payment was not completed. / Subscription was not completed.">
+    iyzico did not report the payment or subscription as successful.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

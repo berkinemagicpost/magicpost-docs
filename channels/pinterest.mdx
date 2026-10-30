@@ -1,0 +1,170 @@
+---
+title: 'Pinterest'
+description: 'Register a Pinterest app, connect accounts, test in the Pinterest sandbox, and publish image, carousel and video pins to a board.'
+---
+
+MagicPost creates pins on a Pinterest board. You register one app in Pinterest Developers, and each user connects their own Pinterest account through it.
+
+## What you need
+
+- A Pinterest business account.
+- Your site served over HTTPS.
+- Access to **Admin** → **Publishing** → **Platforms**.
+
+## Register the app on Pinterest
+
+<Steps>
+  <Step title="Create the app">
+    Sign in to [Pinterest Developers](https://developers.pinterest.com/apps/) with a Pinterest business account and create an app.
+  </Step>
+  <Step title="Get the redirect URI from MagicPost">
+    In MagicPost, go to **Admin** → **Publishing** → **Platforms** and click **Add credentials** on the **Pinterest** card. Under **What to register**, copy the **Redirect URI**:
+
+    ```text
+    https://your-domain.com/publishing/pinterest/callback
+    ```
+  </Step>
+  <Step title="Add it to the app">
+    Add the redirect URI to the app's redirect URIs.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the **App ID** and the **App secret key**.
+  </Step>
+  <Step title="Store them in MagicPost">
+    Paste the ID into **Client ID** and the secret into **Client secret**. Tick **Available to users** and click **Save**. Then click **Run checks** and confirm the card shows **Live**.
+  </Step>
+</Steps>
+
+### Permissions MagicPost asks for
+
+| Scope | Used for |
+|---|---|
+| `boards:read` | Listing the boards a pin can go on. |
+| `pins:read` | Reading pins and their performance. |
+| `pins:write` | Creating pins. |
+| `user_accounts:read` | Reading the account's name, handle, picture and counts. |
+
+## Trial access and the sandbox
+
+New Pinterest apps start on Trial access. An app on Trial access may only create pins in the Pinterest sandbox, where only the posting account can see them.
+
+<Steps>
+  <Step title="Test in the sandbox">
+    In the setup panel, tick **Use the Pinterest sandbox**. Pins then go to `https://api-sandbox.pinterest.com/v5`. The card shows a **Sandbox** badge, the composer shows a note on the Pinterest channel, and the connection check shows a **Sandbox** warning.
+  </Step>
+  <Step title="Apply for Standard access">
+    Apply to Pinterest for Standard access before people rely on the channel.
+  </Step>
+  <Step title="Switch the sandbox off">
+    Once the app has Standard access, untick **Use the Pinterest sandbox** so pins go out for real.
+  </Step>
+</Steps>
+
+<Note>
+Connecting an account and reading boards use the live Pinterest API in both modes. Only creating pins, and the video uploads that belong to them, go to the sandbox.
+</Note>
+
+## Connect a Pinterest account
+
+<Steps>
+  <Step title="Open Channels">
+    Under **Publishing** in the sidebar, click **Channels**.
+  </Step>
+  <Step title="Add the account">
+    In **Add a channel**, click **Pinterest**. Sign in on Pinterest and approve access.
+  </Step>
+  <Step title="Confirm">
+    You return to **Channels** with one **Profile** channel. The channel is named after the business name when there is one.
+  </Step>
+</Steps>
+
+While connecting, MagicPost reads the account's boards and stores them on the channel, so the composer can offer them by name. It reads up to 500 boards.
+
+## What you can publish
+
+Pinterest has one post type, **Pin**. A pin always needs an image or a video.
+
+| Setting | Limit |
+|---|---|
+| Text | 800 characters, used as the pin description. |
+| Images | 1 to 5. jpg, jpeg or png. Up to 20 MB each. One image makes a pin, two to five make a carousel. |
+| Video | 1. mp4, mov or m4v. Up to 2,048 MB. 4 to 900 seconds long. |
+| Mixed media | Not allowed. |
+| First comment | No. |
+
+### Pin options
+
+Set these under **Settings for** the channel in the composer.
+
+| Option | Required | What it does |
+|---|---|---|
+| **Board** | Yes | The board the pin goes on. |
+| **Title** | No | Up to 100 characters. |
+| **Destination link** | No | Up to 2,048 characters. When empty, the shared **Link** from the **First comment and link** card is used. |
+| **Alt text** | No | Up to 500 characters. Leave it blank to use the image's own alt text from the media library. |
+
+### Boards
+
+- Every pin goes on a board. The **Board** list shows the boards stored on the channel.
+- A board you create on Pinterest after connecting is picked up by **Check connection**, which reloads the list.
+- When the list is empty, the field reads **Nothing to pick from yet** and asks you to reconnect the channel so MagicPost can load the list from Pinterest.
+
+### Images and video
+
+- Images are sent to Pinterest as bytes, so image pins work even when your site cannot be reached from the internet. Images that exceed the size or format rules are converted automatically, see [Where limits come from](/channels/overview#where-limits-come-from).
+- A video is registered with Pinterest, uploaded to the address Pinterest gives, and then processed by Pinterest. The post shows that Pinterest is still processing, and MagicPost checks again about every 20 seconds.
+- Pinterest refuses a video pin without a cover. MagicPost uses the video's preview image from the media library. It sends it by address when Pinterest can reach it, otherwise as bytes, and as a last resort asks Pinterest to pick a frame itself.
+
+## Connection check
+
+| Item | Result |
+|---|---|
+| **Account** | **Signed in as NAME.** |
+| **Boards** | **N boards to pin to.** Warns with **Every pin goes on a board, and none were found. Create a board on Pinterest, then check again.** when the list is empty. |
+| **Sandbox** | Warns when the sandbox is on: **Pins go to the Pinterest sandbox, so only this account can see them.** |
+
+Each check also refreshes the board list.
+
+## Reconnecting
+
+Pinterest tokens renew with a refresh token. If Pinterest refuses the renewal or a post, the channel becomes **Expired** and the owner is notified. Reconnect it from **Channels**. See [Channel states](/channels/overview#channel-states).
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Pin | Saves (shown as shares), clicks (pin clicks plus outbound clicks) and impressions, over the last 30 days. |
+| Channel | Followers, following, number of pins, and impressions and engagements over the last 30 days. |
+
+See [Analytics](/user-guide/analytics).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Pinterest only lets an app on Trial access create pins in its sandbox">
+    The app has not been approved for Standard access. An administrator can tick **Use the Pinterest sandbox** under **Platforms** to test, or apply to Pinterest for Standard access to publish for real.
+  </Accordion>
+  <Accordion title="The Pinterest sandbox did not accept this channel's sign-in">
+    Reconnect the channel, or switch the sandbox off once the app has Standard access.
+  </Accordion>
+  <Accordion title="Choose the board this pin should go to">
+    The **Board** option is empty. Pick a board in the composer.
+  </Accordion>
+  <Accordion title="Pinterest could not find that board">
+    The board was deleted or is not available to this account. Pick another board.
+  </Accordion>
+  <Accordion title="A Pinterest carousel takes up to 5 images">
+    Remove images until five or fewer remain.
+  </Accordion>
+  <Accordion title="Pinterest refused the video pin">
+    Pinterest needs a cover image it can fetch. Check that the video has a preview in the media library and that your site can be reached from the internet.
+  </Accordion>
+  <Accordion title="Pinterest could not process the video">
+    Pinterest takes MP4, MOV or M4V files between 4 seconds and 15 minutes long.
+  </Accordion>
+  <Accordion title="Redirect URI mismatch when connecting">
+    The URI added to the Pinterest app differs from the **Redirect URI** in MagicPost. Copy it again from the setup panel.
+  </Accordion>
+</AccordionGroup>
+
+Rate limits and Pinterest server errors are retried automatically. See [Failed posts](/troubleshooting/publishing-errors).

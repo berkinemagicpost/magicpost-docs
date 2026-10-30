@@ -1,0 +1,90 @@
+---
+title: 'Credits'
+description: 'See your credit balance, what is on hold, where credits went and how AI writing and media runs use them.'
+---
+
+Credits pay for MagicPost's AI features: the writing assistant, alt text, image generation and video generation. Scheduling and publishing posts does not use credits.
+
+Open the page from the sidebar: click your name at the bottom, then click **Credits and usage** (`/app/settings/credits`).
+
+## Your balance
+
+Three tiles sit at the top of the page.
+
+| Tile | What it shows |
+|---|---|
+| **Available** | What you can spend right now: your plan allowance plus your credit packs, minus anything on hold. |
+| **Plan allowance** | The credits your plan gives you. They are spent first and topped up when your plan renews. |
+| **Credit packs** | Credits you bought separately. They never expire. |
+
+Credits come from several places:
+
+- **Plan allowance.** Your subscription plan sets a number of credits. Unused monthly allowance does not carry over.
+- **Credit packs.** You buy these with a prepaid plan. See [Billing and subscription](/account/billing).
+- **Registration credits.** The administrator can give new accounts a starting number of credits, set under **Default Registration Credits** in General Settings. They count towards your plan allowance.
+- **Team credits.** A team owner can share credits with you. They arrive as credit packs. See [Teams](/account/teams).
+- **Referral bonus.** If the administrator sets **Bonus Credits** for the referral program, you receive them each time someone you referred makes a qualifying purchase. See [Referrals](/account/referrals).
+- **Adjustments.** An administrator can change your allowance, which appears as **Adjusted by an administrator**.
+
+When a run needs credits, MagicPost spends from your plan allowance first and then from your credit packs.
+
+### Unlimited credits
+
+If your plan has unlimited credits, the tiles show **Unlimited** and runs never draw on a balance. The history still lists each run as **Covered by unlimited credits** with **Not charged**, and shows what it would have cost.
+
+### When the allowance refreshes
+
+- **Monthly plans:** the allowance is set again when each renewal payment is received.
+- **Yearly and lifetime plans:** the allowance is set again on each monthly anniversary of your purchase. A scheduled task checks for these every hour, so the site needs its [cron job](/installation/cron-and-queue) running.
+- **Prepaid plans:** credits are added once and last until used.
+
+Whenever the allowance is set again, it becomes the number of credits in your plan, and what was left of the previous month is not added.
+
+When SaaS Business is enabled, the card at the bottom of the sidebar also shows your plan name (**Free** if you have none) and how many allowance credits are left, with an **Upgrade**, **Add credits** or **Top up credits** link.
+
+## How AI runs use credits
+
+Each AI feature has a price set by the administrator:
+
+| Feature | History label | Price |
+|---|---|---|
+| Writing assistant (captions) | **Writing assistant** | **Credits per run**, set per writing model |
+| Alt text for a picture | **Alt text** | **Credits per run** of the writing model used |
+| Image generation | **Images** | **Credits per picture**, times the number of pictures you ask for |
+| Video generation | **Video** | **Credits per second**, times the length of the clip |
+
+The administrator sets these prices under Admin → Publishing → **Writing Models** and **Media Models**. See [AI models](/admin/ai-models). To use the features, see [AI writing and media](/user-guide/ai-tools).
+
+### Holds
+
+When you start a run, MagicPost puts the price on hold so the credits cannot be spent twice. The hold is charged when the run finishes, and only for what it actually used. If the run fails or you cancel it, the hold is released and you pay nothing.
+
+Holds you can see under **On hold** show the run, the amount and the time at which an unfinished hold is let go. Writing runs hold for 5 minutes and image and video runs for an hour. Anything still held after that is released by a scheduled task that runs hourly.
+
+If you do not have enough available credits, the run is refused with a message such as `Requires 10 credits but only 4 are available.`
+
+## Where your credits went
+
+### This month
+
+The **This month** panel shows a bar chart of credits spent on each of the last 30 days, in your own time zone, and a list of what you spent this month by reason, with the number of runs for each.
+
+### History
+
+**History** lists every movement of your balance, 15 to a page. Use **All**, **Spent** and **Added** to filter. Each row shows the reason, the date, a note when there is one, the amount and how many credits you had left afterwards.
+
+| Reason | Meaning |
+|---|---|
+| **Writing assistant**, **Alt text**, **Images**, **Video** | A charge for an AI run |
+| **Credit pack** | Credits from a prepaid purchase |
+| **Plan allowance** | Your allowance changed with your plan |
+| **Team credits** | Credits shared by or with a team member |
+| **Referral bonus** | A bonus from the referral program |
+| **Adjusted by an administrator** | A manual change |
+| **Credits added** | Any other credit grant |
+
+The history is a ledger. A correction or refund shows up as a new row instead of changing an old one.
+
+<Note>
+Administrators set allowances on plans in [Subscription plans](/saas/plans) and explain the full credit model in [Credits and allowances](/saas/credits). Prepaid packs are covered in [Prepaid plans](/saas/prepaid-plans).
+</Note>

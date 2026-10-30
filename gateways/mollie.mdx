@@ -1,0 +1,99 @@
+---
+title: 'Mollie'
+description: 'Connect Mollie to MagicPost to take one-time payments and recurring subscriptions through the hosted Mollie checkout.'
+---
+
+Mollie supports every MagicPost plan type. Customers pay on a page hosted by Mollie. Unlike most gateways, Mollie needs no webhook set-up in its dashboard: MagicPost passes the webhook address with each payment.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Mollie** |
+| Name at checkout | Mollie |
+| Test mode | **Mode → Sandbox**, with your Mollie test API key |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/mollie`, sent to Mollie with every payment |
+| Webhook secret | None |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/mollie`, set by MagicPost on each payment |
+| Cancel URL | None is sent. A customer who returns without paying lands on `https://YOUR_DOMAIN/app/user/billing` |
+| Currency | The currency of the plan |
+
+## Get your API key from Mollie
+
+<Steps>
+  <Step title="Sign in">
+    Open your Mollie Dashboard and sign in.
+  </Step>
+  <Step title="Open the API keys">
+    Go to **Developers**, then **API keys**.
+  </Step>
+  <Step title="Copy the keys">
+    Copy the live key, which starts with `live_`, and the test key, which starts with `test_`.
+  </Step>
+</Steps>
+
+## Add the keys in MagicPost
+
+<Steps>
+  <Step title="Open the Mollie card">
+    Go to **Admin → Finance → Payment Gateways** and click **Mollie**. The page is titled **Mollie Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Mollie API Key**, described as "Your live API key, starts with live_"
+    - **Sandbox Mollie API Key**, described as "Your test API key, starts with test_"
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Mollie settings saved successfully."
+  </Step>
+</Steps>
+
+Under **Webhooks**, the **Webhook URL** field is read-only. It is there so you can see the address, and Mollie needs no secret.
+
+## How payments work
+
+**One-time plans (Prepaid, Lifetime).** MagicPost creates a Mollie payment for the plan price and redirects the customer to Mollie. On return, MagicPost fetches the payment and records the order only if Mollie reports it as paid. For Lifetime plans it also creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** MagicPost creates a Mollie customer for the buyer and a first payment for the plan price. That first payment sets up the customer's mandate. When the customer returns and the payment is paid, MagicPost records the order and creates a Mollie subscription that bills every month (Monthly) or every 12 months (Yearly). Mollie has no plan object, so there is nothing to create at Mollie ahead of time.
+
+**Webhook.** Mollie only sends a payment ID. MagicPost fetches that payment from Mollie and acts on its status:
+
+- A paid payment that belongs to a recurring subscription extends the subscriber's period and renews the credit allowance.
+- A cancelled, expired or failed payment that belongs to a subscription marks the subscriber as cancelled.
+
+Cancelling a subscriber in MagicPost does not cancel it at Mollie. Also cancel it in your Mollie Dashboard.
+
+## Currency
+
+MagicPost sends the plan's currency in uppercase and the price with two decimals. Your Mollie account must support the currency and the payment methods you want to offer.
+
+## Test mode
+
+Enter your `test_` key in **Sandbox Mollie API Key**, select **Sandbox** under **Mode** and save. Payments then run against Mollie's test environment. Switch **Mode** back to **Live** before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Mollie. Turn it on and save.
+  </Accordion>
+  <Accordion title="Mollie could not start the payment. Please try again.">
+    The request to Mollie failed, usually because the API key for the active Mode is missing or wrong. Check `storage/logs/laravel.log`.
+  </Accordion>
+  <Accordion title="Mollie returned an unexpected response.">
+    Mollie answered but did not open a payment, for example because the currency or payment method is not enabled on your account.
+  </Accordion>
+  <Accordion title="Mollie customer create failed. / Mollie first payment failed.">
+    These appear for Monthly and Yearly plans when the customer or the first payment could not be created at Mollie.
+  </Accordion>
+  <Accordion title="We could not prepare this plan for Mollie billing. Please contact support.">
+    The API key for the active Mode is missing, or the plan is not a Monthly or Yearly plan with a price above zero.
+  </Accordion>
+  <Accordion title="Missing Mollie session reference. / Mollie payment lookup failed. / Payment was not completed.">
+    The customer came back in a different browser session, Mollie could not be reached, or the payment is not paid.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

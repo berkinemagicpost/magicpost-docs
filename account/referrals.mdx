@@ -1,0 +1,85 @@
+---
+title: 'Referrals'
+description: 'Share your referral link, track the people you refer, see your commission and request a payout.'
+---
+
+<Note>
+The referral program is part of the SaaS Business plugin. **Referrals** only appears in the sidebar when the administrator has turned on **SaaS Business**. See [SaaS overview](/saas/overview).
+</Note>
+
+When someone signs up through your link and buys a plan, you earn a commission. Open **Plans → Referrals** in the sidebar to see your link, your earnings and your payouts.
+
+If the administrator has paused the program, the page says **The affiliate program is currently paused**. You can still copy your link and see your stats, but new commissions and payout requests are disabled until it resumes.
+
+## Share your link
+
+<Steps>
+  <Step title="Open Referrals">
+    Click **Referrals** in the sidebar.
+  </Step>
+  <Step title="Copy your link">
+    Under **Your referral link**, click **Copy**. Your **Referral ID** is shown beneath it. It is the same ID as on your profile.
+  </Step>
+  <Step title="Send it">
+    Share the link. When someone opens it, registers and creates an account, MagicPost records that you referred them.
+  </Step>
+</Steps>
+
+The link is the site's registration page with your Referral ID added as `ref`. If registration is switched off on the site, the link points to the home page with the same `ref` code instead.
+
+A person is only counted when the program is enabled at the time they register, and you cannot refer yourself.
+
+## How you earn
+
+The administrator sets the rules under the program configuration:
+
+| Setting | Effect |
+|---|---|
+| **Payment Policy** | **First Order Only** pays a commission on the referred person's first paid order. **All Orders** pays on every paid order. |
+| **Commission (%)** | The share of the order price you earn. The page shows the rate when it is above zero. |
+| **Payout Threshold** | The smallest balance you can request. |
+| **Bonus Credits** | Credits added to your account each time a commission is earned, if the administrator set a number. |
+
+A commission is earned when the referred person's order is **completed**, so a bank transfer only earns once an administrator approves it. Orders with a price of zero earn nothing.
+
+## Your stats
+
+| Tile | Meaning |
+|---|---|
+| **Referred** | Users who signed up with your link |
+| **Earned** | Lifetime commission |
+| **Paid out** | Commission you have already received |
+| **Available** | Commission you can withdraw now: what you earned, minus payouts that are pending, approved or paid |
+
+Amounts use the site's default currency symbol.
+
+The **Your referrals** table lists each person with their name and email (or **Pending sign-up**), the **Status** of the referral, your **Commission** and the **Date**. A new referral starts as **Pending** and becomes **Approved** once a commission is earned.
+
+## Get paid
+
+<Steps>
+  <Step title="Save your payout details">
+    In the **Payout details** card, enter your **PayPal e-mail**, your **Bank requisites** (account holder, IBAN or account number, bank name, SWIFT/BIC) or both. Click **Save details**.
+  </Step>
+  <Step title="Choose a method">
+    In the **Request a payout** card, pick **PayPal** or **Bank transfer** under **Pay me via**. The card shows your **Available balance** and, when set, the **Minimum payout**.
+  </Step>
+  <Step title="Request the payout">
+    Click **Request payout**. MagicPost requests your whole available balance.
+  </Step>
+</Steps>
+
+The button is disabled until your available balance reaches the minimum. Under it, the page says **Earn at least (amount) to unlock payouts.**
+
+MagicPost refuses a request when:
+
+- the program is not enabled,
+- you chose a method but have not saved its details (PayPal e-mail for PayPal, bank requisites for a bank transfer),
+- another request is still being processed, meaning its status is **Pending** or **Approved**, or
+- your available balance is below the minimum.
+
+The **Payout history** table shows each request with its **Request ID**, **Amount**, **Method**, **Status** and **Requested** date. Statuses are **Pending**, **Approved**, **Paid** and **Declined**. An administrator processes the request and sets its status. A declined request returns its amount to your available balance.
+
+<Card title="For administrators" icon="share-nodes" href="/saas/affiliates">
+  Configure the program, review earnings and process payouts.
+</Card>

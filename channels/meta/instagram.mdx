@@ -1,0 +1,166 @@
+---
+title: "Instagram"
+sidebarTitle: "Instagram"
+description: "Connect Instagram professional accounts through Facebook Login and publish feed posts, Reels and Stories."
+---
+
+MagicPost publishes to Instagram **professional** accounts: an Instagram Business or Creator account that is linked to a Facebook Page. Personal Instagram accounts cannot be connected.
+
+The connection runs through Facebook Login, so the setup is the same Meta app you may already have for [Facebook Pages](/channels/meta/facebook). For the parts every network shares, see [Publishing channels](/channels/overview).
+
+## What you need
+
+- A Meta app with Facebook Login (the Facebook Pages app works).
+- Your MagicPost site served over HTTPS and reachable from the internet. Instagram never accepts an upload. It downloads each image and video from an address MagicPost gives it, so a site on `localhost`, a `.test` or `.local` domain, or a private IP address cannot publish media to Instagram.
+- For each person who connects: an Instagram Business or Creator account linked to a Facebook Page that the person manages.
+
+## Set up the Meta app
+
+<Steps>
+  <Step title="Open the Instagram setup panel in MagicPost">
+    Go to **Admin → Publishing → Platforms** and click **Add credentials** on the **Instagram** card. The panel shows the **Redirect URI** and the **Permissions asked for**.
+
+    ```text
+    https://your-domain.com/publishing/instagram/callback
+    ```
+
+    Copy the exact value from the panel.
+  </Step>
+  <Step title="Use your Meta app">
+    In [Meta for Developers](https://developers.facebook.com/apps), open the app you use for Facebook, or create one the same way. Instagram is reached through Facebook Login.
+  </Step>
+  <Step title="Add the redirect URI">
+    Make sure **Facebook Login** is added to the app, and paste the Instagram redirect URI under **Valid OAuth Redirect URIs**. Facebook and Instagram have different callback paths, so when one app serves both, both addresses must be listed.
+  </Step>
+  <Step title="Request permissions">
+    In **App Review**, request advanced access to each permission listed below.
+  </Step>
+  <Step title="Copy the keys">
+    Open **App settings → Basic** and copy the **App ID** and **App Secret**.
+  </Step>
+  <Step title="Save them in MagicPost">
+    In the Instagram setup panel, paste the App ID into **Client ID** and the App Secret into **Client secret**. Tick **Available to users** and click **Save**. Then click **Run checks** on the card and confirm every row passes.
+  </Step>
+</Steps>
+
+### Permissions MagicPost requests
+
+`instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`, `instagram_manage_insights`, `pages_show_list`, `pages_read_engagement`
+
+`instagram_manage_comments` allows first comments. `instagram_manage_insights` feeds [Analytics](/user-guide/analytics).
+
+<Warning>
+Until App Review approves the permissions, only people who have a role on the Meta app can connect an account. Meta also asks for a verified business before the app can be published for everyone else.
+</Warning>
+
+## Connect an Instagram account
+
+<Steps>
+  <Step title="Open Channels">
+    In the sidebar, under **Publishing**, click **Channels**.
+  </Step>
+  <Step title="Start the connection">
+    In the **Add a channel** card, click **Instagram**.
+  </Step>
+  <Step title="Authorise in Facebook">
+    Sign in, choose the Pages whose Instagram accounts you want to share, and accept every permission.
+  </Step>
+  <Step title="Choose accounts">
+    One account connects right away. Several open the **Choose accounts to connect** window with every account ticked. Untick any you do not want and click **Connect**.
+  </Step>
+</Steps>
+
+MagicPost keeps the token of the Facebook Page the Instagram account is linked to, and uses it to publish.
+
+| Message | Meaning |
+|---|---|
+| This account does not administer any Facebook pages. | The Facebook account has no Pages. |
+| None of your Facebook pages has an Instagram business account linked to it. | None of the Pages you shared has a professional Instagram account linked to it. Link the account to a Page, then connect again. |
+
+## Post types and limits
+
+Choose the type with **Post type** in the **Settings for** panel of the channel in the composer. The limits below are set in `config/publishing.php`.
+
+| | Feed post | Reel | Story |
+|---|---|---|---|
+| Caption | Up to 2,200 characters, 30 hashtags, 20 mentions | Up to 2,200 characters, 30 hashtags, 20 mentions | No caption |
+| Media required | Yes | Yes, one video | Yes, one image or one video |
+| Images | 1 to 10 (jpg, jpeg), up to 8 MB each, width to height ratio between 0.8 and 1.91 | Not accepted | 1 (jpg, jpeg), up to 8 MB |
+| Video | 1 (mp4, mov), up to 300 MB, 3 to 900 seconds | 1 (mp4, mov), up to 300 MB, 3 to 900 seconds | 1 (mp4, mov), up to 100 MB, 3 to 60 seconds |
+| Images and video together | No | Not applicable | No |
+| Options | None | **Cover frame**, **Also share to feed** (on by default) | None |
+| First comment | Yes | Yes | No |
+
+A ratio of 0.8 is 4:5 portrait and 1.91 is landscape. Several images in a Feed post are published as a carousel.
+
+### Images are adjusted for you
+
+You can attach a PNG, a WebP, or a picture of any shape. For each Instagram target MagicPost makes a separate copy of the image and leaves the original in the Media library untouched:
+
+- A picture in another format is re-encoded as JPEG.
+- A picture outside the 0.8 to 1.91 ratio is padded with white to the nearest allowed shape instead of being cropped, so nothing in it is lost.
+- A picture over 8 MB is re-encoded at lower quality, and scaled down if that is still not enough.
+
+Media handling is covered in [Media library](/user-guide/media-library).
+
+### Videos
+
+A **Feed post** that contains only a video is sent to Instagram as a Reel, which is how Instagram publishes feed video. Mixing images and a video in one Feed post is not allowed.
+
+For a Reel, the **Cover frame** option lets you pick the frame Instagram shows before the video plays. It needs a video attached to the post. **Let the network pick** clears your choice. **Also share to feed** controls whether the Reel also appears in the account's feed.
+
+Instagram processes video before it can be published. MagicPost checks the upload three times about two seconds apart. If Instagram is still working, MagicPost hands the post back to the queue and looks again after about 30 seconds, using the same upload. While it waits the post shows "Instagram is still processing the media."
+
+## First comments
+
+Feed posts and Reels can carry a first comment, posted right after the post is live. Write it in the **First comment** field of the **First comment and link** card, or per channel in the **First comment for** field. If the connecting person did not grant `instagram_manage_comments`, the field is not offered for that channel.
+
+A failed comment does not fail the post. The network's answer is written to the application log under "First comment failed". Instagram has no link option, so the shared **Link** field has no effect there.
+
+## Daily posting limit
+
+Instagram caps how many posts an account can publish in a rolling 24 hours. Before building a post, MagicPost reads the account's remaining allowance from Instagram. When the account is full, the post is not sent and waits one hour before trying again, with the message "This account has reached Instagram's limit of N posts in 24 hours. It goes out once there is room again."
+
+## Check the connection
+
+Open the channel's actions menu on the Channels page and click **Check connection**. The **Connection check** window lists:
+
+- **Authorisation**: whether the connection expires and whether it renews itself.
+- **Account**: "Connected to @handle."
+- **Daily limit**: how many posts of the allowance were used in the last 24 hours. It warns once 80 percent is used, and when the allowance is used up. If Instagram does not report a limit, MagicPost assumes 100.
+- **Media links**: whether Instagram can fetch images and videos from your site. This row fails, and posts with media fail with it, when your site is served from an address that is not reachable from the internet.
+
+Instagram has no private test post, so the window has no **Send a private test** button for it.
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes, comments, shares, views, reach |
+| Account | Followers, following, number of posts, reach |
+
+## Tokens and reconnecting
+
+The Page token behind an Instagram channel has no expiry date of its own and is not renewed on a timer. It stops working when the person revokes the app, loses their role on the Page, or Meta ends the app's data access after a long period without use. The channel then shows **Needs reconnect**; open the actions menu and click **Reconnect**, and sign in with the same account.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="Instagram fetches media over the internet, and the address cannot be reached from outside this server">
+    Your media address is private or local. Serve the site from a public HTTPS domain. If your files live on a cloud storage disk, check that the disk's file URLs are public. The **Media links** row of the connection check tells you whether this is fixed.
+  </Accordion>
+  <Accordion title="This account has reached Instagram's limit of posts in 24 hours">
+    Nothing to fix. The post is held and retried hourly until Instagram has room again.
+  </Accordion>
+  <Accordion title="Instagram could not process the media">
+    The video failed Instagram's own processing and the post is marked failed with the reason Instagram gave. Re-export the video as an MP4 within the limits above and publish again.
+  </Accordion>
+  <Accordion title="The account is restricted or the post was treated as spam">
+    Instagram rejects the post and MagicPost does not retry it, because retrying makes it worse. Check the account in Instagram.
+  </Accordion>
+  <Accordion title="The channel shows Needs reconnect">
+    Meta rejected the token. Reconnect the channel from the actions menu.
+  </Accordion>
+</AccordionGroup>
+
+More: [Failed posts](/troubleshooting/publishing-errors) and [Channel connection problems](/troubleshooting/channel-connections).

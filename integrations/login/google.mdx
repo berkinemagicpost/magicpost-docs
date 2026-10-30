@@ -1,0 +1,108 @@
+---
+title: 'Google login'
+description: 'Let people sign in and register with their Google account. Create an OAuth client in Google Cloud and paste its credentials into Auth Settings.'
+---
+
+With Google login on, the login and registration pages show a **Google** button. You create an OAuth client in Google Cloud, then paste its Client ID and Client secret into **Auth Settings**. No `.env` changes are needed.
+
+MagicPost asks Google for the `openid`, `profile` and `email` scopes. Google must return an email address, otherwise the sign-in is refused.
+
+<Note>
+This is sign-in for your own users. To publish to a YouTube channel you use a different set of credentials. See [YouTube](/channels/youtube).
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have a Google account that can use the [Google Cloud Console](https://console.cloud.google.com/).
+- Your site runs on its public `https` address.
+
+## Step 1. Copy the Callback URL
+
+<Steps>
+  <Step title="Open Auth Settings">
+    Go to **Admin → Backend Settings → Auth Settings** and scroll to the **Google** section.
+  </Step>
+  <Step title="Copy the Callback URL">
+    Copy the value of the read-only **Callback URL** field. It looks like `https://your-domain.com/auth/google/callback`. You paste it into Google Cloud next.
+  </Step>
+</Steps>
+
+## Step 2. Create the OAuth client in Google Cloud
+
+Google groups these settings under **Google Auth Platform**. The tabs are **Branding**, **Audience**, **Clients** and **Data Access**.
+
+<Steps>
+  <Step title="Pick a project">
+    Open the [Google Cloud Console](https://console.cloud.google.com/). In the project picker at the top, create a project or select an existing one.
+  </Step>
+  <Step title="Set up the consent screen">
+    Open **Google Auth Platform** from the navigation menu. If the project is new, click **Get started** and complete the wizard:
+
+    - **App Information**: enter an **App name** and a **User support email**.
+    - **Audience**: choose **External** so any Google account can sign in.
+    - **Contact Information**: enter an email address for Google to reach you.
+    - Agree to the policy and click **Create**.
+  </Step>
+  <Step title="Add the scopes">
+    Open **Data Access** and click **Add or remove scopes**. Select `openid`, `.../auth/userinfo.email` and `.../auth/userinfo.profile`, then click **Update** and **Save**.
+  </Step>
+  <Step title="Create the client">
+    Open **Clients** and click **Create client**. Set **Application type** to **Web application** and give it a name. Under **Authorized redirect URIs**, click **Add URI** and paste the Callback URL from Step 1. Leave **Authorized JavaScript origins** empty, because MagicPost does not use them. Click **Create**.
+  </Step>
+  <Step title="Copy the credentials">
+    Copy the **Client ID** and the **Client secret** shown after the client is created.
+
+    <Warning>
+    Google shows the client secret only right after you create the client and does not show it again. Store it before you close the dialog. If you lose it, create a new client.
+    </Warning>
+  </Step>
+  <Step title="Publish the app">
+    Open **Audience**. While the publishing status is **Testing**, only the test users you list can sign in. Click **Publish app** so everyone can.
+  </Step>
+</Steps>
+
+## Step 3. Configure MagicPost
+
+<Steps>
+  <Step title="Turn on the master switch">
+    On **Admin → Backend Settings → Auth Settings**, switch on **Login via Social (oAuth)**. It saves as soon as you toggle it.
+  </Step>
+  <Step title="Enable Google and fill in the credentials">
+    In the **Google** section, switch on **Enable Google Login** and fill in:
+
+    - **Google Client ID**: the Client ID from Google.
+    - **Google Client Secret**: the Client secret from Google.
+    - **Google Redirect URL**: the same address as **Callback URL**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The toast reads **Settings were saved successfully**.
+  </Step>
+</Steps>
+
+| MagicPost field | Google value |
+|---|---|
+| **Google Client ID** | Client ID |
+| **Google Client Secret** | Client secret |
+| **Google Redirect URL** | Authorized redirect URI. Must match exactly |
+| **Callback URL** | Read-only. The value to register as the authorized redirect URI |
+
+## Test it
+
+1. Open your site's login page in a private browser window.
+2. Click **Google** under **or continue with**.
+3. Choose an account and approve.
+4. You land on the dashboard. The registration page offers the same button under **or sign up with**.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| Google shows `redirect_uri_mismatch` | The address in Google Cloud differs from the one MagicPost sends | Make **Authorized redirect URIs** in Google Cloud, **Google Redirect URL** and **Callback URL** identical, including `https` and any language segment |
+| No **Google** button on the login page | Master switch off, **Enable Google Login** off, or the Client ID or secret is empty | Check all three, then save |
+| That social login option is not available. | Same as above, reached by a direct link | Same fix |
+| Google blocks the sign-in, or only test users can sign in | The app is still in **Testing** | Add the person under **Audience** test users, or click **Publish app** |
+| We could not complete the social login. Please try again. | Wrong Client secret, redirect address mismatch, or the sign-in started and ended on different site addresses | Re-copy the secret, check the redirect address, and use one site address (for example, only `https://` with the same host) |
+| Your social account did not share an email address, so we cannot sign you in. | The email scope is missing | Add `.../auth/userinfo.email` under **Data Access** |
+| Registration is currently closed, so a new account could not be created. | **User Registration** is off and no account has that email | Turn on **User Registration** under **Admin → Backend Settings → Registration Settings**, or create the user first |
+| Your account is not active. Please contact support. | The matching account is banned or suspended | Reactivate the account in the admin panel |

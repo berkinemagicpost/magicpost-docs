@@ -1,0 +1,187 @@
+---
+title: 'LinkedIn'
+description: 'Choose between the profile-only and the profiles-and-Pages LinkedIn app, store its keys in MagicPost, and publish posts with images, video and link previews.'
+---
+
+MagicPost publishes to LinkedIn member profiles and, with the right app, to company Pages. LinkedIn does not allow its sign-in product and its Page API on the same app, so you choose one of two kinds of app before you register anything.
+
+## Choose the kind of app
+
+| Kind of app | Panel label | What users can post to | Needs approval |
+|---|---|---|---|
+| Sign In with LinkedIn and Share on LinkedIn | **Profiles** | Personal profiles only. | No. It works straight away. |
+| Community Management API | **Profiles and Pages** | Personal profiles and the Pages they manage. | Yes. LinkedIn has to approve the app. |
+
+The choice is made in the **Kind of app** field of the setup panel. It decides which permissions MagicPost asks for and which account types users can connect.
+
+<Warning>
+Changing the kind of app later means everyone reconnects their LinkedIn channels.
+</Warning>
+
+## Register the app on LinkedIn
+
+Open the **Set up LinkedIn** panel first: go to **Admin** → **Publishing** → **Platforms**, click **Add credentials** on the **LinkedIn** card, and pick the **Kind of app**. The panel then shows the steps and permissions for that kind. The **Redirect URI** under **What to register** looks like this:
+
+```text
+https://your-domain.com/publishing/linkedin/callback
+```
+
+<Tabs>
+  <Tab title="Profiles">
+    <Steps>
+      <Step title="Create the app">
+        Create an app in [LinkedIn Developers](https://www.linkedin.com/developers/apps) and link it to your company's LinkedIn Page. An admin of the Page approves the link.
+      </Step>
+      <Step title="Add the products">
+        On the **Products** tab, add **Sign In with LinkedIn using OpenID Connect** and **Share on LinkedIn**.
+      </Step>
+      <Step title="Add the redirect URI">
+        On the **Auth** tab, add the redirect URI under **Authorized redirect URLs for your app**.
+      </Step>
+      <Step title="Copy the keys">
+        On the **Auth** tab, copy the **Client ID** and the **Primary Client Secret**.
+      </Step>
+    </Steps>
+
+    MagicPost asks for these permissions: `openid`, `profile` and `w_member_social`. This kind of app can only post to personal profiles.
+  </Tab>
+  <Tab title="Profiles and Pages">
+    <Steps>
+      <Step title="Create a new app">
+        Create a new app in [LinkedIn Developers](https://www.linkedin.com/developers/apps) and link it to your company's LinkedIn Page. A super admin of the Page has to verify the link.
+      </Step>
+      <Step title="Request the Community Management API">
+        On the **Products** tab, request the **Community Management API** and complete the access form. Leave the sign-in and sharing products off, because LinkedIn does not allow them on the same app.
+      </Step>
+      <Step title="Add the redirect URI">
+        On the **Auth** tab, add the redirect URI under **Authorized redirect URLs for your app**.
+      </Step>
+      <Step title="Copy the keys">
+        On the **Auth** tab, copy the **Client ID** and the **Primary Client Secret**.
+      </Step>
+    </Steps>
+
+    MagicPost asks for these permissions: `r_basicprofile`, `w_member_social`, `w_member_social_feed`, `w_organization_social`, `w_organization_social_feed`, `r_organization_social` and `rw_organization_admin`.
+
+    <Note>
+    LinkedIn only grants this API to registered organisations and checks a business email address. Access starts on the Development tier, which allows 500 calls a day for the whole app. Apply for the Standard tier within 12 months, or LinkedIn removes the access.
+    </Note>
+  </Tab>
+</Tabs>
+
+Then store the keys:
+
+<Steps>
+  <Step title="Paste the keys">
+    Paste the ID into **Client ID** and the secret into **Client secret** in the setup panel.
+  </Step>
+  <Step title="Switch it on">
+    Tick **Available to users** and click **Save**.
+  </Step>
+  <Step title="Run the checks">
+    Click **Run checks** and confirm the card shows **Live**.
+  </Step>
+</Steps>
+
+## Connect a profile or a Page
+
+<Steps>
+  <Step title="Open Channels">
+    Under **Publishing** in the sidebar, click **Channels**.
+  </Step>
+  <Step title="Add LinkedIn">
+    In **Add a channel**, click **LinkedIn**. Sign in on LinkedIn and approve access.
+  </Step>
+  <Step title="Pick accounts">
+    With the **Profiles** app you return with one **Profile** channel. With the **Profiles and Pages** app, MagicPost also finds the Pages you can post to. When there is more than one account, the **Choose accounts to connect** window opens. Tick the accounts and click **Connect**.
+  </Step>
+</Steps>
+
+A Page appears in the list when you hold one of these roles on it: super admin, content admin or sponsored content poster. A member with no Page access still connects as a profile. Each profile and each Page is its own channel and counts toward the plan's channel limit.
+
+## What you can publish
+
+LinkedIn has one post type, **Post**. A post needs text or media.
+
+| Setting | Limit |
+|---|---|
+| Text | 3,000 characters. |
+| Images | 1 to 20 per post. jpg, jpeg, png or gif. Up to 10 MB each. One image goes out as a single image, several as a multi-image post. |
+| Video | 1 per post. mp4. Up to 200 MB. 3 to 1,800 seconds long. |
+| Mixed media | Not allowed. |
+| **Link preview** | Optional URL, up to 2,048 characters. Only on posts without images or video. |
+| First comment | Yes, when the connection holds the permission described below. |
+
+### Text
+
+Text is posted as typed. MagicPost escapes characters that LinkedIn would otherwise treat as markup, such as brackets, parentheses, asterisks and underscores, so they show literally. A hashtag stays a hashtag. An `@` is shown as typed and does not tag anyone.
+
+### Link preview
+
+LinkedIn does not read the linked page itself. When a text-only post goes out, MagicPost reads the page's title, description and image and sends them along, so the post shows a link card. Only public web addresses are read.
+
+- Set the link in the **Link preview** option under **Settings for** the channel, or in the **Link** field of the **First comment and link** card.
+- A page that cannot be read still gets a card, titled with its address.
+- The title is cut at 200 characters and the description at 300.
+- If the image cannot be fetched or uploaded, the card is shown without a picture and the post still goes out.
+- A post with images or video does not get a link card. Setting **Link preview** on such a post raises an issue in the composer.
+
+### First comment
+
+LinkedIn asks for a separate permission before an app can comment. MagicPost hides the **First comment** field on any channel whose connection lacks it.
+
+| Channel | Permission needed | Provided by |
+|---|---|---|
+| Profile | `w_member_social_feed` | **Profiles and Pages** only |
+| Page | `w_organization_social_feed` | **Profiles and Pages** only |
+
+With the **Profiles** app, first comments are not offered. If you switch kinds later, users reconnect to pick up the new permissions.
+
+The first comment is posted from the same author right after the post is live. If it fails, the post stays published and the failure is written to the application log.
+
+## Connection check
+
+| Channel | Item | Result |
+|---|---|---|
+| Profile | **Account** | **Signed in as NAME.** |
+| Page | **Page** | **You can post to NAME.** |
+| Page | **Page** | Fails with **You no longer have a posting role on NAME, so it cannot be posted to. Ask a super admin of the Page to make you a content admin.** |
+
+MagicPost renews the connection with the refresh token LinkedIn returns. If your LinkedIn app does not receive one, the connection cannot renew itself. The check then shows **Connected until DATE. Reconnect before then to keep posting.** once fewer than 7 days remain. See [Channel states](/channels/overview#channel-states).
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes and comments. |
+| Channel | Followers, for Pages only. LinkedIn does not expose a follower count for personal profiles. |
+
+See [Analytics](/user-guide/analytics).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="LinkedIn's daily limit for this app has been reached">
+    LinkedIn's limits are daily and reset at midnight UTC. The post is retried after the reset. With the Community Management API on the Development tier, the whole app shares 500 calls a day, so apply for the Standard tier if you hit this often.
+  </Accordion>
+  <Accordion title="LinkedIn refuses a post with the same text as one this account published recently">
+    Change the text and send it again. When a retry hits this message, MagicPost treats the earlier post as the one that was published and does not send it twice.
+  </Accordion>
+  <Accordion title="LinkedIn could not process the video">
+    Export the video as an H.264 MP4 between 3 seconds and 30 minutes long and try again.
+  </Accordion>
+  <Accordion title="LinkedIn does not let apps read back a member's posts">
+    This appears when MagicPost cannot confirm whether an unanswered attempt went out. For a Page it can search the latest posts, but only when the connection holds `r_organization_social`. For a profile, open LinkedIn and check.
+  </Accordion>
+  <Accordion title="This LinkedIn channel is missing its account reference">
+    Reconnect the channel and try again.
+  </Accordion>
+  <Accordion title="The First comment field is missing">
+    The connection lacks `w_member_social_feed` or `w_organization_social_feed`. Use the **Profiles and Pages** app and reconnect the channel.
+  </Accordion>
+  <Accordion title="Redirect URL error when connecting">
+    The URL added under **Authorized redirect URLs for your app** differs from the **Redirect URI** in MagicPost. Copy it again from the setup panel.
+  </Accordion>
+</AccordionGroup>
+
+Other errors are shown with LinkedIn's own message. See [Failed posts](/troubleshooting/publishing-errors).

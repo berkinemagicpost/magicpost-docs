@@ -1,0 +1,94 @@
+---
+title: 'Manual and .env setup'
+description: 'Prepare the server by hand before running the web installer: file upload, document root, database, the .env file and the installed marker.'
+---
+
+The [web installer](/installation/web-installer) is the only supported way to create the tables, activate the license and create the first admin. MagicPost has no console install command. This page covers what you prepare yourself before you open `/install`, and what the installer leaves behind.
+
+## Upload the files
+
+<Steps>
+  <Step title="Upload the application">
+    Upload every file of the package to your server, or upload the archive and extract it there.
+  </Step>
+  <Step title="Include hidden files">
+    Make sure `.htaccess` and `.env` are on the server. Many file managers and FTP clients hide files that start with a dot, and they are skipped when you copy a folder. Turn hidden files on locally, and on the server if your control panel hides them, before you upload.
+  </Step>
+  <Step title="Create .env if it is missing">
+    If the package has no `.env`, copy `.env.example` to `.env` in the application root.
+  </Step>
+</Steps>
+
+## Choose a document root
+
+MagicPost works with either layout.
+
+<Tabs>
+  <Tab title="Document root set to public">
+    Point the domain at the `public` folder. This keeps `.env`, `app` and `storage` outside the web root, and `public/.htaccess` sends requests that are not for an existing file to `public/index.php`. Use this layout when your host lets you change the document root.
+  </Tab>
+  <Tab title="Domain root is the application folder">
+    On hosts where the domain root is fixed, leave the application in that folder. The `.htaccess` file in the application root rewrites every request to `public/`, and it also denies direct access to `.env` and `.htaccess`.
+  </Tab>
+</Tabs>
+
+## Create the database
+
+Create an empty MySQL database and a user with full rights on it. The installer asks for the host, port, database name, user and password and tests them before it continues.
+
+## Edit the .env file
+
+You can fill in the database details yourself or let the installer write them. Either way, the installer edits `.env` by replacing existing lines, so each line it writes must already exist and must not be commented out.
+
+| Key | Default in `.env.example` | Notes |
+|---|---|---|
+| `APP_NAME` | `Laravel` | Shown in the installer and used as the sender name for mail. Set your product name before installing. |
+| `APP_ENV` | `production` | |
+| `APP_KEY` | empty | Must have a value. If it is empty, run `php artisan key:generate` in the application folder. |
+| `APP_DEBUG` | `false` | Keep it `false` on a live site. **System health** warns when it is on outside a local install. |
+| `APP_URL` | `http://localhost` | Set the public address of the site. Posts sent in the background and links in emails use it, and **System health** warns when it is not reachable from the internet or does not use `https`. |
+| `APP_VERSION` | not present | Written by **Install Update**. Keep a line `APP_VERSION=` in `.env` so the updater can edit it. |
+| `DB_CONNECTION` | `mysql` | |
+| `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | commented out | The installer writes these. The lines must be active, and `DB_PASSWORD` must use the quoted form `DB_PASSWORD=''`. |
+| `SESSION_DRIVER` | `database` | The installer sets it to `database` at the Activation step. |
+| `QUEUE_CONNECTION` | `database` | **System health** reports the `null` and `sync` drivers as problems. |
+| `CACHE_STORE` | `database` | **System health** warns about `array` and `null`, because overlapping scheduler runs cannot be kept apart. `database` and `file` both work. |
+| `MAIL_MAILER` and the other `MAIL_*` keys | `log` | The defaults only write mail to the log. SMTP Settings in the admin panel replace them. |
+| `FILESYSTEM_DISK`, `AWS_*` | `local`, empty | See [File storage](/advanced/storage). |
+| `FFMPEG_BINARIES`, `FFPROBE_BINARIES` | not present | Optional full paths to FFmpeg and FFprobe. See [Requirements](/getting-started/requirements). |
+
+The full list of keys the application reads is on [Environment variables](/advanced/environment-variables).
+
+<Tip>
+If the first installer page fails with a database or session error, the `.env` is probably still set to store sessions and cache in a database that does not exist yet. Set `SESSION_DRIVER=file` and `CACHE_STORE=file`, reload `/install`, and carry on. The installer switches `SESSION_DRIVER` to `database` itself.
+</Tip>
+
+## Set folder permissions
+
+PHP must be able to write to `.env`, `bootstrap/cache`, `public/uploads`, `public/media`, `lang` and `storage` with its subfolders. The installer tests all of these except `public/media`, which **System health** checks later. The full list is on [Requirements](/getting-started/requirements).
+
+## Run the installer
+
+Open `https://YOUR_DOMAIN/install` and follow [Web installer](/installation/web-installer).
+
+## The installed marker
+
+When activation succeeds, the installer creates an empty file at `storage/installed`. Two things depend on it:
+
+- While it exists, every `/install` address redirects to the login page.
+- While it does not exist, `/install` is open to anyone who can reach the site.
+
+<Warning>
+Do not delete `storage/installed` on a live site. Opening the installer again runs the migrations and the seeders against your live database and asks for the license again.
+</Warning>
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Cron and queue" icon="clock" href="/installation/cron-and-queue">
+    Add the one cron job MagicPost needs.
+  </Card>
+  <Card title="Post-install checklist" icon="list-check" href="/installation/post-install-checklist">
+    What to configure on day one.
+  </Card>
+</CardGroup>

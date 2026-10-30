@@ -1,0 +1,107 @@
+---
+title: "Plugins and themes"
+description: "Browse the marketplace, buy or unlock plugins with a license key, install, update and uninstall them, and activate frontend or dashboard themes."
+---
+
+**Plugins** and **Themes** are two catalogue pages under **Platform** in the admin sidebar. Both list items from the MagicPost marketplace and install them with one click, with no manual upload.
+
+<Note>
+  The catalogues are loaded from the marketplace using your activated license, so your server must reach the internet and the license must be active first. See [License activation](/license/activation). If the lists are empty, check that first.
+</Note>
+
+## Plugins
+
+Open **Platform**, **Plugins**. The page subtitle reads "Select and install your preferred plugins with one click".
+
+- **Search your plugins...** filters by name, description and tags.
+- The tabs are **All**, **Installed**, **Paid** and **Free**.
+
+Each card shows the plugin icon, name, a short description, up to three feature tags and one or more badges:
+
+| Badge | Meaning |
+|---|---|
+| **Installed** | The plugin is installed on this site. |
+| **Update Available** | The marketplace has a newer version than the one you have. |
+| **Free** | No payment needed. |
+| **Free for Extended** | Paid plugin that is free to install with an Extended License. |
+| **New** | Recently added. |
+
+The button on the card depends on where you are with that plugin:
+
+| Button | When |
+|---|---|
+| **Buy Now** with the price | You do not own it yet. It opens the plugin's detail page. |
+| **Install** | It is free, you bought it, or you hold a valid license key or Extended License for it. |
+| **Update** | A newer version exists. The button installs it. |
+| **Manage** and a trash icon | It is installed. **Manage** opens the detail page. The trash icon uninstalls after you confirm "Are you sure you want to uninstall this plugin?". |
+
+### The plugin page
+
+Click a plugin's icon or **Manage** to open its page. It shows the description, tags, **Version**, **Released**, **Last update** and what is included: one-click install, lifetime updates and support.
+
+- If the plugin needs a newer MagicPost than you run, the button reads **Requires app version** with the minimum version and stays disabled. Update first, see [Update instructions](/updates/update-instructions).
+- A plugin reserved for Extended License holders shows **Extended License Required** until you own it or enter a license key.
+- Prices are one-time payments in USD.
+
+<Steps>
+  <Step title="Buy it">
+    Click **Buy Plugin**. You are taken to a secure payment screen to pay by card. After a confirmed payment an **Install Plugin** button appears.
+  </Step>
+  <Step title="Install it">
+    Click **Install Plugin**. MagicPost downloads the files, unpacks them and wires the plugin in, usually within seconds.
+  </Step>
+  <Step title="Use it">
+    The SaaS plugin adds a **SaaS Business** card to **General Settings**, **Plugins**. See [General settings](/admin/general-settings).
+  </Step>
+</Steps>
+
+To remove a plugin, open it and click **Uninstall**. Every file the plugin added is removed and the plugin is disabled.
+
+### Unlock with a license key
+
+If you bought the plugin on the berkine.dev store, use the key instead of paying again.
+
+<Steps>
+  <Step title="Open the plugin page">
+    Find the **Have a license key?** card.
+  </Step>
+  <Step title="Enter the key">
+    Paste it into **License key** and click **Apply**. The key must be 8 to 64 characters. It is checked against the license server first.
+  </Step>
+  <Step title="Install">
+    On success the card shows **License key active** with the last four characters of the key, and **Install Plugin** appears with a **Licensed** label.
+  </Step>
+</Steps>
+
+You can try 5 keys per plugin from the same address in 5 minutes before MagicPost asks you to wait. **Remove key** takes the key off the site. If the key was what unlocked the plugin, you have to enter it again before you can install the plugin again, so remove it only when you mean to.
+
+### Extended License
+
+If your activated license is an Extended License, plugins marked **Free for Extended** install without payment and show the **Extended** label on the install button. See [Extended license](/license/extended-license).
+
+## Themes
+
+Open **Platform**, **Themes**. The page subtitle reads "Select and install your preferred theme with one click".
+
+- **Search themes by name...** filters the catalogue.
+- The tabs are **All**, **Frontend** and **Dashboard**. A frontend theme restyles the public site, a dashboard theme restyles the signed-in app. A theme without a type applies to both.
+- Each card shows a banner, the name, version and description. Hover over the banner and select **Live Preview** to open the theme's demo, when it has one. **Active** marks the theme in use.
+
+| Button | When |
+|---|---|
+| **Buy Now** with the price | You do not own the theme. It opens the theme's detail page, where **Buy Theme** takes you to the payment screen. |
+| **Install Theme** | You own it but it is not installed. Installing also activates it. |
+| **Update Theme** | A newer version exists. |
+| **Activate Theme** | It is installed but not in use. Activating sets it as the active frontend or dashboard theme, depending on its type. |
+| **Activated** | It is the theme in use. The button is disabled. |
+
+The built-in **Default** theme is free and always available. Click **Activate Theme** on it to go back to the default look for both the public site and the dashboard.
+
+<Warning>
+  A theme that is bought, installed and then activated replaces the look of your frontend or dashboard for everyone. Try it with **Live Preview** first.
+</Warning>
+
+## Related
+
+- Enable SaaS billing from a plugin card: [SaaS overview](/saas/overview).
+- Branding without a theme: [Website content](/admin/website-content).

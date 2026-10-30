@@ -1,0 +1,150 @@
+---
+title: 'X (Twitter)'
+description: 'Register an X developer app, store its keys in MagicPost, connect X accounts, and publish posts with images, video and a first comment.'
+---
+
+MagicPost publishes to X with the X API and OAuth 2.0. You register one app in the X Developer Portal. Every user then connects their own X account through it.
+
+## What you need
+
+- An X developer account with an app. Which actions the app may perform depends on the access level of that developer account.
+- Your site served over HTTPS.
+- Access to **Admin** → **Publishing** → **Platforms**.
+
+## Register the app on X
+
+<Steps>
+  <Step title="Open your app">
+    Sign in to the [X Developer Portal](https://developer.x.com/en/portal/dashboard) and open your app, or create a Project with an app in it.
+  </Step>
+  <Step title="Get the redirect URI from MagicPost">
+    In MagicPost, go to **Admin** → **Publishing** → **Platforms** and click **Add credentials** on the **X (Twitter)** card. Under **What to register**, copy the **Redirect URI**. It looks like this:
+
+    ```text
+    https://your-domain.com/publishing/twitter/callback
+    ```
+  </Step>
+  <Step title="Set up user authentication">
+    In the X app, under **User authentication settings**, choose **Set up**. Set **App permissions** to **Read and write**. Set **Type of App** to **Web App, Automated App or Bot**.
+  </Step>
+  <Step title="Add the callback and website">
+    Add the redirect URI as a **Callback URI** and your site address as the **Website URL**. Save.
+  </Step>
+  <Step title="Copy the keys">
+    Open **Keys and tokens**. Copy the **OAuth 2.0 Client ID** and the **Client Secret**.
+  </Step>
+  <Step title="Store them in MagicPost">
+    Paste the ID into **Client ID** and the secret into **Client secret**. Tick **Available to users** and click **Save**. Then click **Run checks** and confirm the card shows **Live**.
+  </Step>
+</Steps>
+
+<Warning>
+The app must have **Read and write** permissions. A connection made without write permission fails the connection check with **This connection was not allowed to post. Reconnect the channel and allow posting.**
+</Warning>
+
+### Permissions MagicPost asks for
+
+| Permission | Used for |
+|---|---|
+| `tweet.read` | Reading post performance for analytics. |
+| `tweet.write` | Publishing posts and first comments. |
+| `users.read` | Reading the account's name, handle and picture. |
+| `media.write` | Uploading images and video. |
+| `offline.access` | Renewing the connection without asking the user to sign in again. |
+
+## Connect an X account
+
+<Steps>
+  <Step title="Open Channels">
+    Under **Publishing** in the sidebar, click **Channels**.
+  </Step>
+  <Step title="Add the account">
+    In **Add a channel**, click **X (Twitter)**. Sign in on X and approve access.
+  </Step>
+  <Step title="Confirm">
+    You return to **Channels**. The channel shows the account's handle and the **Active** label.
+  </Step>
+</Steps>
+
+Each X account is one **Profile** channel. When you connect, MagicPost reads whether the account has an X subscription and stores the answer. It is read again on every connection check.
+
+## What you can publish
+
+X has one post type, **Post**. A post needs text or media.
+
+| Setting | Limit |
+|---|---|
+| Text | 280 characters. Accounts with an X subscription, Basic included, can write up to 25,000. |
+| Images | 1 to 4 per post. jpg, jpeg, png, webp or gif. Up to 5 MB each. |
+| Video | 1 per post. mp4 or mov. Up to 8,192 MB. 1 to 1,200 seconds long. |
+| Mixed media | Not allowed. A post carries images or one video, not both. |
+| Post options | None. |
+| First comment | Yes. |
+
+### How X counts characters
+
+MagicPost counts the way X does, so the counter in the composer matches what X accepts.
+
+- Every link costs 23 characters, whatever its length.
+- Every emoji costs 2 characters.
+- Characters outside the Latin and general punctuation ranges, such as Chinese, Japanese and Korean text, cost 2 characters each.
+
+### Images and video
+
+- An image that is too large or in another format is converted automatically, see [Where limits come from](/channels/overview#where-limits-come-from). Animated GIFs are sent unchanged.
+- Alt text saved with an image in the media library is sent to X, limited to 1,000 characters.
+- Video and GIFs upload in parts and X processes them before the post goes out. The post shows that X is still processing and is retried until the media is ready.
+
+### First comment
+
+The first comment is published as a reply to the post from the same account, right after the post goes live. Set it in the **First comment and link** card of the composer, or per channel in **Settings for** the channel. If the reply fails, the post stays published and the failure is written to the application log.
+
+## Connection check
+
+The check on the **Channels** page reads these items.
+
+| Item | Result |
+|---|---|
+| **Account** | **Signed in as @handle.** |
+| **Posting** | Fails when the connection lacks `tweet.write`. |
+| **Images and video** | Warns when the connection lacks `media.write`, because posts with media would fail. |
+| **Visibility** | Warns when the account is protected, so only approved followers see its posts. |
+| **Post length** | States whether the account can write 280 or 25,000 characters. |
+
+## Reconnecting
+
+X access tokens renew automatically through `offline.access`. If X refuses the renewal, the channel becomes **Expired** and the owner is notified. A user reconnects with **Reconnect** on the channel, signing in with the same X account. See [Channel states](/channels/overview#channel-states).
+
+## Analytics
+
+| Level | Figures |
+|---|---|
+| Post | Likes, replies counted as comments, reposts plus quotes counted as shares, and impressions. |
+| Channel | Followers, following and number of posts. |
+
+Only public metrics are requested. See [Analytics](/user-guide/analytics).
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="The X developer account behind this app has used up its API allowance">
+    X answered with a usage cap. No wait clears it, so the post fails instead of retrying. Posting resumes once the allowance is topped up or the billing period renews. Check the access level of your X developer account.
+  </Accordion>
+  <Accordion title="X refuses a post with the same text as one already on the account">
+    X rejects text that matches a recent post. Change the text and send it again. When MagicPost retries a post and X reports a duplicate, it looks for the earlier post on the account. If it cannot confirm it, the post fails with **X refused this as a copy of a post already on the account, so an earlier attempt most likely went out.** Check X before you resend.
+  </Accordion>
+  <Accordion title="This connection cannot upload media">
+    The connection was made without `media.write`. Reconnect the channel after confirming the app has **Read and write** permissions.
+  </Accordion>
+  <Accordion title="X could not process the file">
+    X reported a processing failure for an image, GIF or video. Export the file again as an mp4 or a standard image and retry.
+  </Accordion>
+  <Accordion title="The connection expired">
+    X rejected the access token. Reconnect the channel.
+  </Accordion>
+  <Accordion title="Callback URI mismatch when connecting">
+    The callback registered in the X app differs from the **Redirect URI** in MagicPost. Copy it again from the setup panel and compare character by character.
+  </Accordion>
+</AccordionGroup>
+
+Rate limits (429) and X server errors are retried automatically. See [Failed posts](/troubleshooting/publishing-errors).

@@ -1,0 +1,151 @@
+---
+title: 'Braintree'
+description: 'Connect Braintree to MagicPost to take card and wallet payments for one-time and recurring plans through the Braintree Drop-in.'
+---
+
+Braintree supports every MagicPost plan type. Customers pay in the Braintree Drop-in on a MagicPost page. For Monthly and Yearly plans you create the plan in the Braintree Control Panel yourself, because Braintree has no API for creating plans.
+
+| Setting | Value |
+|---|---|
+| Settings page | **Admin → Finance → Payment Gateways → Braintree** |
+| Name at checkout | Braintree |
+| Test mode | **Mode → Sandbox**, with a Braintree sandbox account |
+| Webhook URL | `https://YOUR_DOMAIN/webhooks/braintree` |
+| Webhook events | Subscription charged successfully, subscription canceled, subscription expired |
+| Return URL | `https://YOUR_DOMAIN/app/user/payments/return/braintree`, called by the Drop-in page after the customer taps **Pay now** |
+| Cancel URL | `https://YOUR_DOMAIN/app/user/billing`, behind the **Cancel** link on the Drop-in page |
+| Currency | The currency of your Braintree merchant account |
+
+## Get your credentials from Braintree
+
+<Steps>
+  <Step title="Pick the environment">
+    Braintree has a sandbox and a production Control Panel, with separate accounts and credentials. Sign in to the one you are setting up.
+  </Step>
+  <Step title="Open the API keys">
+    Go to **Settings**, then **API**, and open your API keys.
+  </Step>
+  <Step title="Copy the credentials">
+    Copy the **Merchant ID**, the **Public Key** and the **Private Key**.
+  </Step>
+</Steps>
+
+<Warning>
+Keep the Private Key secret. MagicPost also uses it to check webhook notifications.
+</Warning>
+
+## Prepare the Braintree account
+
+<Steps>
+  <Step title="Add the custom fields">
+    MagicPost sends the custom fields `plan_db_id`, `plan_id` and `user_id` with every one-time sale, and `user_id` when it creates a customer for a subscription. Braintree only accepts custom fields that exist in your Control Panel, so add all three there and set them to store and pass back. Follow Braintree's [custom fields guide](https://developer.paypal.com/braintree/articles/control-panel/custom-fields). Without them the sale is rejected.
+  </Step>
+  <Step title="Create a plan for each recurring plan">
+    For every Monthly or Yearly plan in MagicPost, create a plan in the Braintree Control Panel under recurring billing. Use the **Plan ID** from the MagicPost plan as the plan ID in Braintree. You can read it under the plan's name on its **Edit Plan** page.
+
+    MagicPost looks for a Braintree plan whose ID matches, trying the Plan ID as written first and then a lowercase version with spaces and underscores replaced by dashes.
+  </Step>
+  <Step title="Match the billing frequency">
+    Set the Braintree plan to bill every month for a Monthly plan, or every 12 months for a Yearly plan. Braintree charges on the schedule of its own plan. MagicPost passes the MagicPost price when it creates each subscription.
+  </Step>
+</Steps>
+
+## Create the webhook in Braintree
+
+<Steps>
+  <Step title="Open the webhook settings">
+    In the Control Panel, go to **Settings**, then **Webhooks**, and create a new webhook.
+  </Step>
+  <Step title="Enter the URL">
+    Use the **Webhook URL** from the MagicPost Braintree page:
+
+    ```text
+    https://YOUR_DOMAIN/webhooks/braintree
+    ```
+  </Step>
+  <Step title="Select the notifications">
+    Select subscription charged successfully, subscription canceled and subscription expired.
+  </Step>
+</Steps>
+
+## Add the credentials in MagicPost
+
+<Steps>
+  <Step title="Open the Braintree card">
+    Go to **Admin → Finance → Payment Gateways** and click **Braintree**. The page is titled **Braintree Settings**.
+  </Step>
+  <Step title="Enable it">
+    Under **General**, turn on **Status**, then choose **Live** or **Sandbox** under **Mode**.
+  </Step>
+  <Step title="Paste the keys">
+    Under **Keys**, fill in:
+
+    - **Live Braintree Public Key**
+    - **Live Braintree Private Key**
+    - **Sandbox Braintree Public Key**
+    - **Sandbox Braintree Private Key**
+  </Step>
+  <Step title="Paste the Merchant ID">
+    Under **Account**, enter **Braintree Merchant ID**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. You see "Braintree settings saved successfully."
+  </Step>
+</Steps>
+
+<Note>
+There is a single **Braintree Merchant ID** field and MagicPost uses it for both modes. Braintree gives the sandbox and production accounts different merchant IDs, so update the field when you switch **Mode**.
+</Note>
+
+Notifications are verified with your Private Key. There is no separate webhook secret to enter.
+
+## How payments work
+
+**All plans.** MagicPost opens a page with the Braintree Drop-in. The customer enters a payment method and taps **Pay now**. Monthly and Yearly plans show a **Recurring** label. A **Cancel** link returns to the Billing page.
+
+**One-time plans (Prepaid, Lifetime).** MagicPost makes a Braintree sale for the plan price, submitted for settlement, using the payment method from the Drop-in. It records the order from the Braintree transaction ID. For Lifetime plans it also creates the subscription.
+
+**Recurring plans (Monthly, Yearly).** MagicPost creates a Braintree customer with the payment method, then a Braintree subscription on the matching plan. The Braintree subscription ID becomes the order reference and the subscription reference, and MagicPost stores the Braintree customer ID and payment method token with the subscriber.
+
+**Webhook.**
+
+- Subscription charged successfully extends the subscriber's period and renews the credit allowance.
+- Subscription canceled and subscription expired mark the subscription as cancelled.
+
+Cancelling a subscriber in MagicPost does not cancel the subscription in Braintree. Also cancel it in the Control Panel.
+
+## Currency
+
+MagicPost sends the plan price with two decimals and no currency code, so Braintree charges in the currency of your merchant account. Set the plan's currency to match it.
+
+## Test mode
+
+Create a Braintree sandbox account, enter its keys in the two **Sandbox** key fields and its Merchant ID in **Braintree Merchant ID**, select **Sandbox** under **Mode** and save. Create the custom fields, plans and webhook in the sandbox Control Panel as well. Switch **Mode** back to **Live** and update the Merchant ID before you sell.
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="This payment method is not available right now.">
+    **Status** is off for Braintree. Turn it on and save.
+  </Accordion>
+  <Accordion title="Braintree could not start the payment. Please try again.">
+    MagicPost could not get a client token. The Merchant ID, Public Key or Private Key for the active Mode is missing or wrong. The log says "Braintree credentials (merchant id / public / private key) are missing." when a field is empty.
+  </Accordion>
+  <Accordion title="No Braintree plan found matching any of [...]">
+    There is no plan in Braintree with the MagicPost Plan ID. Create it, then retry. The message lists the IDs MagicPost tried.
+  </Accordion>
+  <Accordion title="Braintree did not approve the payment: ...">
+    Braintree declined the sale. The message after the colon is Braintree's reason, for example a custom field that is not defined in your Control Panel.
+  </Accordion>
+  <Accordion title="Braintree subscription create failed: ... / Braintree customer create failed: ...">
+    Braintree refused the customer or the subscription. The reason follows the colon.
+  </Accordion>
+  <Accordion title="Missing Braintree payment nonce.">
+    The Drop-in did not send a payment method. Ask the customer to try again.
+  </Accordion>
+  <Accordion title="Braintree shows the webhook failing with status 400">
+    The body is `invalid signature`: the Private Key saved for the active Mode is not the one for the account that sent the notification.
+  </Accordion>
+</AccordionGroup>
+
+See also [Payment gateways](/gateways/overview) and [Billing problems](/troubleshooting/billing-and-payments).

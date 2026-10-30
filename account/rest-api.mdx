@@ -1,0 +1,462 @@
+---
+title: 'REST API'
+description: 'Reference for the MagicPost REST API: authentication, rate limits, every endpoint, request fields, response shapes and errors.'
+---
+
+The REST API lets your own scripts and tools read your account, channels, posts and analytics, and create or delete posts. It is the same data and the same checks you get in the app.
+
+- **Base URL:** your site address followed by `/api/v1`, for example `https://your-site.example/api/v1`.
+- **Format:** JSON in, JSON out.
+- **Version:** `v1`.
+
+<Note>
+The API is a plan feature called **API and webhooks**. See [API keys](/account/api-keys) for how to make a key and what happens when your plan does not include the feature.
+</Note>
+
+## Quick start
+
+<Steps>
+  <Step title="Make a key">
+    Create a key on the **API keys** page. Tick **Can also create and remove posts** if you want to create posts.
+  </Step>
+  <Step title="Find your channel ids">
+    Call `GET /channels` and note the `id` of each channel you want to post to.
+  </Step>
+  <Step title="Create a post">
+    Call `POST /posts` with some content and the channel ids.
+  </Step>
+</Steps>
+
+<CodeGroup>
+
+```bash cURL
+curl https://your-site.example/api/v1/channels \
+  -H "Authorization: Bearer mp_your_key" \
+  -H "Accept: application/json"
+
+curl -X POST https://your-site.example/api/v1/posts \
+  -H "Authorization: Bearer mp_your_key" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Hello", "channels": [12], "queue": true}'
+```
+
+```js JavaScript
+const base = 'https://your-site.example/api/v1';
+const headers = {
+  Authorization: 'Bearer mp_your_key',
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+};
+
+const channels = await fetch(`${base}/channels`, { headers }).then((r) => r.json());
+
+const response = await fetch(`${base}/posts`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify({ content: 'Hello', channels: [channels.data[0].id], queue: true }),
+});
+
+console.log(response.status, await response.json());
+```
+
+</CodeGroup>
+
+## Authentication
+
+Send your key as a bearer token on every request:
+
+```http
+Authorization: Bearer mp_your_key
+Accept: application/json
+```
+
+Always send `Accept: application/json`. Without it, validation errors and missing records can come back as web pages or redirects instead of JSON.
+
+| Property | Details |
+|---|---|
+| Key format | `mp_` followed by 40 characters |
+| Abilities | **read** for `GET` requests, **write** for `POST` and `DELETE` requests |
+| Expiry | 30 days, 90 days, 365 days or never, chosen when the key is made |
+| Revocation | Takes effect immediately |
+| Plan | The owner of the key needs **API and webhooks** in their plan. `GET /analytics` also needs **Analytics**. |
+
+A key acts as the account that made it and only ever sees that account's data. Another account's post returns `404`, as if it did not exist.
+
+## Rate limit
+
+Each key can make 60 requests a minute. Beyond that the API answers `429 Too Many Attempts.` with a `Retry-After` header that tells you how many seconds to wait. Successful responses carry `X-RateLimit-Limit` and `X-RateLimit-Remaining`.
+
+## Responses
+
+A single record comes back as `{ "data": { ... } }` and a list as `{ "data": [ ... ] }`. The post list adds `links` and `meta` for paging. Times are ISO 8601 strings, and the API returns them in UTC (`+00:00`).
+
+`DELETE /posts/{id}` returns `204` with no body.
+
+## Endpoints
+
+| Method | Path | Ability | What it does |
+|---|---|---|---|
+| `GET` | `/me` | read | Shows the account and the key in use |
+| `GET` | `/channels` | read | Lists your connected channels |
+| `GET` | `/analytics` | read | Headline figures for a period |
+| `GET` | `/posts` | read | Lists your posts |
+| `GET` | `/posts/{id}` | read | Shows one post with each channel's result |
+| `POST` | `/posts` | write | Creates a post |
+| `DELETE` | `/posts/{id}` | write | Removes a post |
+
+There is no endpoint to edit a post. To change one, delete it and create a new post, or edit it in the composer.
+
+### `GET /me`
+
+Returns your account and details of the key you used.
+
+```json
+{
+  "data": {
+    "id": 7,
+    "name": "Your Name",
+    "email": "you@example.com",
+    "timezone": "Europe/Berlin",
+    "key": {
+      "name": "Zapier",
+      "abilities": ["read", "write"],
+      "expires_at": "2030-01-15T08:30:00+00:00"
+    }
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `timezone` | Your time zone, or the workspace default if you have not chosen one |
+| `key.abilities` | `["read"]` or `["read", "write"]` |
+| `key.expires_at` | `null` when the key never expires |
+
+### `GET /channels`
+
+Returns every channel you have connected, sorted by network and then name. There are no parameters and no paging.
+
+```json
+{
+  "data": [
+    {
+      "id": 12,
+      "platform": "linkedin",
+      "name": "Acme Inc",
+      "username": "acme",
+      "type": "page",
+      "status": "active",
+      "avatar": "https://example.com/avatar.png",
+      "url": "https://example.com/acme"
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | The channel id to use in `POST /posts` |
+| `platform` | `twitter`, `linkedin`, `facebook`, `instagram`, `tiktok`, `youtube`, `pinterest`, `threads`, `whatsapp` or `telegram` |
+| `name`, `username` | The names the network reports for the account |
+| `type` | The kind of destination, as stored when you connected it |
+| `status` | `active`, `expired`, `disconnected` or `paused` |
+| `avatar`, `url` | The picture and profile address, when the network gives them |
+
+Only channels with the status `active` accept new posts. See [Connect channels](/user-guide/connect-channels).
+
+### `GET /analytics`
+
+Returns headline figures for the posts you published in a period, the same numbers as the Analytics page. The key's owner needs the **Analytics** feature, otherwise the API answers `403` with `Analytics is not part of your plan.`
+
+| Query parameter | Type | Details |
+|---|---|---|
+| `days` | integer | `7`, `30` or `90`. Default `30`. |
+| `channels` | array of integers | Limit the figures to these channel ids, for example `?channels[]=12&channels[]=14`. Ids that are not yours are ignored. |
+
+```json
+{
+  "data": {
+    "days": 30,
+    "summary": {
+      "published": 24,
+      "measured": 22,
+      "engagements": 318,
+      "impressions": 9400,
+      "reach": 7200,
+      "views": 1500,
+      "clicks": 64,
+      "likes": 240,
+      "comments": 31,
+      "shares": 47,
+      "engagement_rate": 3.38,
+      "followers": 1820,
+      "follower_change": 41
+    },
+    "previous": {
+      "published": 18,
+      "engagements": 251,
+      "impressions": 7800,
+      "engagement_rate": 3.22
+    },
+    "channels": [
+      {
+        "id": 12,
+        "name": "Acme Inc",
+        "platform": "linkedin",
+        "username": "acme",
+        "avatar": null,
+        "disconnected": false,
+        "published": 14,
+        "engagements": 190,
+        "impressions": 5200,
+        "reach": 4100,
+        "engagement_rate": 3.65,
+        "followers": 1100,
+        "follower_change": 25
+      }
+    ]
+  }
+}
+```
+
+| Block | Contents |
+|---|---|
+| `summary` | Totals for the period. `published` counts posts that went out, `measured` counts those with metrics. `engagement_rate` is a percentage and is `null` when there is no audience figure. `followers` is the audience as of the newest reading and `follower_change` is the change over the period. |
+| `previous` | The same headline figures for the period just before this one, so you can compare. |
+| `channels` | One entry per channel, best engagement first. It includes quiet channels and channels you disconnected that still have posts in the period (`disconnected` is `true`). |
+
+Each post counts its most recent measurement, so a like is never counted twice. Figures depend on what each network reports. See [Analytics](/user-guide/analytics).
+
+### `GET /posts`
+
+Lists your posts, newest first.
+
+| Query parameter | Type | Details |
+|---|---|---|
+| `status` | string | Only posts in this status: `draft`, `pending_approval`, `scheduled`, `paused`, `publishing`, `published`, `partially_published` or `failed` |
+| `per_page` | integer | 1 to 100. Default 25. |
+| `page` | integer | Page number, starting at 1 |
+
+Each item is a [post object](#the-post-object). The response also holds `links` (`first`, `last`, `prev`, `next`) and `meta` (`current_page`, `last_page`, `per_page`, `total` and more).
+
+### `GET /posts/{id}`
+
+Returns one post as a [post object](#the-post-object), with its media and the result for each channel. Posts that are not yours, and posts that were deleted, answer `404`.
+
+### `POST /posts`
+
+Creates one post for one or more channels. The post goes through the same checks as the composer. See [Composer](/user-guide/composer).
+
+| Field | Type | Details |
+|---|---|---|
+| `channels` | array of integers | **Required.** 1 to 50 channel ids. Channels that are not yours, not active, on a network switched off or outside your plan are left out. |
+| `content` | string | Optional, up to 20,000 characters. The caption sent to every channel. |
+| `scheduled_at` | date and time | Optional. When to publish, in ISO 8601 such as `2030-01-15T09:30:00+01:00`. Include the offset or `Z`: without one, the time is read as UTC. It must be in the future. |
+| `queue` | boolean | Optional. Takes the next free posting time of the channels. |
+| `publish_now` | boolean | Optional. Publishes straight away. |
+| `link` | string | Optional. An `http` or `https` URL, up to 2,048 characters. |
+| `first_comment` | string | Optional, up to 5,000 characters |
+| `labels` | array of strings | Optional. Up to 10 labels of up to 40 characters each. |
+| `media_ids` | array of integers | Optional. Up to 10 ids of files in your media library. Ids that are not yours are ignored. |
+| `media_urls` | array of strings | Optional. Up to 4 `https` addresses of pictures. MagicPost fetches each one and saves it in the **API** folder of your media library. |
+
+#### When the post goes out
+
+MagicPost reads the timing fields in this order and uses the first one that is set:
+
+| You send | What happens |
+|---|---|
+| `publish_now: true` | The post is saved and sent right away. The response shows its state at that moment, so use `GET /posts/{id}` or [webhooks](/account/webhooks) to learn the result. |
+| `scheduled_at` | The post is scheduled for that time. |
+| `queue: true` | The post takes the earliest free posting time among the chosen channels. Posting times are set on the Queue page. |
+| None of these | The post is saved as a **draft**. |
+
+<Note>
+If your team requires sign-off, a post that would be scheduled or published goes to `pending_approval` instead and waits for a reviewer. It is not sent until someone approves it. Drafts never need review. See [Approval workflow](/user-guide/approvals).
+</Note>
+
+#### Limits of API posts
+
+Every channel receives the same content and the network's default post type, with no per-channel text or options. A channel that requires an option the API cannot send answers with an `option_required` violation. Use the composer for those posts.
+
+`media_urls` accepts JPG, PNG and GIF pictures up to 5 MB, on a public `https` address.
+
+#### Example
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://your-site.example/api/v1/posts \
+  -H "Authorization: Bearer mp_your_key" \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "From the API",
+    "channels": [12],
+    "scheduled_at": "2030-01-15T09:30:00+01:00",
+    "labels": ["api"]
+  }'
+```
+
+```js JavaScript
+const response = await fetch('https://your-site.example/api/v1/posts', {
+  method: 'POST',
+  headers: {
+    Authorization: 'Bearer mp_your_key',
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    content: 'From the API',
+    channels: [12],
+    scheduled_at: '2030-01-15T09:30:00+01:00',
+    labels: ['api'],
+  }),
+});
+
+const { data } = await response.json();
+console.log(data.id, data.status);
+```
+
+</CodeGroup>
+
+The response is `201 Created` with the new [post object](#the-post-object).
+
+### `DELETE /posts/{id}`
+
+Removes a post from MagicPost and cancels what is still waiting to go out. Channel results that are pending, scheduled, paused or failed are skipped. A recurring post also cancels its upcoming occurrences. Anything already published stays on the network, because the API does not delete posts there.
+
+The response is `204 No Content`. A post that is not yours answers `404`.
+
+## Objects
+
+### The post object
+
+```json
+{
+  "id": 128,
+  "uuid": "9f1c4b0e-3a52-4c0e-8a3d-5f6f1d2a7b11",
+  "status": "scheduled",
+  "schedule_type": "scheduled",
+  "content": "From the API",
+  "first_comment": null,
+  "link": null,
+  "labels": ["api"],
+  "scheduled_at": "2030-01-15T08:30:00+00:00",
+  "published_at": null,
+  "created_at": "2029-12-01T10:00:00+00:00",
+  "media": [
+    { "id": 31, "type": "image", "name": "cover.jpg" }
+  ],
+  "targets": [
+    {
+      "channel_id": 12,
+      "platform": "linkedin",
+      "post_type": "post",
+      "status": "scheduled",
+      "scheduled_at": "2030-01-15T08:30:00+00:00",
+      "published_at": null,
+      "url": null,
+      "error": null
+    }
+  ],
+  "app_url": "https://your-site.example/app/user/publishing/posts/128"
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `id`, `uuid` | The post's numeric id and unique identifier |
+| `status` | `draft`, `pending_approval`, `scheduled`, `paused`, `publishing`, `published`, `partially_published` or `failed`. See [Posts and statuses](/user-guide/posts-and-statuses). |
+| `schedule_type` | `now`, `scheduled`, `queue` or `recurring` |
+| `content`, `first_comment`, `link` | The caption, first comment and link. A field is `null` when empty. |
+| `labels` | Array of strings |
+| `scheduled_at`, `published_at`, `created_at` | ISO 8601 times, `null` when not set yet |
+| `media` | Attached files: `id`, `type` (`image` or `video`) and `name` |
+| `targets` | One entry per channel, described below |
+| `app_url` | The post's page in the MagicPost app |
+
+Each entry in `targets`:
+
+| Field | Meaning |
+|---|---|
+| `channel_id`, `platform` | The channel and its network |
+| `post_type` | The post type used on that network |
+| `status` | `pending`, `scheduled`, `publishing`, `published`, `failed`, `skipped` or `paused` |
+| `scheduled_at`, `published_at` | Times for this channel |
+| `url` | Address of the live post on the network, once published |
+| `error` | The failure reason when the channel failed, otherwise `null` |
+
+`media` and `targets` are included on every endpoint that returns a post.
+
+## Errors
+
+Errors are JSON with a `message`.
+
+| Status | When | Body |
+|---|---|---|
+| `401` | The key is missing, unknown, revoked or expired | `{"message": "A valid API key is needed. Send it as a bearer token."}` |
+| `403` | A read-only key called `POST` or `DELETE` | `{"message": "This API key can only read. Make a key that can also write."}` |
+| `403` | The plan does not include API and webhooks | `{"message": "API and webhooks is not part of your plan."}` |
+| `403` | `GET /analytics` without the Analytics feature | `{"message": "Analytics is not part of your plan."}` |
+| `404` | The post does not exist or is not yours | |
+| `422` | A field failed validation, for example an unknown `status` filter or no `channels` | `message` and an `errors` object with one list per field |
+| `422` | The composer refused the post | `message` and `violations` |
+| `429` | More than 60 requests in a minute | `{"message": "Too Many Attempts."}` with `Retry-After` |
+
+### Validation errors
+
+```json
+{
+  "message": "The channels field is required.",
+  "errors": {
+    "channels": ["The channels field is required."]
+  }
+}
+```
+
+### Composer errors
+
+When a post breaks a channel's rules, `violations` lists the problems per channel id. Each has a `rule` code and a readable `message`.
+
+```json
+{
+  "message": "Some channels need attention before this post can be saved.",
+  "violations": {
+    "12": [
+      {
+        "rule": "caption_too_long",
+        "message": "X allows 280 characters, this caption has 480."
+      }
+    ]
+  }
+}
+```
+
+Other `422` messages for `POST /posts` have an empty `violations` list or none at all:
+
+| Message | Cause |
+|---|---|
+| `Pick at least one channel to publish to.` | None of the ids is a channel you can post to right now |
+| `That time has already passed. Pick a time in the future.` | `scheduled_at` is in the past |
+| `None of those channels has a free queue slot. Add posting times, or send a time instead.` | `queue` was set but no channel has a free posting time |
+| `Your plan covers 100 posts a month and you have used them all. Upgrade to keep posting.` | The monthly post limit is used up (the number is your plan's limit) |
+| `Your plan holds 50 posts in the schedule at a time. Publish or remove one to make room.` | The scheduled-ahead limit is full (the number is your plan's limit) |
+| `Creating posts is not included in your plan. Upgrade to start posting.` | Your plan's monthly post limit is 0 |
+| `The image at (address) could not be fetched.` | A `media_urls` address was not reachable, not a JPG, PNG or GIF, or larger than 5 MB |
+
+A problem while saving a picture, such as running out of media storage, comes back as a `422` with its own message.
+
+## Webhooks and the API
+
+Instead of polling `GET /posts/{id}`, you can receive an event the moment a post is published, fails or needs attention. See [Webhooks](/account/webhooks).
+
+<CardGroup cols={2}>
+  <Card title="API keys" icon="key" href="/account/api-keys">
+    Make, use and revoke keys.
+  </Card>
+  <Card title="Webhooks" icon="signal" href="/account/webhooks">
+    Receive events instead of polling.
+  </Card>
+</CardGroup>

@@ -1,0 +1,52 @@
+---
+title: 'Post-install checklist'
+description: 'The tasks to finish on the first day, in the order that makes the rest easier.'
+---
+
+The installer leaves you with a working site, but nothing is published until the cron job runs, and users cannot connect a channel until you have registered at least one network. Work through these tasks in order. Menu paths start from the admin sidebar.
+
+<Steps>
+  <Step title="Add the cron job">
+    Create a cron job that runs every minute. Without it, scheduled posts, token renewal, webhooks and feeds all stand still. Confirm it under **Publishing → Settings**: **System health** shows the **Cron job** line as passed once the scheduler has run. See [Cron and queue](/installation/cron-and-queue).
+  </Step>
+  <Step title="Change the default admin login">
+    Open your account menu at the bottom of the sidebar. Use **Profile** to set your own **Email address** and **Security → Password** to set a new password. The default `admin@example.com` and `admin12345` are public. See [Profile and security](/account/profile-and-security) to turn on two-factor authentication.
+  </Step>
+  <Step title="Set the site address">
+    In `.env`, set `APP_URL` to the public `https` address of the site. Networks send people back to this address after they connect a channel, and **System health** warns on the **Site address** line when it is wrong. See [Manual and .env setup](/installation/manual-setup).
+  </Step>
+  <Step title="Set the site name, URL and time zone">
+    Open **Platform → Backend Settings → Global Settings** and review **Website Name**, **Website URL**, **Default Main Theme** and **Time Zone**. See [Global settings](/admin/global-settings).
+  </Step>
+  <Step title="Configure email">
+    Open **Platform → Backend Settings → SMTP Settings**, fill in the SMTP details, save, and use **Test Connection** to send a test message. Registration emails, password resets and failed-post notices all depend on it. See [Email and SMTP](/admin/smtp).
+  </Step>
+  <Step title="Decide who can register">
+    Open **Platform → Backend Settings → Registration Settings** to set **User Registration**, **Email Verification** and **Subscribe During Registration**. Social sign-in is configured under **Auth Settings**. See [Registration and login](/admin/registration-and-login).
+  </Step>
+  <Step title="Register the networks">
+    Open **Publishing → Platforms** and add credentials for each network you want to offer, then tick **Available to users**. Users only see networks that are saved and enabled. See [Channel credentials](/admin/publishing-platforms) and [Publishing channels](/channels/overview).
+  </Step>
+  <Step title="Review publishing settings">
+    Open **Publishing → Settings** and review how posts are sent, the retry and waiting limits, the **Uploads** ceilings, the watermark and the **Default timezone**. Read the **System health** list and fix every failed line. See [Publishing settings](/admin/publishing-settings).
+  </Step>
+  <Step title="Turn on AI features (optional)">
+    Open **Publishing → Writing Models** and **Publishing → Media Models**, add a provider key and switch at least one model on. Until you do, **Write with AI** in the Composer tells users that an administrator needs to set it up. See [AI models](/admin/ai-models) and [Integrations](/integrations/overview).
+  </Step>
+  <Step title="Set registration credits and storage">
+    Open **Platform → General Settings** and review **Default Registration Credits** and **Default Storage**. Free tier limits and features are set on the **Free tier** page instead, which is part of the **Finance** menu. See [General settings](/admin/general-settings).
+  </Step>
+  <Step title="Brand the website">
+    Under **Platform → Frontend Settings** upload your **Logos**, fill in the **SEO Manager** and review **Pages**. Under **Platform → Backend Settings → GDPR Settings** set up the cookie notice. See [Website content](/admin/website-content) and [Privacy and cookies](/admin/privacy-gdpr).
+  </Step>
+  <Step title="Turn on billing (optional)">
+    If you plan to sell plans, open **Platform → General Settings**, go to the **Plugins** tab, open **SaaS Business** and switch on **Enable SaaS Business**. The **Finance** menu then appears, with **Pricing Plans**, **Free tier**, **Payment Gateways** and **Finance Settings**. See [SaaS overview](/saas/overview) and [Payment gateways](/gateways/overview).
+  </Step>
+  <Step title="Confirm the license">
+    Open **Platform → Activation** and check that the status reads **Activated**. See [License activation](/license/activation).
+  </Step>
+</Steps>
+
+<Tip>
+Do the first test post yourself before you invite users. The [Quickstart](/getting-started/quickstart) walks through it.
+</Tip>

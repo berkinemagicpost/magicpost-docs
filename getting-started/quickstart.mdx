@@ -1,0 +1,66 @@
+---
+title: 'Quickstart'
+description: 'Go from an empty server to your first published post, in the order an owner does it.'
+---
+
+This page follows the shortest path from upload to a live post. Each step links to the page with the full detail.
+
+<Steps>
+  <Step title="Check your hosting">
+    Confirm PHP 8.3 or newer, MySQL and the required extensions. See [Requirements](/getting-started/requirements).
+  </Step>
+  <Step title="Run the web installer">
+    Open `https://YOUR_DOMAIN/install`, follow the six steps, and enter your license key and Envato username when asked. The final screen shows the default admin login and the cron command. See [Web installer](/installation/web-installer).
+  </Step>
+  <Step title="Add the cron job">
+    Create a cron job that runs every minute and paste the command from the installer's last screen. Nothing is published until it runs. See [Cron and queue](/installation/cron-and-queue).
+  </Step>
+  <Step title="Sign in and secure the admin account">
+    Open `https://YOUR_DOMAIN/login` and sign in with the default admin account. Then change the email and password right away: open your account menu at the bottom of the sidebar, choose **Profile** to change the email, and **Security → Password** to change the password.
+  </Step>
+  <Step title="Register one network">
+    Pick the network you want to test first and create a developer app for it by following its page under [Publishing channels](/channels/overview). Then in the admin sidebar open **Publishing → Platforms** and do the following:
+
+    1. Click **Add credentials** on the network's card.
+    2. Copy the redirect URI shown under **What to register** and add it to the developer app.
+    3. Paste the app's ID and secret into the form.
+    4. Tick **Available to users** and click **Save**.
+    5. Click **Run checks** to confirm the credentials work.
+
+    The card changes to **Live** once the network is configured and enabled.
+  </Step>
+  <Step title="Connect a channel">
+    In the sidebar open **Channels**, click **Add a channel**, choose the network and authorise MagicPost. You return to the **Channels** page with the new channel listed under **Connected accounts**. If the authorisation covers several accounts, pick the ones you want and click **Connect**.
+  </Step>
+  <Step title="Publish a post">
+    Open **Composer**, choose the channel, type a caption under **Caption** and click **Publish now**. Confirm in the dialog that opens. To test the scheduler as well, open the **When** tab, choose **At a time**, set a time a few minutes ahead and click **Schedule** instead.
+  </Step>
+  <Step title="Check the result">
+    Open **Posts** to see the post and its status. Then open **Publishing → Settings** in the admin sidebar: **System health** lists anything that still stops posts from going out, and reads **Ready to publish** when nothing does.
+  </Step>
+</Steps>
+
+<Tip>
+Before you rely on a channel, open **Channels** and click **Check** on its card. Where the network allows it, the **Connection check** offers **Send a private test** so you can confirm posting works without publishing anything public.
+</Tip>
+
+<Note>
+Email verification, password resets and failed-post alerts need working mail. Configure SMTP under Platform → Backend Settings → SMTP Settings in the admin sidebar. While mail is only written to the log, **System health** reports **Email** as a warning.
+</Note>
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Post-install checklist" icon="list-check" href="/installation/post-install-checklist">
+    The ordered first-day tasks for a new install.
+  </Card>
+  <Card title="Composer" icon="pen-to-square" href="/user-guide/composer">
+    Per-channel captions, media, first comments and previews.
+  </Card>
+  <Card title="Connect channels" icon="share-nodes" href="/user-guide/connect-channels">
+    Health states, reconnecting and groups.
+  </Card>
+  <Card title="Admin panel overview" icon="gauge" href="/admin/overview">
+    Where every setting lives.
+  </Card>
+</CardGroup>

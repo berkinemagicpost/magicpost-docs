@@ -1,0 +1,75 @@
+---
+title: "Invoices"
+description: "Enter your company details under Finance, Invoice Settings, and learn how MagicPost numbers, builds and delivers PDF invoices for completed orders."
+---
+
+MagicPost produces a PDF invoice for every completed order. The seller details come from **Finance** → **Invoice Settings**, the buyer details from checkout, and the amount from the order.
+
+## Invoice settings
+
+Open **Finance** → **Invoice Settings**. The page subtitle reads: configure your invoice preferences. Everything sits in one **Company Information** card.
+
+| Field | Required | Notes |
+|---|---|---|
+| Company Name | Yes | Up to 255 characters. |
+| Company Website | Yes | Must be a valid URL, for example one starting with https. |
+| Business Address | Yes | Up to 255 characters. |
+| City | Yes | Up to 100 characters. |
+| State | No | Up to 100 characters. |
+| Postal Code | No | Up to 20 characters. |
+| Country | Yes | Pick from the searchable list. |
+| Phone Number | No | Up to 30 characters. |
+| VAT Number | No | Up to 50 characters. |
+
+<Steps>
+  <Step title="Fill in the card">
+    Enter your company details. The placeholders show the kind of value each field expects.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The message **Settings were saved successfully** confirms it.
+  </Step>
+</Steps>
+
+Until you save the form, the seller name on invoices falls back to the application name and the address block stays empty.
+
+## How an invoice is built
+
+| Part | Where it comes from |
+|---|---|
+| Invoice number | `INV.` followed by the order's internal number padded to five digits, for example `INV.00042`. It is stamped on the order when the order completes and never changes. |
+| Date and status | The order's creation date and its status. |
+| Seller | **Invoice Settings**. The company name, address, VAT number, phone and website. |
+| Buyer | The name, email, phone and address collected at checkout. If the name or email are empty, the customer's account name and email are used. |
+| Line item | The plan name, with its type and credit count, for example a Monthly plan with its credits. |
+| Tax | The **Default Tax %** from [Finance settings](/saas/finance-settings). When it is above 0, the charged amount is treated as tax-inclusive and the invoice breaks it into net price, tax and total. The total always equals what the customer paid. |
+| Footer notes | The order reference and the gateway used to pay. |
+| Logo | The dashboard light logo, or the frontend logo when that is missing. |
+
+Invoices are created on demand each time they are downloaded and are not stored as files. A change to **Invoice Settings** therefore shows on every invoice you or a customer download afterwards, including invoices for older orders. The order's number never changes.
+
+<Note>
+  The logo is only added when PHP's GD extension is available and the file is a PNG, JPEG, GIF or WebP image. Without a usable logo the invoice is still produced. Upload logos under [Website content](/admin/website-content).
+</Note>
+
+<Tip>
+  To print the customer's address on invoices, switch **Billing Information** on in [Finance settings](/saas/finance-settings). Otherwise the buyer block shows only the account name and email.
+</Tip>
+
+## Download an invoice
+
+Only completed orders have invoices. A pending, declined, cancelled or failed order has none.
+
+**As an admin**
+
+1. Go to **Finance** → **Orders**.
+2. Open the row actions of a completed order and choose **Download Invoice**, or open the order and click **Invoice**.
+
+**As a customer**
+
+Customers download their own invoices with the **Download** button in **Billing history** on the **Billing** page, from the page they land on after paying, and with the download icon in the **Recent billing** card on their Profile page. See [Billing and subscription](/account/billing).
+
+A customer can only download the invoices of their own orders. Admins can download any order's invoice.
+
+## Free and manual orders
+
+Free plan activations and orders you create with **Assign Subscription** are completed orders too, so they also get an invoice number and a downloadable invoice. A free activation shows an amount of 0.

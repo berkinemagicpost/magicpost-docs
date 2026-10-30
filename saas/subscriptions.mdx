@@ -1,0 +1,105 @@
+---
+title: "Subscriptions"
+description: "Review every subscription under Finance, Subscriptions, assign a plan to a user by hand, read subscription details and understand cancellation."
+---
+
+A subscription record links a user to a Monthly, Yearly or Lifetime plan. MagicPost reads a user's limits and features from their subscription, so this list is the source of truth for who has what. You manage it under **Finance** → **Subscriptions**.
+
+<Note>
+  Prepaid plans never create a subscription. They only add credits. See [Prepaid plans](/saas/prepaid-plans).
+</Note>
+
+## The subscriptions list
+
+The page title is **Subscriptions** and shows the total number of subscribers.
+
+| Column | Meaning |
+|---|---|
+| Subscriber | Avatar, name and email. |
+| Status | Active, Pending or Deactive. |
+| Plan | The plan name with its price. |
+| Plan Type | Monthly, Yearly or Lifetime. |
+| Gateway | How it was paid, for example Stripe, Paypal or Bank Transfer. Manual assignments show **Manual** and free plans show **Free**. |
+| Created | The date the subscription started. |
+
+You can search, sort, show or hide columns, and filter by **Status** with the options Active, Deactive, Cancelled, Pending and Ended.
+
+The list shows a cancelled subscription as **Deactive** and an ended one as **Pending**. Open the subscription to see its exact status.
+
+<Note>
+  A subscription gives access only while its status is Active and its renewal date is in the future. When a gateway stops renewing, access simply ends on that date.
+</Note>
+
+## Assign a subscription
+
+Use this to give a plan to a user without a checkout, for example for a manual sale or a goodwill upgrade. The user ends up in the same state as a paying subscriber: the order, the plan's credits, the plan's access and the subscriber group are all set.
+
+<Steps>
+  <Step title="Open the form">
+    Click **Assign Subscription** above the list.
+  </Step>
+  <Step title="Choose the user">
+    Pick someone in **User**. Admin accounts are not listed and cannot be assigned a subscription.
+  </Step>
+  <Step title="Choose the plan">
+    Pick a plan in **Plan**. Only Active and Hidden plans are listed, and hidden ones are marked **Hidden**. Once you choose a plan, a **Plan Summary** shows its type, price and credits.
+  </Step>
+  <Step title="Assign">
+    Click **Assign Subscription**. A message naming the user confirms it, and you return to the list.
+  </Step>
+</Steps>
+
+Monthly, Yearly and Lifetime plans create a subscriber record. Prepaid plans only grant credits.
+
+<Warning>
+  An assignment records a completed order at the plan's full price with the gateway **Manual**. It counts as revenue on the [Finance dashboard](/saas/finance-dashboard), receives an invoice number, and can earn a referrer a commission if the user was referred. To grant access without recording a sale, assign a plan priced at 0.
+</Warning>
+
+<Warning>
+  Assigning a Monthly, Yearly or Lifetime plan ends the user's previous active subscription. The old record is marked cancelled in MagicPost, but a recurring charge at a payment gateway is not stopped. Ask the user to cancel it, or cancel it in the gateway dashboard.
+</Warning>
+
+<Warning>
+  No gateway renews a manual assignment. A Monthly plan lasts one month and a Yearly plan one year, then the user returns to the [free tier](/saas/free-tier). A Lifetime plan lasts 50 years. Assign a Lifetime plan for access that should not lapse.
+</Warning>
+
+## View a subscription
+
+Open the row actions and choose **View**. The page shows two cards.
+
+**Subscription Details**
+
+| Field | Meaning |
+|---|---|
+| Subscription ID | MagicPost's own identifier. |
+| Payment Gateway | The gateway used. |
+| Subscription Type | Monthly, Yearly or Lifetime. |
+| Plan Name | The plan. |
+| Status | Pending, Ended, Active, Cancelled or Deactive. |
+| Gateway Subscription ID | The identifier on the gateway's side. For manual and free plans it holds MagicPost's own order reference. |
+| Price | The amount due per cycle. |
+| Included Credits | The plan's credits when the subscription started. |
+
+**Customer**
+
+| Field | Meaning |
+|---|---|
+| Name and email | The subscriber. |
+| Next Subscription Renewal Date | When the current period ends, shown as a relative time. |
+| Credits Left | The plan allowance, with the credit pack balance in brackets as prepaid credits. |
+
+## Delete a subscription
+
+Open the row actions, choose **Delete** and confirm. Only the subscription record is removed. Because limits and features are read from this record, the user loses the plan's access immediately and falls back to the free tier. Deleting does not cancel a recurring charge at the gateway.
+
+## How cancellation works
+
+Customers cancel from their **Billing** page. See [Billing and subscription](/account/billing). When they do:
+
+1. For Monthly and Yearly plans, MagicPost asks the gateway to stop the recurring schedule. If the gateway cannot be reached or does not support remote cancellation, this step is skipped.
+2. The subscription is marked **Cancelled** and its access period ends immediately.
+3. The user returns to the base user group and loses the plan.
+
+Steps 2 and 3 always happen, so a customer is never stuck on a plan because a gateway was unreachable. Lifetime plans never contact the gateway.
+
+For most gateways, a cancellation reported by the gateway through its webhook marks the record Cancelled as well. See [Payment gateways](/gateways/overview).

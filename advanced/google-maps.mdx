@@ -1,0 +1,46 @@
+---
+title: 'Google Maps'
+description: 'Add a Google Maps API key so the Accounts Dashboard can draw a map of where your registered users come from.'
+---
+
+The Google Maps key is used in one place: the **Registered User Countries** card on **Admin → Accounts → Dashboard**. With the key and the switch on, the card shows a world map shaded by how many registered users live in each country. Nothing else in MagicPost uses the key.
+
+Without it, the card shows "Google Maps is Disabled" where the map would be. The **Top 20 Countries** list beside it still works, because it comes from your own user records.
+
+## Set it up
+
+<Steps>
+  <Step title="Create a project and enable the API">
+    In the [Google Cloud console](https://console.cloud.google.com/), select or create a project. Open **APIs & Services → Library**, find **Maps JavaScript API** and enable it.
+  </Step>
+  <Step title="Create an API key">
+    Open **APIs & Services → Credentials**, select **Create credentials → API key**, and copy the key.
+  </Step>
+  <Step title="Restrict the key">
+    Edit the key and restrict it to **Maps JavaScript API** and to your site address as an HTTP referrer. MagicPost writes the key into the page source of the Accounts Dashboard, so a restriction keeps it from being used elsewhere.
+  </Step>
+  <Step title="Add the key in MagicPost">
+    Go to **Admin → Backend Settings → Global Settings** and find the **Google Maps** block. Switch on **Enable Google Maps**, paste the key into **Google Maps API Key**, and select **Save**. The key is required while the switch is on.
+  </Step>
+  <Step title="Check the dashboard">
+    Open **Admin → Accounts → Dashboard** and scroll to **Registered User Countries**.
+  </Step>
+</Steps>
+
+<Note>
+  The map is drawn with Google Charts, which takes the key as its `mapsApiKey` setting. Google states that this key may be required for geocoding or non-standard region codes. See Google's [GeoChart documentation](https://developers.google.com/chart/interactive/docs/gallery/geochart).
+</Note>
+
+## What the map counts
+
+The map is built from the country saved on each user account. Each country is shaded by how many accounts list it.
+
+## Fix problems
+
+| What you see | Cause and fix |
+|---|---|
+| "Google Maps is Disabled" | **Enable Google Maps** is off in Global Settings. Switch it on and save. |
+| The card is empty or shows a Google error | The key is wrong, the API is not enabled, or the key's restriction does not match your site address. Open your browser's developer console on the page. Google's message names the cause. |
+| A validation message when you save | **Google Maps API Key** is empty while the switch is on. |
+
+See [Global settings](/admin/global-settings) for the other fields on the page, and [Users](/admin/users) for the accounts dashboard.

@@ -1,0 +1,101 @@
+---
+title: 'OpenAI'
+description: 'Add an OpenAI API key so MagicPost can write captions with GPT models and create or edit pictures.'
+---
+
+One OpenAI key covers two parts of MagicPost:
+
+- **Writing models** draft captions, adapt a post for several networks and write alt text for pictures.
+- **A picture model** creates new pictures and edits pictures from your media library.
+
+OpenAI has no video model in MagicPost. Use [Google Gemini](/integrations/ai/gemini), [xAI Grok](/integrations/ai/xai) or [fal.ai](/integrations/ai/fal) for clips.
+
+<Note>
+There is one OpenAI key. The **OpenAI GPT** field on **Writing Models** and the **OpenAI** field on **Media Models** read and write the same stored key.
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have an OpenAI account on the API platform with billing set up. OpenAI bills you directly for every request. This is separate from the credits your users spend in MagicPost.
+
+## Get an API key
+
+<Steps>
+  <Step title="Sign in to the API platform">
+    Go to [platform.openai.com](https://platform.openai.com/) and sign in. This is the API platform, not the ChatGPT app.
+  </Step>
+  <Step title="Set up billing">
+    Add a payment method or a credit balance in your billing settings so requests can go through.
+  </Step>
+  <Step title="Open the API keys page">
+    Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys). If your account uses projects, select the project that should own the key.
+  </Step>
+  <Step title="Create the key">
+    Click **Create new secret key**, name it (for example, MagicPost) and create it. If you restrict the key's permissions, allow chat completions and image generation and editing.
+
+    <Warning>
+    OpenAI shows the full key only once. Copy it now. If you lose it, create a new key.
+    </Warning>
+  </Step>
+</Steps>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open Writing Models">
+    Go to **Admin → Publishing → Writing Models**.
+  </Step>
+  <Step title="Paste the key">
+    In the **Provider keys** box, paste the key into the **OpenAI GPT** field and click **Save keys**. The toast reads **Keys saved.** and the OpenAI GPT card shows **Key stored**.
+  </Step>
+  <Step title="Switch on the models">
+    Turn on the switch next to each model you want to offer. Click **Test** on one of them. MagicPost sends a one-word request and shows either that the model answered or the error OpenAI returned.
+  </Step>
+  <Step title="Check the picture model">
+    Open **Admin → Publishing → Media Models**. The **OpenAI** field already holds the same key and the card shows **Key stored**. Switch on the picture model and click **Test**. MagicPost asks for one small picture, so the test makes a real, billable request.
+  </Step>
+</Steps>
+
+<Tip>
+**Test** works whether or not the model's switch is on, so you can check a model before users can see it.
+</Tip>
+
+## Starting models
+
+The installer loads this list. Identifiers are as shipped and can be corrected later (see [Model identifiers](/integrations/overview#model-identifiers)). Credits are MagicPost credits, not OpenAI prices, and you can change them on the model.
+
+**Writing Models**
+
+| Model | Identifier | Tier | Starting credits per run |
+|---|---|---|---|
+| GPT-5.5 | `gpt-5.5` | Premium | 3 |
+| GPT-5.4 | `gpt-5.4` | Premium | 2 |
+| GPT-5.4 Mini | `gpt-5.4-mini` | Standard | 1 |
+| GPT-5.4 Nano | `gpt-5.4-nano` | Fast | 1 |
+
+**Media Models**
+
+| Model | Identifier | Does | Starting credits per picture |
+|---|---|---|---|
+| GPT Image 2.5 Flare | `gpt-image-2.5-flare` | New pictures and edits, up to 4 per request, shapes 1:1, 3:2 and 2:3 | 4 |
+
+## How MagicPost calls OpenAI
+
+- Writing uses OpenAI's chat completions endpoint. Models that reason (identifiers starting with `o` and a digit, or `gpt-5` and later, except `-chat` variants) are sent a low reasoning effort and extra room in the token limit, and no temperature.
+- If OpenAI rejects `temperature` or `reasoning_effort` by name, MagicPost sends the request again without it and remembers that for the model. The **Test** result then reads that the model turned down those settings, so they are no longer sent.
+- Pictures use OpenAI's image generation endpoint, or its image edit endpoint when the user starts from a picture. Wider-than-tall requests are made at 1536x1024, taller-than-wide at 1024x1536 and square at 1024x1024.
+- Attaching pictures to a caption request needs a model that can look at pictures. MagicPost recognizes this from the identifier. If a model cannot, users see that the model cannot look at pictures and are asked to pick another.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| **Keys saved.** but the card still reads **No key** | The OpenAI field was empty when you saved | Paste the key and click **Save keys** again |
+| **Test** says to add the OpenAI GPT API key first | No key is stored | Paste the key on **Writing Models** and save |
+| **Test** fails with an authentication message from OpenAI | The key is wrong, revoked, or its project cannot use the model | Create a new key and save it. Check the project and permissions |
+| **Test** fails with a not found or unknown model message | OpenAI no longer has that identifier | Click **Edit** and correct **Model identifier** |
+| The model returned nothing. Try again, or pick a different model. | The reply was empty, often because a reasoning model used its whole token limit or the reply was filtered | Try again or switch to another model |
+| Users see that no writing model is available | No model has both a stored key and its switch on | Store a key and switch at least one model on |
+| OpenAI returned no picture. | The request succeeded but no image came back | Try a different prompt or check the model on **Test** |
+| Keys stopped working after moving the site | `APP_KEY` changed, so the stored key cannot be decrypted | Paste the key again and click **Save keys** |

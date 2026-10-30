@@ -1,0 +1,94 @@
+---
+title: 'xAI Grok'
+description: 'Add an xAI API key so MagicPost can write captions with Grok, create and edit pictures, and make video clips.'
+---
+
+One xAI API key covers all three kinds of AI work in MagicPost:
+
+- **Writing models** draft captions, adapt a post for several networks and write alt text.
+- **Picture models** create new pictures and edit pictures from your media library.
+- **Video models** make short clips from a description or from a starting picture.
+
+<Note>
+There is one xAI key. The **xAI Grok** field on **Writing Models** and the **xAI** field on **Media Models** read and write the same stored key.
+</Note>
+
+## Before you start
+
+- You can sign in to the MagicPost admin panel.
+- You have an xAI account with API billing or credits set up. xAI bills you directly for every request. This is separate from the credits your users spend in MagicPost.
+
+## Get an API key
+
+<Steps>
+  <Step title="Sign in to the xAI Console">
+    Go to [console.x.ai](https://console.x.ai/) and sign in. API keys belong to a team, so make sure the team you want is selected.
+  </Step>
+  <Step title="Add billing or credits">
+    Open **Billing** and add a payment method or buy credits so requests can go through.
+  </Step>
+  <Step title="Create the key">
+    Open the **API Keys** page, create a key and give it a name (for example, MagicPost).
+
+    <Warning>
+    Copy the key as soon as it is shown. If you lose it, create a new key.
+    </Warning>
+  </Step>
+</Steps>
+
+## Add the key in MagicPost
+
+<Steps>
+  <Step title="Open Writing Models">
+    Go to **Admin → Publishing → Writing Models**.
+  </Step>
+  <Step title="Paste the key">
+    In the **Provider keys** box, paste the key into the **xAI Grok** field and click **Save keys**. The toast reads **Keys saved.** and the xAI Grok card shows **Key stored**.
+  </Step>
+  <Step title="Switch on the writing model">
+    Turn on the switch next to the Grok model, then click **Test**. MagicPost sends a one-word request and shows either that the model answered or the error xAI returned.
+  </Step>
+  <Step title="Check the picture and video models">
+    Open **Admin → Publishing → Media Models**. The **xAI** field already holds the same key and the card shows **Key stored**. Switch on the models you want. Click **Test** on the picture model. MagicPost asks for one small picture, so the test makes a real, billable request. Video models have no **Test** button.
+  </Step>
+</Steps>
+
+## Starting models
+
+The installer loads this list. Identifiers are as shipped and can be corrected later (see [Model identifiers](/integrations/overview#model-identifiers)). Credits are MagicPost credits, not xAI prices, and you can change them on the model.
+
+**Writing Models**
+
+| Model | Identifier | Tier | Starting credits per run |
+|---|---|---|---|
+| Grok 4.3 | `grok-4.3` | Premium | 2 |
+
+**Media Models**
+
+| Model | Identifier | Does | Starting credits |
+|---|---|---|---|
+| Grok Imagine 2.0 | `grok-imagine-image-2.0` | Pictures and edits, up to 4 per request, shapes 1:1, 3:2, 2:3, 16:9, 9:16 | 3 per picture |
+| Grok Imagine Video 1.5 | `grok-imagine-video-1.5` | Clips of 5, 8, 10 or 15 seconds in 16:9, 9:16 or 1:1, from a description or a starting picture | 3 per second |
+
+A clip costs its credits per second times its length. For example, a 10 second clip on Grok Imagine Video 1.5 starts at 30 credits.
+
+## How MagicPost calls xAI
+
+- Writing and pictures use xAI's API at `api.x.ai` with your key as a bearer token.
+- Grok 4 and later, and any model with `mini` in its identifier, always reason. MagicPost gives them extra room in the token limit. If xAI rejects `temperature` by name, MagicPost sends the request again without it and remembers that for the model.
+- Pictures can be edited by sending the source picture along with the prompt.
+- Clips are started as a request, and a background job asks xAI for the result and downloads the finished clip. Cron or a queue worker must be running. See [Cron and queue](/installation/cron-and-queue).
+- Grok 4 and later are treated as able to look at pictures attached to a caption request.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| **Keys saved.** but the card still reads **No key** | The field was empty when you saved | Paste the key and click **Save keys** again |
+| **Test** says to add the xAI Grok API key first | No key is stored | Paste the key on **Writing Models** and save |
+| **Test** fails with an authentication or permission message from xAI | The key is wrong, revoked, or its team cannot use the model | Create a new key in the right team and save it |
+| **Test** fails with a not found or unknown model message | xAI no longer has that identifier | Click **Edit** and correct **Model identifier** |
+| xAI returned no picture. It may have been held back by moderation. | The prompt was blocked | Change the prompt |
+| xAI finished without a video. It may have been held back by moderation. | The clip was blocked | Change the prompt or the starting picture |
+| xAI let the video expire before it could be fetched. | The clip finished but was not collected in time | Make the clip again and check that cron or the queue worker is running |
+| Keys stopped working after moving the site | `APP_KEY` changed, so the stored key cannot be decrypted | Paste the key again and click **Save keys** |

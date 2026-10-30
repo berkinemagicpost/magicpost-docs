@@ -1,0 +1,120 @@
+---
+title: 'Media library'
+description: 'Upload images and videos once and reuse them in any post: folders, alt text, size limits, storage quota, how files are adapted for each network, and the watermark.'
+---
+
+The media library holds every image and video you use in posts. Upload a file once and attach it to as many posts as you like.
+
+Open **Library → Media** in the sidebar. The page is titled **Media Library**, with the subtitle **Upload once, reuse across every post.**
+
+## What you can upload
+
+| Type | Formats |
+|---|---|
+| Images | JPG, JPEG, PNG, GIF, WEBP |
+| Video | MP4, MOV, WEBM, AVI, MKV |
+
+SVG files are refused, because they can carry scripts. A file whose content does not match its extension is also refused, with a message that it does not look like an image or a video and may be damaged or renamed from another format.
+
+The upload card lists the formats your site accepts, for example **Accepts JPG, JPEG, PNG, GIF, WEBP, MP4, MOV, WEBM, AVI, MKV**, and the size ceiling in the same line, for example **Images up to 25 MB · videos up to 2 GB**.
+
+<Note>
+Accepting a file in the library does not mean every network will take it. Each network has its own formats, sizes and lengths. The composer checks them before you save. See [Composer](/user-guide/composer) and [Publishing channels](/channels/overview).
+</Note>
+
+## Upload files
+
+<Steps>
+  <Step title="Choose where to put them (optional)">
+    Under **Upload to folder**, type a **Folder (optional)** name such as `Campaign assets`. New uploads are filed there. Leave it blank to keep them loose.
+  </Step>
+  <Step title="Add files">
+    Drag files onto the page and drop them when it reads **Drop to upload**, or select **Browse files**. You can send many files at once.
+  </Step>
+  <Step title="Watch the tray">
+    The upload tray shows each file as **Waiting**, **Uploading**, **Uploaded** or **Failed**, and the total, such as **Uploading 2 of 5**. Use **Cancel**, **Retry** or **Dismiss** on a file, or **Clear finished** to tidy the list.
+  </Step>
+</Steps>
+
+The composer's **Assets** panel has its own **Upload** button and accepts dropped files too. Dropped files go to the folder you have selected there.
+
+<Warning>
+Do not close the tab while files are uploading. The browser warns you before you leave.
+</Warning>
+
+### Large files
+
+Files are sent in pieces that fit under the server's own PHP upload limit, so a large video can get through even on a host that caps each request at a few megabytes. The size ceiling you are held to is the one your administrator sets under **Publishing → Settings → Uploads**, as **Images up to** and **Videos up to**. The defaults are 25 MB for images and 2,048 MB for videos. If the server's limit is smaller than that ceiling, files still go through in pieces. If a piece arrives damaged, you get a message that part of the file arrived damaged and to upload it again. Leftover pieces of an upload that was never finished are removed after 24 hours.
+
+A file larger than the ceiling is refused straight away, with a message that names the file, its size and the upload limit.
+
+### Videos
+
+A video is usable once it is uploaded. MagicPost then reads its length and makes a preview in the background, shown as **Processing** until done. This needs FFmpeg on the server. If your administrator has not installed it, the video can still be published, but its length was not checked and no preview was made. See [Video processing](/advanced/video-processing).
+
+## Browse and organise
+
+Filter the library with:
+
+- **Search files**, which matches file and folder names.
+- **All**, **Images** and **Videos**.
+- **Folder**, with **All folders** or one of your folders.
+- A sort menu: **Newest**, **Oldest**, **Name** or **Largest**.
+- **Grid** or **List** view. Grid shows 24 files per page, List shows 20.
+
+**Clear filters** resets them. A folder exists as soon as one of your files carries its name. Move files between folders with **Move to folder** and a folder name. Leave the name blank to take the files out of any folder.
+
+Select the checkbox on files to work on several at once. A toolbar offers **Move to folder**, **Delete** and **Clear**.
+
+### File actions
+
+Open a file's menu (**Actions for** the file) for:
+
+| Action | What it does |
+|---|---|
+| **Preview** | Opens a viewer with the file's details: **File**, **Size**, **Dimensions**, **Added**, **Type**, **Duration**, and **Alt text**. |
+| **Copy link** | Copies the file's public link. **Link copied.** confirms. |
+| **Download** | Downloads the original. |
+| **Rename** | Changes the name shown in the library. |
+| **Delete** | Deletes the file after you confirm. |
+
+### Alt text
+
+Open **Preview** on an image and fill in **Alt text**. Describe what the image shows for people who cannot see it. The text is up to 1,000 characters and is saved with the file, then sent with the image to the networks that take it. Pinterest keeps the first 500 characters. Select **Save alt text**. You can also write it in the composer, or ask the AI for a suggestion. See [AI writing and media](/user-guide/ai-tools).
+
+### Delete files
+
+Deleting asks **Delete this file?** and warns **This cannot be undone. Files attached to a post are kept.** A file attached to a post cannot be deleted, and you are told it is attached. When you delete several files, the result reads, for example, **2 files deleted** and **1 file is attached to a post and was kept**. Remove the file from the post first, or delete the post.
+
+## Create with AI
+
+**Create with AI** at the top right opens the media studio to make or edit pictures and clips. Everything you make is saved in a folder called **Made with AI**. If your plan does not include AI media, the button shows a lock. See [AI writing and media](/user-guide/ai-tools).
+
+## Storage quota
+
+When billing is turned on for the site, your plan sets how much media you can keep. The card at the top right shows your use as **N MB of N MB** with a bar, or **Unlimited**. At 90 percent the bar turns red and reads **Almost full**.
+
+When the library is full, uploads are refused with **Your N MB media library is full. Delete something or upgrade your plan.** If your plan includes no media storage, the message is **Uploading media is not included in your plan.** Browse and upload controls are disabled until you free space. Storage counts every file you own, including files made with AI. See [Billing and subscription](/account/billing).
+
+## How files are adapted for each network
+
+The file in your library is never changed. When a post goes out, MagicPost makes the copy each network will accept. This happens only for images, and only when needed:
+
+- **Converted** to a format the network lists, for example PNG to JPEG.
+- **Resized** to fit a size limit, or **Compressed** under a file size limit. A photo that is too large is shrunk rather than failing the post.
+- **Padded** to a shape the network takes, or **Cropped** to the shape you chose in the composer's **Alt text and crop** panel.
+- **Watermarked**, when the watermark is on.
+
+An animated GIF stays as it is on networks that accept GIFs, because converting it would keep only its first frame. MagicPost does not convert or resize videos. Copies are kept and reused while the rules and the watermark stay the same.
+
+The post page lists these changes under each channel, for example **Converted to JPG** or **Compressed under 5 MB**. See [Posts and statuses](/user-guide/posts-and-statuses).
+
+### Watermark
+
+Your administrator can place a watermark image on pictures as they go out. It is set under **Publishing → Settings → Watermark**, where the administrator uploads the image and chooses its **Position** and **Opacity**. The mark is placed at about a fifth of the picture's width. Images in the library stay as they are, and videos are sent without it.
+
+When billing is turned on for the site, a plan that includes **Watermark-free** removes it from your posts. Without billing, every image follows the setting. The composer preview shows the watermark when it applies.
+
+## Where files are stored
+
+Files are stored on the server, or in cloud storage if your administrator set that up. You do not need to do anything either way. See [File storage](/advanced/storage).

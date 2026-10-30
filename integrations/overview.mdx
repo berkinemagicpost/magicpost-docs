@@ -1,0 +1,112 @@
+---
+title: 'Integrations overview'
+description: 'The AI providers behind MagicPost writing and media tools, and the social accounts people can use to sign in. Where each key goes and what it unlocks.'
+---
+
+This section covers two kinds of third-party connections that you set up once as the administrator:
+
+- **AI providers** supply the models behind captions, post versions, alt text, pictures and video clips.
+- **Social login** lets people sign in or register with an existing Google, Facebook, X or LinkedIn account.
+
+<Note>
+Neither of these connects a social network for publishing. Publishing channels use their own developer apps and credentials under **Admin → Publishing → Platforms**. See [Publishing channels](/channels/overview) and [Channel credentials](/admin/publishing-platforms). Setting up LinkedIn login does not connect a LinkedIn channel, and the reverse.
+</Note>
+
+## AI providers
+
+MagicPost ships drivers for five providers. Providers that are not listed here cannot be used.
+
+| Provider | Writing | Pictures | Video | Where the key goes | Guide |
+|---|---|---|---|---|---|
+| OpenAI | Yes | Yes | No | **Writing Models**: OpenAI GPT. **Media Models**: OpenAI | [OpenAI](/integrations/ai/openai) |
+| Anthropic | Yes | No | No | **Writing Models**: Anthropic Claude | [Anthropic](/integrations/ai/anthropic) |
+| Google Gemini | Yes | Yes | Yes | **Writing Models**: Google Gemini. **Media Models**: Google | [Google Gemini](/integrations/ai/gemini) |
+| xAI Grok | Yes | Yes | Yes | **Writing Models**: xAI Grok. **Media Models**: xAI | [xAI Grok](/integrations/ai/xai) |
+| fal.ai | No | Yes | Yes | **Media Models**: fal.ai | [fal.ai](/integrations/ai/fal) |
+
+Writing means captions, versions of one post adapted for several networks, and alt text for pictures. Both pages are in the admin sidebar under **Publishing**: **Writing Models** and **Media Models**.
+
+### How AI keys work
+
+- Each provider has one key. The same key appears on both pages, so changing it on **Writing Models** also changes it on **Media Models**.
+- Keys are encrypted in the database. You do not put them in `.env`.
+- A model is offered to users only when its provider key is stored and the model's own switch is on. Each page tells you how many models are ready to use.
+- Every model has a credit price: credits per run for writing, credits per picture for pictures, credits per second for clips. MagicPost holds the credits when a run starts and charges only for what comes back. See [Credits and allowances](/saas/credits).
+- On installs that use plans, the **AI writing** and **AI media** plan features decide who can use them. See [Subscription plans](/saas/plans) and [Free tier](/saas/free-tier).
+- Pictures and clips are made by a background job, so cron or a queue worker must be running. See [Cron and queue](/installation/cron-and-queue). A clip that is not ready after 40 minutes is stopped and nothing is charged.
+- Providers bill you directly for every request. MagicPost credits are what your users spend, and they are separate from your provider balance.
+
+<Warning>
+The key fields on both pages show the stored key. If you clear a field and click **Save keys**, the stored key for that provider is removed.
+</Warning>
+
+<Note>
+Keys are encrypted with your site's `APP_KEY`. If you restore the database on an install with a different `APP_KEY`, the stored keys cannot be read and providers will reject them. Paste the keys again and click **Save keys**.
+</Note>
+
+### Model identifiers
+
+Providers rename and retire models. The **Model identifier** of each row must match the name in the provider's API exactly. When a **Test** reports an unknown model, click **Edit**, correct the identifier and save.
+
+<Warning>
+**Media Models** has a **Refresh the starting list** button. It matches rows by provider and identifier, so a starting row whose identifier you changed comes back under the original identifier, switched on. It also resets the display name, description, shapes, clip lengths and pictures per request of the starting rows. Credit prices, switches and fal.ai request mappings are kept.
+</Warning>
+
+For every field you can edit on a model, see [AI models](/admin/ai-models). For how users run these models, see [AI writing and media](/user-guide/ai-tools).
+
+## Social login
+
+Social login is configured on **Admin → Backend Settings → Auth Settings**. Each provider needs an app in its own developer console and four values in MagicPost.
+
+| Provider | Section in Auth Settings | Callback path | Guide |
+|---|---|---|---|
+| Google | Google | `/auth/google/callback` | [Google login](/integrations/login/google) |
+| Facebook | Facebook | `/auth/facebook/callback` | [Facebook login](/integrations/login/facebook) |
+| X | Twitter | `/auth/twitter/callback` | [X login](/integrations/login/x) |
+| LinkedIn | LinkedIn | `/auth/linkedin/callback` | [LinkedIn login](/integrations/login/linkedin) |
+
+The full callback address is your site address followed by the path, for example `https://your-domain.com/auth/google/callback`. Each provider section on Auth Settings shows the exact value in a read-only **Callback URL** field. Copy it from there.
+
+### What each Auth Settings section asks for
+
+| Field | What to enter |
+|---|---|
+| **Enable ... Login** | Switch for that provider |
+| API key or client ID | The provider's public identifier for your app |
+| API secret or client secret | The provider's secret for your app |
+| **Redirect URL** | The same address as **Callback URL**. MagicPost sends this value to the provider as the return address, so it must match the address registered in the provider console exactly |
+| **Callback URL** | Read-only. Copy it into the provider console as the authorized redirect URI |
+
+The credentials are stored in the database. Nothing goes in `.env`. When a provider is switched on, the key, secret and **Redirect URL** are all required.
+
+### How sign-in works
+
+1. The master switch **Login via Social (oAuth)** must be on. It saves as soon as you toggle it.
+2. A provider appears only when its **Enable** switch is on and both its key and secret are filled in.
+3. Buttons appear on the login page under **or continue with** and on the registration page under **or sign up with**.
+4. After the person approves, MagicPost looks for an account in this order:
+    - An account already linked to that provider identity signs in.
+    - An account with the same email address is linked to the provider and signs in.
+    - Otherwise a new account is created, but only if **User Registration** is on under **Admin → Backend Settings → Registration Settings**. New accounts get the standard user role and a verified email address.
+5. The provider must return an email address. If it does not, the sign-in is refused.
+6. Accounts that are banned or suspended are refused.
+
+### Messages people see
+
+| Message | Meaning |
+|---|---|
+| That social login option is not available. | The master switch or the provider switch is off, or the key or secret is empty |
+| Unable to start social login. Please try again later. | MagicPost could not build the provider's sign-in address. The error is written to the application log |
+| We could not complete the social login. Please try again. | The provider rejected the return trip. Check the secret, the redirect address and that the sign-in started and finished on the same site address |
+| Your social account did not share an email address, so we cannot sign you in. | The provider returned no email address |
+| Registration is currently closed, so a new account could not be created. | **User Registration** is off and no account with that email exists |
+| Your account is not active. Please contact support. | The matching account is banned or suspended |
+
+<CardGroup cols={2}>
+  <Card title="AI providers" icon="sparkles" href="/integrations/ai/openai">
+    Start with OpenAI, then add the providers you need.
+  </Card>
+  <Card title="Social login" icon="right-to-bracket" href="/integrations/login/google">
+    Start with Google, then add the providers you need.
+  </Card>
+</CardGroup>

@@ -1,0 +1,96 @@
+---
+title: "WAHA (self-hosted)"
+sidebarTitle: "WAHA"
+description: "Run a WAHA server, connect it to MagicPost, and link a WhatsApp number by scanning a QR code."
+---
+
+[WAHA](https://waha.devlike.pro/) is a WhatsApp HTTP API that you run on your own server. Each linked number is one session on that server. Users link a number the way they link WhatsApp Web, and MagicPost posts through it into groups, WhatsApp Channels and Status. WAHA is not an official WhatsApp API, see the warning on the [overview](/channels/whatsapp/overview).
+
+## What you need
+
+- A server with Docker, reachable from your MagicPost site.
+- WAHA 2026.6.1 or later, running the GOWS engine (or NOWEB with its store switched on).
+- An HTTPS address for WAHA, and a way for WAHA to reach your MagicPost site.
+- A phone with WhatsApp for every number that will be linked.
+
+## Part 1: Admin setup
+
+<Steps>
+  <Step title="Run WAHA">
+    Install Docker and follow WAHA's [quick start](https://waha.devlike.pro/docs/overview/quick-start/). It generates an `.env` file that holds your API key as `WAHA_API_KEY`:
+
+    ```bash
+    docker pull devlikeapro/waha
+    docker run --rm -v "$(pwd)":/app/env devlikeapro/waha init-waha /app/env
+    ```
+
+    Start the container with the GOWS engine:
+
+    ```bash
+    docker run -d --restart always --env-file "$(pwd)/.env" -e WHATSAPP_DEFAULT_ENGINE=GOWS -v "$(pwd)/sessions:/app/.sessions" -p 3000:3000 --name waha devlikeapro/waha
+    ```
+
+    For a server that stays up, follow WAHA's [install guide](https://waha.devlike.pro/docs/how-to/install/) too.
+  </Step>
+  <Step title="Serve WAHA over HTTPS">
+    Put a reverse proxy with a certificate in front of port 3000, so WAHA answers on an `https://` address.
+  </Step>
+  <Step title="Open the setup panel">
+    Go to **Admin → Publishing → Platforms**, click **Add credentials** on the **WhatsApp** card and choose **WAHA (self-hosted)** under **Kind of app**.
+  </Step>
+  <Step title="Fill in the fields">
+    - **Server URL**: the address WAHA answers on, starting with `https://`.
+    - **API key**: the `WAHA_API_KEY` from the `.env` file.
+    - **Webhook signing key**: leave it blank and MagicPost generates one.
+    - **Custom webhook URL**: leave it blank unless WAHA reaches your site at a different address.
+    - **Shortest gap** and **Longest gap**: keep 5 and 15 seconds, see [Pacing](/channels/whatsapp/overview#pacing).
+  </Step>
+  <Step title="Let WAHA reach the webhook">
+    Under **What to register**, the panel shows the **Webhook URL**:
+
+    ```text
+    https://your-domain.com/webhooks/whatsapp/waha
+    ```
+
+    You do not paste it into WAHA. MagicPost sets it on every session it creates, with the events it needs. The WAHA server only has to be able to reach this address.
+  </Step>
+  <Step title="Save, check and enable">
+    Click **Save**, then **Run checks** on the card. Every row should pass. Then tick **Available to users**, or use the switch on the card.
+  </Step>
+</Steps>
+
+## Part 2: Connect a number
+
+<Steps>
+  <Step title="Open Connect WhatsApp">
+    Go to **Publishing → Channels** and click **WhatsApp** in the **Add a channel** card.
+  </Step>
+  <Step title="Choose how to link">
+    Under **How to link**, pick **Scan a QR code** or **Enter a code on the phone**, then click **Start linking**.
+  </Step>
+  <Step title="Link on the phone">
+    On the phone with the number you want to post from, open WhatsApp and go to **Settings → Linked devices → Link a device**.
+
+    - For a QR code, point the phone at the code on the page. It renews every few seconds, so scan the newest one.
+    - For a code, choose to link with a phone number instead. On the page, type the number with the country code first, click **Get a code**, and enter the code on the phone.
+  </Step>
+  <Step title="Choose where to post">
+    When the page shows **Waiting for the phone** and then **Choose where to post**, tick the groups, WhatsApp Channels and Status you want and click **Connect**. Nothing is ticked at first. Each one you pick counts as a channel against the plan limit.
+  </Step>
+</Steps>
+
+MagicPost lists up to 500 groups per number. In a group where only admins may send, the group is listed only if the number is an admin.
+
+## Check it works
+
+As admin, **Run checks** shows **Server reachable** with WAHA's version and engine, and **API key accepted**. On the WEBJS engine the checks still pass, with a note that GOWS uses far less memory per number.
+
+As a user, open the actions menu of a channel in **Publishing → Channels** and click **Check connection**. The **Session** row says whether the number is linked.
+
+## If something goes wrong
+
+- **"The server could not be reached"** in **Run checks**: the **Server URL** is wrong, or MagicPost cannot reach the server. Check the address, the certificate and any firewall.
+- **"The server turned the key down"**: the **API key** does not match the `WAHA_API_KEY` the server was started with. Correct it on the card.
+- **Receipts and replies never show up**: WAHA cannot reach the **Webhook URL**. Check that the server can open it, then **Run checks** again.
+- **"WhatsApp is not linked on this number any more"**: the session was signed out. WhatsApp does this after about 14 days without the server online, so keep WAHA running. Use **Reconnect** on the channel and scan again.
+- **"That is a different number"**: reconnecting needs the number the channels belong to.

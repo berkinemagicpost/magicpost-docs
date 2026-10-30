@@ -1,0 +1,78 @@
+---
+title: "Email and SMTP"
+description: "Connect MagicPost to your mail server so verification links, support replies, failed-post alerts and other emails are actually delivered."
+---
+
+MagicPost sends email for account verification, password resets and notifications about posts and reviews. Out of the box it only writes those emails to a log, so nobody receives them until you connect a real mail server.
+
+<Warning>
+  Some hosts use different SMTP settings for each domain. Use the mailbox details that belong to the domain your site runs on.
+</Warning>
+
+## Set up SMTP in the admin panel
+
+<Steps>
+  <Step title="Open the page">
+    Go to **Platform**, **Backend Settings**, **SMTP Settings**.
+  </Step>
+  <Step title="Fill in the connection">
+    Fill in all seven fields. They are described in the table below the steps.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The confirmation reads "SMTP settings saved successfully".
+  </Step>
+  <Step title="Send a test email">
+    Click **Test Connection**. In the **Test SMTP Connection** window enter an **Email Address**, a **Subject** and a **Message** (up to 500 characters), then click **Send**.
+  </Step>
+</Steps>
+
+| Field | What to enter |
+|---|---|
+| **SMTP Host** | The mail server name from your host or email provider. |
+| **SMTP Port** | The port number. |
+| **SMTP Username** | The mailbox or API username. |
+| **SMTP Password** | The mailbox password or an app password. |
+| **Sender Email Address** | The address the emails come from. It must be a valid email address. |
+| **Sender Full Name** | The name recipients see. |
+| **SMTP Encryption** | **TLS** or **SSL**, see below. |
+
+Every field is required.
+
+Save before you test. The test sends through the settings that are saved, not the ones still on screen. "Test email successfully sent" means the mail server accepted the message. If you see "Your SMTP settings are not configured correctly yet", check the host, port, username, password and encryption.
+
+<Tip>
+  Create a dedicated mailbox for MagicPost with its own random password rather than reusing a personal one.
+</Tip>
+
+## TLS or SSL
+
+The **SMTP Encryption** choice maps to how MagicPost opens the connection:
+
+| Choice | Connection | Port you will usually use |
+|---|---|---|
+| **TLS** | STARTTLS: starts unencrypted and upgrades. | 587 |
+| **SSL** | Implicit TLS: encrypted from the first byte. | 465 |
+
+Your mail provider's documentation states the right port and encryption pair. Match them exactly. A mismatch is the most common reason a test fails.
+
+## Which settings win
+
+The SMTP form is the authoritative source. Whenever a saved row with a host exists, it overrides the mail values from `.env` for every email the site sends. The sender address and name are overridden only when you filled them in.
+
+If no row exists yet, or its host is blank, MagicPost falls back to the `.env` mail keys:
+
+```text
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+Those are the values in `.env.example`. With `MAIL_MAILER=log`, emails go to the log file instead of being sent. For all environment variables see [Environment variables](/advanced/environment-variables).
+
+## Check that email works
+
+The **Email** check in **System health** warns while emails are only written to the log and reports the host once SMTP is in place. Find it under [Publishing settings](/admin/publishing-settings) and see [System status](/admin/system-status).
