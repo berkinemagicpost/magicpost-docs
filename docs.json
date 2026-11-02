@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "maple",
   "name": "MagicPost",
   "colors": {
     "primary": "#0353A4",
@@ -8,10 +8,10 @@
     "dark": "#04437F"
   },
   "logo": {
-    "light": "/logo/logo-for-light.svg",
-    "dark": "/logo/logo-for-dark.svg"
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
   },
-  "favicon": "/logo/favicon.svg",
+  "favicon": "/logo/favicon.ico",
   "navigation": {
     "groups": [
       {
@@ -206,6 +206,43 @@
           "troubleshooting/faq"
         ]
       }
-    ]
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Buy MagicPost",
+          "href": "https://berkine.dev/scripts/magicpost",
+          "icon": "box-open"
+        },
+        {
+          "anchor": "Support Tickets",
+          "href": "https://support.berkine.dev/",
+          "icon": "square-info"
+        }
+      ]
+    }
+  },
+   "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "https://support.berkine.dev/"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Buy MagicPost",
+      "href": "https://berkine.dev/scripts/magicpost"
+    }
+  },
+  "seo": {
+      "indexing": "all"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/mintlify",
+      "youtube": "https://x.com/mintlify",
+      "linkedin": "https://linkedin.com/company/mintlify"
+    }
   }
 }
